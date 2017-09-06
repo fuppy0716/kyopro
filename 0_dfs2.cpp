@@ -23,24 +23,43 @@ const ll INF = 1e16;
 #define Sp(p) cout<<setprecision(15)<<fixed<<p<<endl;
 int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 
-//t時刻、d[v]vを最初に発見した時刻、f[v]vを調べ終わった時刻
+//t時刻、d[a][b](a,b)を最初に発見した時刻、f[a][b](a,b)を調べ終わった時刻、nt[a][b](a,b)の隣接4個中何個まで調べたか
 static const int H = 510, W = 510;
 int t = 0;
 vector< vector<char> > M(H, vector<char>(W, '#'));
-vii d(H, vi(W, -1)), f(H, vi(W, -1));
+vii d(H, vi(W, -1)), f(H, vi(W, -1)), nt(H, vi(W, 0));
 
-void dfs(pii now) {
-	int i;
-	for (i = 0; i < 4; i++) {
-		if (M[now.first + dx[i]][now.second + dy[i]] == '.' || M[now.first + dx[i]][now.second + dy[i]] == 'g') {
-			M[now.first + dx[i]][now.second + dy[i]] = '-';
-			d[now.first + dx[i]][now.second + dy[i]] = ++t;
-			dfs(make_pair(now.first + dx[i], now.second + dy[i]));
+pii search_next(pii now) {
+	while (nt[now.first][now.second] < 4) {
+		if (M[now.first + dy[nt[now.first][now.second]]][now.second + dx[nt[now.first][now.second]]] == '.' || M[now.first + dy[nt[now.first][now.second]]][now.second + dx[nt[now.first][now.second]]] == 'g') {
+			return make_pair(now.first + dy[nt[now.first][now.second]], now.second + dx[nt[now.first][now.second]]);
+		}
+		else {
+			nt[now.first][now.second]++;
 		}
 	}
-	M[now.first][now.second] = '#';
-	f[now.first][now.second] = ++t;
+	return make_pair(-1, -1);
 }
+
+void dfs(pii start) {
+	stack<pii> st;
+	st.push(start);
+	while (!st.empty()) {
+		pii now = st.top();
+		pii next = search_next(now);
+		if (next.first == -1) {
+			M[st.top().first][st.top().second] = '#';
+			f[st.top().first][st.top().second] = ++t;
+			st.pop();
+		}
+		else {
+			M[next.first][next.second] = '-';
+			d[next.first][next.second] = ++t;
+			st.push(make_pair(next.first, next.second));
+		}
+	}
+}
+
 
 int main() {
 	int h, w, i, j;
