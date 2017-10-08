@@ -50,6 +50,5 @@ bool bellman_ford(ll s) {
 
 		cnt += 1;
 	}
-
 	return false;
 }
