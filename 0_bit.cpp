@@ -1,6 +1,6 @@
 #include "bits/stdc++.h"
-#include <unordered_set>
 using namespace std;
+
 
 #define DEBUG(x) cout<<#x<<": "<<x<<endl;
 #define DEBUG_VEC(v) cout<<#v<<":";for(int i=0;i<v.size();i++) cout<<" "<<v[i]; cout<<endl
@@ -12,6 +12,7 @@ typedef long long ll;
 #define vll vector< vector<ll> >
 #define vs vector<string>
 #define pii pair<int,int>
+#define pll pair<ll,ll>
 #define pis pair<int,string>
 #define psi pair<string,int>
 const int inf = 1000000001;
@@ -23,33 +24,42 @@ const ll INF = 1e16;
 int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 
-#define N 1010
-#define M 2010
-struct edge { ll from, to, cost; };
-vector<edge> es(M);
-
-vl d(N,INF);
-ll n, m;
-
-//trueを返す場合、頂点以上に更新チェック→負のコストの閉ループあり
-bool bellman_ford(ll s) {
-	d[s] = 0;
-	ll cnt = 0;
-	bool updateFlag;
-	while (true) {
-		updateFlag = false;
-		for (i = 0; i < m; i++) {
-			if (d[es[i].from] != INF && d[es[i].to] > d[es[i].from] + es[i].cost) {
-				d[es[i].to] = d[es[i].from] + es[i].cost;
-				updateFlag = true;
-			}
+//nのkbit表現を表示する
+void print_bit(ll n, ll k) {
+	int m = (1 << (k - 1));;
+	while (m >= 1) {
+		if ((n&m)) {
+			cout << 1;
 		}
-
-		if (cnt == n - 1) return true;
-		if (!updateFlag) break;
-
-		cnt += 1;
+		else {
+			cout << 0;
+		}
+		m >>= 1;
 	}
+	cout << endl;
+}
 
-	return false;
+//nのビット表現の部分集合を列挙する。
+void part(ll n) {
+	ll m = n;
+	do {
+		print_bit(m, 8); //部分集合に対する処理
+		m = (m - 1)&n;
+	} while (m != n);
+}
+
+//{0,1,...,n-1}に含まれるサイズkの部分集合を列挙
+void part_size(ll n, ll k) {
+	int comb = (1 << k) - 1;
+	while (comb < 1 << n) {
+		print_bit(comb, 12);
+		int x = comb & -comb, y = comb + x;
+		comb = ((comb & ~y) / x >> 1) | y;
+	}
+}
+
+int main() {
+	part(45);
+	cout << endl << endl;
+	part_size(10, 4);
 }
