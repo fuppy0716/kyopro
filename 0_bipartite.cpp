@@ -22,10 +22,14 @@ const ll INF = 1e16;
 #define Sp(p) cout<<setprecision(15)<<fixed<<p<<endl;
 int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
+
 #define N 100010
-vii M(N, vi());
-ll n, m;
+vii M(N, vi()); //グラフの隣接リスト表現
+vi match(N); //マッチングのペア
+vector<bool> used(N); //DFSですでに調べたかのフラグ
+int n, m;
 vi color(N, -1);
+
 //二部グラフかどうかを判断
 bool bipartite() {
 	stack<int> st;
@@ -50,6 +54,36 @@ bool bipartite() {
 	}
 	//cout << "YES" << endl;
 	return true;
+}
+
+//マッチングに使う
+bool dfs(int v) {
+	used[v] = true;
+	for (int i = 0; i < M[v].size(); i++) {
+		int u = G[v][i], w = match[u];
+		if (w < 0 || !used[w] && dfs(w)) {
+			match[v] = u;
+			match[u] = v;
+			return true;
+		}
+	}
+	return false;
+}
+
+//二部グラフの最大マッチングを求める
+//二部グラフの最大マッチング = 最小点カバー = n-最小辺カバー = n-最大安定集合
+int bipartite_matching() {
+	int res = 0;
+	fill(match.begin(), match.end(), -1);
+	for (int v = 0; v < n; v++) {
+		if (match[v] < 0) {
+			fill(used.begin(), used.end(), 0);
+			if (dfs(v)) {
+				res++;
+			}
+		}
+	}
+	return res;
 }
 
 int main() {
