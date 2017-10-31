@@ -23,26 +23,36 @@ const ll INF = 1e16;
 int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 
-const ll MAX_N = 1 << 17;
-ll n;
+#define int ll
+const ll MAX_N = 1 << 13;
+int n;
 vl dat(2 * MAX_N - 1);
+vi a(MAX_N);
 
-void init(ll n_) {
-	n = 1;
-	//簡単のため、要素数nを2のべき乗にする
-	while (n < n_) n *= 2;
-	for (int i = 0; i < 2 * n - 1; i++) {
-		dat[i] = INF;
+void init(int k, int l, int r) {
+	if (r - l == 1) {
+		dat[k] = a[l];
+	}
+	else {
+		int lch = 2 * k + 1, rch = 2 * k + 2;
+		init(lch, l, (l + r) / 2);
+		init(rch, (l + r) / 2, r);
+		dat[k] = min(dat[lch], dat[rch]);
 	}
 }
 
 //k番目の値をaに変更
-void update(int k, int a) {
-	k += n - 1;
-	dat[k] = a;
-	while (k > 0) {
-		k = (k - 1) / 2;
-		dat[k] = min(dat[k * 2 + 1], dat[k * 2 + 2]);
+void update(int k, int a, int v, int l, int r) {
+	if (r - l == 1) {
+		dat[v] = a;
+	}
+	else {
+		if (k < (l + r) / 2)
+			update(k, a, 2 * v + 1, l, (l + r) / 2);
+		else {
+			update(k, a, 2 * v + 2, (l + r) / 2, r);
+		}
+		dat[v] = min(dat[v * 2 + 1], dat[v * 2 + 2]);
 	}
 }
 
@@ -52,7 +62,7 @@ void update(int k, int a) {
 //従って、外からはquery(a,b,0,0,n)としてよぶ
 int query(int a, int b, int k, int l, int r) {
 	if (r <= a || b <= l) {
-		return INF;
+		return inf;
 	}
 	if (a <= l && r <= b) {
 		return dat[k];
@@ -64,16 +74,36 @@ int query(int a, int b, int k, int l, int r) {
 	}
 }
 
-int main() {
-	init(8);
-	update(0, 5);
-	update(1, 3);
-	update(2, 7);
-	update(3, 9);
-	update(4, 6);
-	update(5, 4);
-	update(6, 1);
-	update(7, 2);
-
-	cout << query(2, 7, 0, 0, n) << endl;
+signed main() {
+	int _n, x, i, j;
+	scanf("%lld%lld", &_n, &x);
+	a.resize(2 * _n);
+	vi b(_n);
+	for (i = 0; i < _n; i++) {
+		scanf("%lld", &b[i]);
+	}
+	n = 2 * _n;
+	init(0, 0, n);
+	for (i = 0; i < _n; i++) {
+		update(i, b[i], 0, 0, n);
+		update(i + _n, b[i], 0, 0, n);
+	}
+	ll ans = INF;
+	for (i = 0; i < _n; i++) {
+		ll res = 0;
+		res += i*x;
+		for (j = 0; j < _n; j++) {
+			res += query(j, j + i + 1, 0, 0, n);
+		}
+		ans = min(ans, res);
+	}
+	for (i = 0; i < _n; i++) {
+		ll res = 0;
+		res += i*x;
+		for (j = _n; j < 2 * _n; j++) {
+			res += query(j - i, j + 1, 0, 0, n);
+		}
+		ans = min(ans, res);
+	}
+	printf("%lld\n", ans);
 }
