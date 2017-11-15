@@ -29,6 +29,7 @@ int n;
 vl dat(2 * MAX_N - 1);
 vi a(MAX_N);
 
+//rmqに使用
 void init(int k, int l, int r) {
 	if (r - l == 1) {
 		dat[k] = a[l];
@@ -42,6 +43,7 @@ void init(int k, int l, int r) {
 }
 
 //k番目の値をaに変更
+//rmqに使用
 void update(int k, int a, int v, int l, int r) {
 	if (r - l == 1) {
 		dat[v] = a;
@@ -56,6 +58,7 @@ void update(int k, int a, int v, int l, int r) {
 	}
 }
 
+//rmqに使用
 //[a,b)の最小値を求める
 //後ろのほうの引数は計算の簡単のための引数
 //kは接点の番号,l,rはその接点が[l,r)に対応していることを表す
@@ -71,6 +74,36 @@ int query(int a, int b, int k, int l, int r) {
 		ll ul = query(a, b, k * 2 + 1, l, (l + r) / 2);
 		ll ur = query(a, b, k * 2 + 2, (l + r) / 2, r);
 		return min(ul, ur);
+	}
+}
+
+//sumに使用
+//[a,b)にxを加算
+void add(int a, int b, ll x, int v, int l, int r) {
+	if (a <= l && r <= b) {
+		dat[v] += x;
+	}
+	else if (l < b && a < r) {
+		datb[v] += (min(b, r) - max(a, l))*x;
+		add(a, b, x, v * 2 + 1, l, (l + r) / 2);
+		add(a, b, x, v * 2 + 2, (l + r) / 2, r);
+	}
+}
+
+//sumに使用
+//[a,b)の総和を求める
+ll sum(int a, int b, int v, int l, int r) {
+	if (r <= a || b <= l) {
+		return 0;
+	}
+	else if (a <= l && r <= b) {
+		return dat[v] * (r - l) + datb[v];
+	}
+	else {
+		ll res = (min(b, r) - max(a, l)) * dat[v];
+		res += sum(a, b, v * 2 + 1, l, (l + r) / 2);
+		res += sum(a, b, v * 2 + 2, (l + r) / 2, r);
+		return res;
 	}
 }
 
