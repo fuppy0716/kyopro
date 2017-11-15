@@ -91,6 +91,7 @@ int main() {
 			num++;
 		}
 	}
+
 	fill(used.begin(), used.end(), false);
 	rdfs(u, 0);
 	for (int v = 0; v < n; v++) {
