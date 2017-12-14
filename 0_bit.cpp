@@ -24,9 +24,16 @@ const ll INF = 1e16;
 int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 
+/*
+xの一番下に立っているビットの求め方
+x & -x;
+
+*/
+
+
 //nのkbit表現を表示する
 void print_bit(ll n, ll k) {
-	int m = (1 << (k - 1));;
+	ll m = (1LL << (k - 1));;
 	while (m >= 1) {
 		if ((n&m)) {
 			cout << 1;
@@ -50,13 +57,15 @@ void part(ll n) {
 
 //{0,1,...,n-1}に含まれるサイズkの部分集合を列挙
 void part_size(ll n, ll k) {
-	int comb = (1 << k) - 1;
-	while (comb < 1 << n) {
+	int comb = (1LL << k) - 1;
+	while (comb < 1LL << n) {
 		print_bit(comb, 12);
 		int x = comb & -comb, y = comb + x;
 		comb = ((comb & ~y) / x >> 1) | y;
 	}
 }
+
+
 
 int main() {
 	part(45);
