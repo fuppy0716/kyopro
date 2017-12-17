@@ -123,3 +123,44 @@ int main() {
 		cout << buyd << " " << selld << endl;
 	}
 }
+
+
+
+int main() {
+	int n, d, k, i, j;
+	cin >> n >> d >> k;
+	vl x(n);
+	for (i = 0; i < n; i++) {
+		cin >> x[i];
+	}
+	ll ans = 0;
+	ll buyd, selld;
+	deque<int> dq;
+	for (i = 0; i <= d; i++) {
+		while (!dq.empty() && x[dq.back()] < x[i]) {
+			dq.pop_back();
+		}
+		dq.push_back(i);
+	}
+	for (i = 0; i < n; i++) {
+		if (ans < (x[dq[0]] - x[i])*k) {
+			ans = (x[dq[0]] - x[i])*k;
+			buyd = i;
+			selld = dq[0];
+		}
+		if (i + d + 1 < n) {
+			while (!dq.empty() && x[dq.back()] < x[i + d + 1]) {
+				dq.pop_back();
+			}
+			dq.push_back(i + d + 1);
+		}
+		dq.push_back(i + d + 1);
+		while (!dq.empty() && dq.front() <= i) {
+			dq.pop_front();
+		}
+	}
+	cout << ans << endl;
+	if (ans) {
+		cout << buyd << " " << selld << endl;
+	}
+}
