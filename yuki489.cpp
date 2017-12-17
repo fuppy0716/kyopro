@@ -135,6 +135,8 @@ int main() {
 	}
 	ll ans = 0;
 	ll buyd, selld;
+
+	//ここからスライド最大値
 	deque<int> dq;
 	for (i = 0; i <= d; i++) {
 		while (!dq.empty() && x[dq.back()] < x[i]) {
