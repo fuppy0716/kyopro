@@ -73,6 +73,7 @@ int scc() {
 	return k;
 }
 
+
 int main() {
 	int m, i, j;
 	scanf("%d%d", &n, &m);
