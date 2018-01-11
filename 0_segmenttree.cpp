@@ -23,12 +23,15 @@ const ll INF = 1e16;
 int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 
+//rmq に使用
 #define int ll
 const ll MAX_N = 1 << 13;
 int n;
 vl dat(2 * MAX_N - 1);
 vi a(MAX_N);
 
+
+//rmqに使用
 void init(int k, int l, int r) {
 	if (r - l == 1) {
 		dat[k] = a[l];
@@ -42,6 +45,7 @@ void init(int k, int l, int r) {
 }
 
 //k番目の値をaに変更
+//rmqに使用
 void update(int k, int a, int v, int l, int r) {
 	if (r - l == 1) {
 		dat[v] = a;
@@ -56,6 +60,7 @@ void update(int k, int a, int v, int l, int r) {
 	}
 }
 
+//rmqに使用
 //[a,b)の最小値を求める
 //後ろのほうの引数は計算の簡単のための引数
 //kは接点の番号,l,rはその接点が[l,r)に対応していることを表す
