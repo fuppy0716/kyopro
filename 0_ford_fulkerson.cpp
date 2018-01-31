@@ -23,14 +23,14 @@ int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 
 // 辺を表す構造体 {行先、容量、逆辺}
-struct edge { int to, cap, rev; };
+struct edge { int to; ll cap; int rev; };
 #define V 1010
 int s, t; //sがstart, tがgoal
 vector< vector<edge> > G(V, vector<edge>());; //グラフの隣接リスト表現
 vector<bool> used(V); //DEFで調べたかのフラグ
 
 					  //fromからtoへ向かう容量capの辺をグラフに追加する
-void add_edge(int from, int to, int cap) {
+void add_edge(int from, int to, ll cap) {
 	edge a;
 	a.to = to; a.cap = cap; a.rev = G[to].size();
 	G[from].push_back(a);
@@ -38,7 +38,7 @@ void add_edge(int from, int to, int cap) {
 	G[to].push_back(a);
 }
 
-int dfs(int v, int t, int f) {
+ll dfs(int v, int t, ll f) {
 	if (v == t) {
 		return f;
 	}
@@ -46,7 +46,7 @@ int dfs(int v, int t, int f) {
 	for (int i = 0; i < G[v].size(); i++) {
 		edge &e = G[v][i];
 		if (!used[e.to] && e.cap > 0) {
-			int d = dfs(e.to, t, min(f, e.cap));
+			ll d = dfs(e.to, t, min(f, e.cap));
 			if (d > 0) {
 				e.cap -= d;
 				G[e.to][e.rev].cap += d;
@@ -57,11 +57,11 @@ int dfs(int v, int t, int f) {
 	return 0;
 }
 
-int max_flow(int s, int t) {
-	int flow = 0;
+ll max_flow(int s, int t) {
+	ll flow = 0;
 	while (true) {
 		fill(used.begin(), used.end(), false);
-		int f = dfs(s, t, INF);
+		ll f = dfs(s, t, INF);
 		if (f == 0) return flow;
 		flow += f;
 	}

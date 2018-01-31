@@ -40,7 +40,18 @@ ll lcm(ll a, ll b) {
 	return (a / gcd(a, b))*b;
 }
 
-
+//ax + by = gcd(a, b) ‚Æ‚È‚éx, y‚ð‚à‚Æ‚ß‚é
+ll extgcd(ll a, ll b, ll& x, ll& y) {
+	ll d = a;
+	if (b != 0) {
+		d = extgcd(b, a%b, y, x);
+		y -= (a / b)*x;
+	}
+	else {
+		x = 1; y = 0;
+	}
+	return d;
+}
 
 int main() {
 	ll n;
