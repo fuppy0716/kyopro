@@ -26,11 +26,11 @@ int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 #define N 100010
 
 //1-indexed! 1-indexed!
-vi bit(N + 1);
+vl bit(N + 1);
 int n;
 
-int sum(int i) {
-	int s = 0;
+ll sum(int i) {
+	ll s = 0;
 	while (i > 0) {
 		s += bit[i];
 		i -= i & -i;
@@ -38,10 +38,21 @@ int sum(int i) {
 	return s;
 }
 
-void add(int i, int x) {
+void add(int i, ll x) {
 	while (i <= n) {
 		bit[i] += x;
 		i += i & -i;
+	}
+}
+
+// 1,2,...,nを並び替えた順列をバブルソートで
+// 順番通りにするための交換回数
+ll bubble(vi p) {
+	int n = p.size();
+	ll ans = 0;
+	for (int j = 0; j < n; j++) {
+		ans += (j - sum(p[j]));
+		add(p[j], 1);
 	}
 }
 
