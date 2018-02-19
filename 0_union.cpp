@@ -19,53 +19,126 @@ const ll INF=1e16;
 #define Sp(p) cout<<setprecision(15)<<fixed<<p<<endl;
 int dx[4]={1,0,-1,0}, dy[4]={0,1,0,-1};
 
-#define N 50001
-vi par(N); //親
-vi ran(N); //木の深さ
-vi num(N); //要素数
 
-//n要素で初期化
-void init(int n){
-	int i;
-	for (i = 0; i < n; i++) {
-		par[i]=i;
-		ran[i]=0;
-		num[i] = 1;
-	}
-}
 
-//木の根を求める
-int find(int x){
-	if(par[x]==x){
-		return x;
-	}else{
-		return par[x]=find(par[x]);
-	}
-}
+class UnionFind {
+public:
+	int n;
+	vi par; //親
+	vi ran; //木の深さ
+	vi num; //要素数
 
-//xとyの属する集合を併合
-void unite(int x,int y){
-	x=find(x);
-	y=find(y);
-	int numsum = num[x] + num[y];
-	if(x==y){
-		return;
+	UnionFind(int _n) {
+		n = _n;
+		par.resize(n); ran.resize(n); num.resize(n);
+		for (int i = 0; i < n; i++) {
+			par[i] = i; ran[i] = 0; num[i] = 1;
+		}
 	}
-	if(ran[x]<ran[y]){
-		par[x]=y;
-	}else{
-		par[y]=x;
-		if(ran[x]==ran[y]){
+
+	//木の根を求める
+	int find(int x) {
+		if (par[x] == x) {
+			return x;
+		}
+		else {
+			return par[x] = find(par[x]);
+		}
+	}
+
+	//xとyの属する集合を併合
+	void unite(int x, int y) {
+		x = find(x); y = find(y);
+		int numsum = num[x] + num[y];
+		if (x == y) {
+			return;
+		}
+		if (ran[x]<ran[y]) {
+			par[x] = y;
+		}
+		else {
+			par[y] = x;
+			if (ran[x] == ran[y]) {
+				ran[x]++;
+			}
+		}
+		num[x] = num[y] = numsum;
+	}
+
+	//xとyが同じ集合に属するか否か
+	bool same(int x, int y) {
+		return find(x) == find(y);
+	}
+
+};
+
+//部分永続UF
+class PermanenceUF {
+public:
+	int n;
+	vi par; //親
+	vi ran; //木の深さ
+	vector<vector<pll> > num; //要素数
+	vl time; //木が更新された時の時刻
+
+	PermanenceUF(int _n) {
+		n = _n;
+		par.resize(n); ran.resize(n);
+		num.resize(n); time.resize(n);
+		for (int i = 0; i < n; i++) {
+			par[i] = i; ran[i] = 0; time[i] = INF;
+			num[i] = vector<pll>(1, pii(0, 1));
+		}
+	}
+
+	//時刻tの時の木の根を求める
+	int find(ll t, int x) {
+		if (time[x] > t) return x;
+		else return find(t, par[x]);
+	}
+
+	//時刻tにxとyの属する集合を併合
+	//tは単調増加している
+	void unite(ll t, int x, int y) {
+		x = find(t, x); y = find(t, y);
+		ll numsum = num[x].back().second + num[y].back().second;
+		if (x == y) {
+			return;
+		}
+		if (ran[x] < ran[y]) {
+			swap(x, y);
+		}
+		par[y] = x;
+		time[y] = t;
+		num[x].push_back(pll(t, numsum));
+		if (ran[x] == ran[y]) {
 			ran[x]++;
 		}
 	}
-	num[x] = num[y] = numsum;
-}
 
-//xとyが同じ集合に属するか否か
-bool same(int x,int y){
-	return find(x)==find(y);
-}
+	//時刻t1のxとt2のyが同じ集合に属するか否か
+	bool same(ll t1, int x, ll t2, int y) {
+		return find(t1, x) == find(t2, y);
+	}
+
+	//時刻tの時の要素xを含む集合のサイズ
+	int size(ll t, int x) {
+		int root = find(t, x);
+		int left = 0, right = num[root].size();
+		while (left + 1 < right) {
+			int mid = (left + right) / 2;
+			if (num[root][mid].first <= t) {
+				left = mid;
+			}
+			else {
+				right = mid;
+			}
+		}
+		return num[root][left].second;
+	}
+
+};
+
 
 int main(){
 	int n,k,i;
