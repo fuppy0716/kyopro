@@ -32,7 +32,7 @@ int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 
 
-
+//http://beet-aizu.hatenablog.com/entry/2017/12/12/235950
 struct HLDecomposition {
 	int n, pos;
 	vector<vector<int> > G;
@@ -114,6 +114,8 @@ struct HLDecomposition {
 
 	// for_each(edge)
 	// [l,r] <- attention!!
+	// 値が辺に乗っているときは、頂点から遠いほう(すなわちvidが大きいほう)の
+	// 頂点に値を移す。yuki650
 	void for_each_edge(int u, int v, const function<void(int, int)>& f) {
 		while (1) {
 			if (vid[u]>vid[v]) swap(u, v);
