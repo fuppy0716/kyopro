@@ -119,3 +119,12 @@ P intersection_l(P a1, P a2, P b1, P b2) {
 	P a = a2 - a1; P b = b2 - b1;
 	return a1 + a * cross(b, b1 - a1) / cross(b, a);
 }
+
+//２つのベクトルABのなす角度θを求める
+//0<=theta<=180の範囲で返す
+double AngleOf2Vector(P A, P B)
+{
+	double theta = acos(dot(A, B) / (abs(A)*abs(B)));
+	theta *= 180.0 / pi;
+	return theta;
+}
