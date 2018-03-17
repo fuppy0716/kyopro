@@ -178,3 +178,31 @@ struct HLDecomposition {
 };
 
 
+//根付き木のハッシュ
+//木の同型判定に使う
+#include <random>
+vl rand1(100010);
+vl rand2(100010);
+
+void make_rand() {
+	random_device rnd;
+	mt19937 mt(rnd());
+	uniform_int_distribution<> randinf(0, inf);
+	rep(i, 100010) {
+		rand1[i] = randinf(mt);
+		rand2[i] = randinf(mt);
+	}
+}
+
+pll hs(vii &G, int now, int parent, int depth) {
+	pll res = pll(1, 1);
+	rep(i, G[now].size()) {
+		if (G[now][i] == parent) {
+			continue;
+		}
+		pll temp = hs(G, G[now][i], now, depth + 1);
+		(res.first *= (temp.first + rand1[depth])) %= mod;
+		(res.second *= (temp.second + rand2[depth])) %= mod;
+	}
+	return res;
+}
