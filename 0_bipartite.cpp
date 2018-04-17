@@ -24,7 +24,7 @@ int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 
 #define N 100010
-vii M(N, vi()); //グラフの隣接リスト表現
+vii G(N, vi()); //グラフの隣接リスト表現
 vi match(N); //マッチングのペア
 vector<bool> used(N); //DFSですでに調べたかのフラグ
 int n, m;
@@ -39,15 +39,15 @@ bool bipartite() {
 	while (!st.empty()) {
 		i = st.top();
 		st.pop();
-		for (j = 0; j < M[i].size(); j++) {
-			if (color[M[i][j]] == color[i]) {
+		for (j = 0; j < G[i].size(); j++) {
+			if (color[G[i][j]] == color[i]) {
 				//cout << "NO" << endl;
 				return false;
 			}
 			else {
-				if (color[M[i][j]] == -1) {
-					color[M[i][j]] = 1 - color[i];
-					st.push(M[i][j]);
+				if (color[G[i][j]] == -1) {
+					color[G[i][j]] = 1 - color[i];
+					st.push(G[i][j]);
 				}
 			}
 		}
@@ -59,7 +59,7 @@ bool bipartite() {
 //マッチングに使う
 bool dfs(int v) {
 	used[v] = true;
-	for (int i = 0; i < M[v].size(); i++) {
+	for (int i = 0; i < G[v].size(); i++) {
 		int u = G[v][i], w = match[u];
 		if (w < 0 || !used[w] && dfs(w)) {
 			match[v] = u;
@@ -94,8 +94,8 @@ int main() {
 	for (i = 0; i < m; i++) {
 		scanf("%d%d", &a, &b);
 		a--; b--;
-		M[a].push_back(b);
-		M[b].push_back(a);
+		G[a].push_back(b);
+		G[b].push_back(a);
 	}
 	bool flag = bipartite();
 	if (flag) {
@@ -114,5 +114,36 @@ int main() {
 	else {
 		cout << (n*n - n) / 2 - m << endl;
 		return 0;
+	}
+}
+
+
+
+
+
+
+
+
+const int N = 100100;
+const int M = 100100;
+vector<vector<pll> > G(N + 1);
+vl u(M + N), v(M + N), w(M + N);
+
+int main() {
+	int n, m;
+	cin >> n >> m;
+	rep1(i, n) {
+		G[0].push_back(pll(i, 0));
+		u[i - 1] = 0; v[i - 1] = i; w[i - 1] = 0;
+	}
+	rep(i, m) {
+		cin >> u[i + n] >> v[i + n] >> w[i + n];
+		w[i + n]++;
+		G[u[i + n]].push_back(pll(v[i + n], w[i + n]));
+	}
+	vi idx(n + 1);
+	vl dp(n + m, -1);
+	rep(i, n) {
+		dp[i] = 0;
 	}
 }

@@ -23,7 +23,7 @@ int n;
 vector< vector< pair<int,int> > > adj(N,vector< pair<int,int> >());
 vl d(N,INF);
 
-void dijkstra();
+void dijkstra(int s);
 
 int main(){
 	int k,u,v,c,i,j;

@@ -31,7 +31,7 @@ int main() {
 	for (i = 0; i < n; i++) {
 		cin >> x[i];
 	}
-	vii a(n, vi());
+	vii a(n,vi());
 	for (i = 1; i < n; i++) {
 		int temp;
 		cin >> temp;
@@ -45,7 +45,7 @@ int main() {
 			childx[i] += x[a[i][j]];
 		}
 	}
-	vector<vector<pii> > dp(n + 1, vector<pii>((1 << n), pii(-1, inf)));
+	vector<vector<pii> > dp(n + 1, vector<pii>((1 << n), pii(-1,inf)));
 	dp[0][0] = pii(0, 0);
 	for (i = 0; i < n; i++) {
 		for (j = 0; j < (1 << n); j++) {

@@ -24,15 +24,15 @@ int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 
 #define N 20010
 int n, k;
-vi rank(N + 1);
+vi rnk(N + 1);
 vi tmp(N + 1);
 
 // (rank[i], rank[i + k]) と (rank[j], rank[j + k]) を比較
 bool compare_sa(int i, int j) {
-  if (rank[i] != rank[j]) return rank[i] < rank[j];
+  if (rnk[i] != rnk[j]) return rnk[i] < rnk[j];
   else {
-    int ri = i + k <= n ? rank[i + k] : -1;
-    int rj = j + k <= n ? rank[j + k] : -1;
+    int ri = i + k <= n ? rnk[i + k] : -1;
+    int rj = j + k <= n ? rnk[j + k] : -1;
     return ri < rj;
   }
 }
@@ -44,7 +44,7 @@ vi construct_sa(string s) {
   //最初は一文字、ランクは文字コードにすれば良い
   for (int i = 0; i <= n; i++) {
     sa[i] = i;
-    rank[i] = i < n ? s[i] : -1;
+    rnk[i] = i < n ? s[i] : -1;
   }
 
   for (k = 1; k <= n; k *= 2) {
@@ -56,22 +56,23 @@ vi construct_sa(string s) {
       tmp[sa[i]] = tmp[sa[i - 1]] + (compare_sa(sa[i - 1], sa[i]) ? 1 : 0);
     }
     for (int i = 0; i <= n; i++) {
-      rank[i] = tmp[i];
+      rnk[i] = tmp[i];
     }
   }
+  return sa;
 }
 
 //文字列sとその接尾辞配列saを受け取り、高さ配列lcpを返す
 vi construct_lcp(string s, vi sa) {
   int n = s.length();
   vi lcp(n);
-  for (int i = 0; i <= n; i++) rank[sa[i]] = i;
+  for (int i = 0; i <= n; i++) rnk[sa[i]] = i;
 
   int h = 0;
   lcp[0] = 0;
   for (int i = 0; i < n; i++) {
     //文字列中での位置iの接尾辞と、接尾辞配列中でその一つ前の設備時のLCPを求める
-    int j = sa[rank[i] - 1];
+    int j = sa[rnk[i] - 1];
 
     //hを先頭の分1減らし、後ろが一致しているだけ増やす
     if (h > 0) h--;
@@ -79,6 +80,7 @@ vi construct_lcp(string s, vi sa) {
       if (s[j + h] != s[i + h]) break;
     }
 
-    lcp[rank[i] - 1] = h;
+    lcp[rnk[i] - 1] = h;
   }
+  return lcp;
 }

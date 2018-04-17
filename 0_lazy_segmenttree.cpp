@@ -26,156 +26,126 @@ int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 ///////////////
 ////sum////////
 ///////////////
-#define N 200010
-const int DAT_SIZE = (1 << 18) - 1;
-int n, q;
-vl a(N);
-vl node(DAT_SIZE), lazy(DAT_SIZE, 0);
 
-void init(int k, int l, int r) {
+// updateパターン
+// addパターンはeval,updateのいくつかの=を+=にする
+// また、-2*INF を 0 にする
+class LazySegmentTree {
+public:
+	int n;
+	vl node, lazy;
 
-	int _n = 1; while (_n < n) _n *= 2;
-	node.resize(2 * _n - 1);
-	lazy.resize(2 * _n - 1, 0);
-	for (int i = 0; i < n; i++) node[i + _n - 1] = a[i];
-	for (int i = _n - 2; i >= 0; i--) node[i] = node[i * 2 + 1] + node[i * 2 + 2];
-	n = _n;
-}
-
-// k番目のノードについて遅延評価を行う
-inline void eval(int k, int l, int r) {
-	// 遅延配列が空でない場合、自ノード及び子ノードへの
-	// 値の伝播が起こる
-	if (lazy[k] != 0) {
-		node[k] += (r - l) * lazy[k]; /////
-
-		// 最下段かどうかのチェックをしよう
-		// 子ノードは親ノードの 1/2 の範囲であるため、
-		 // 伝播させるときは半分にする
-		if (r - l > 1) {
-			lazy[2 * k + 1] += lazy[k]; /////
-			lazy[2 * k + 2] += lazy[k]; /////
+	LazySegmentTree(vl a) {
+		int _n = a.size();
+		n = 1; while (n < _n) n *= 2;
+		node.resize(2 * n - 1);
+		lazy.resize(2 * n - 1, -2 * INF);
+		for (int i = 0; i < _n; i++) node[i + n - 1] = a[i];
+		for (int i = n - 2; i >= 0; i--) {
+			node[i] = (node[i * 2 + 1] + node[i * 2 + 2]) % MOD;
 		}
-
-		// 伝播が終わったので、自ノードの遅延配列を空にする
-		lazy[k] = 0;
 	}
-}
 
-void add(int a, int b, ll x, int k, int l, int r) {
+	// k番目のノードについて遅延評価を行う
+	inline void eval(int k, int l, int r) {
+		if (lazy[k] != -2 * INF) {
+			node[k] = (r - l) * lazy[k] % MOD;
+			if (r - l > 1) {
+				lazy[2 * k + 1] = lazy[k]; /////
+				lazy[2 * k + 2] = lazy[k]; /////
+			}
+			lazy[k] = -2 * INF;
+		}
+	}
 
-	// k 番目のノードに対して遅延評価を行う
-	eval(k, l, r);
-
-	// 範囲外なら何もしない
-	if (b <= l || r <= a) return;
-
-	// 完全に被覆しているならば、遅延配列に値を入れた後に評価
-	if (a <= l && r <= b) {
-		lazy[k] += x; //////
+	// [a, b)をxにする
+	void update(int a, int b, ll x, int k, int l, int r) {
+		// k 番目のノードに対して遅延評価を行う
 		eval(k, l, r);
+		if (b <= l || r <= a) return;
+		if (a <= l && r <= b) {
+			lazy[k] = x;
+			eval(k, l, r);
+		}
+		else {
+			update(a, b, x, 2 * k + 1, l, (l + r) / 2);
+			update(a, b, x, 2 * k + 2, (l + r) / 2, r);
+			node[k] = (node[2 * k + 1] + node[2 * k + 2]) % MOD;
+		}
 	}
 
-	// そうでないならば、子ノードの値を再帰的に計算して、
-	// 計算済みの値をもらってくる
-	else {
-		add(a, b, x, 2 * k + 1, l, (l + r) / 2);
-		add(a, b, x, 2 * k + 2, (l + r) / 2, r);
-		node[k] = node[2 * k + 1] + node[2 * k + 2];
+	ll getsum(int a, int b, int k, int l, int r) {
+		eval(k, l, r);
+		if (b <= l || r <= a) return 0;
+		if (a <= l && r <= b) return node[k];
+		ll resl = getsum(a, b, 2 * k + 1, l, (l + r) / 2);
+		ll resr = getsum(a, b, 2 * k + 2, (l + r) / 2, r);
+		return (resl + resr) % MOD;
 	}
-}
-
-ll getsum(int a, int b, int k, int l, int r) {
-
-	// 関数が呼び出されたらまず評価！
-	eval(k, l, r);
-
-	if (b <= l || r <= a) return 0;
-	if (a <= l && r <= b) return node[k];
-	ll resl = getsum(a, b, 2 * k + 1, l, (l + r) / 2);
-	ll resr = getsum(a, b, 2 * k + 2, (l + r) / 2, r);
-	return resl + resr;
-}
-
+};
 
 
 ///////////
 //最大値///
 ///////////
+class LazySegmentTree {
+public:
+	int n;
+	vl node, lazy;
+	bool ismax; //trueなら最大値、falseなら最小値
 
-
-#define N 200010
-const int DAT_SIZE = (1 << 18) - 1;
-int n, q;
-vl a(N);
-vl node(DAT_SIZE), lazy(DAT_SIZE, 0);
-
-
-void init(int k, int l, int r) {
-
-	int _n = 1; while (_n < n) _n *= 2;
-	node.resize(2 * _n - 1);
-	lazy.resize(2 * _n - 1, 0);
-	for (int i = 0; i < n; i++) node[i + _n - 1] = a[i];
-	for (int i = _n - 2; i >= 0; i--) node[i] = max(node[i * 2 + 1], node[i * 2 + 2]);
-	n = _n;
-}
-
-
-// k番目のノードについて遅延評価を行う
-inline void eval(int k, int l, int r) {
-	// 遅延配列が空でない場合、自ノード及び子ノードへの
-	// 値の伝播が起こる
-	if (lazy[k] != 0) {
-		node[k] += lazy[k]; /////
-
-									  // 最下段かどうかのチェックをしよう
-									  // 子ノードは親ノードの 1/2 の範囲であるため、
-									  // 伝播させるときは半分にする
-		if (r - l > 1) {
-			lazy[2 * k + 1] += lazy[k]; /////
-			lazy[2 * k + 2] += lazy[k]; /////
+	LazySegmentTree(vl a, bool _ismax) {
+		ismax = _ismax;
+		int _n = a.size();
+		n = 1; while (n < _n) n *= 2;
+		node.resize(2 * n - 1, INF * (1 - (int)ismax * 2));
+		lazy.resize(2 * n - 1, 0);
+		for (int i = 0; i < _n; i++) node[i + n - 1] = a[i];
+		for (int i = n - 2; i >= 0; i--) {
+			if (ismax) node[i] = max(node[i * 2 + 1], node[i * 2 + 2]);
+			else node[i] = min(node[i * 2 + 1], node[i * 2 + 2]);
 		}
-
-		// 伝播が終わったので、自ノードの遅延配列を空にする
-		lazy[k] = 0;
 	}
-}
 
-void add(int a, int b, ll x, int k, int l, int r) {
+	// k番目のノードについて遅延評価を行う
+	inline void eval(int k, int l, int r) {
+		if (lazy[k] != 0) {
+			node[k] += lazy[k];
+			if (r - l > 1) {
+				lazy[2 * k + 1] += lazy[k]; /////
+				lazy[2 * k + 2] += lazy[k]; /////
+			}
+			lazy[k] = 0;
+		}
+	}
 
-	// k 番目のノードに対して遅延評価を行う
-	eval(k, l, r);
-
-	// 範囲外なら何もしない
-	if (b <= l || r <= a) return;
-
-	// 完全に被覆しているならば、遅延配列に値を入れた後に評価
-	if (a <= l && r <= b) {
-		lazy[k] += x; //////
+	void add(int a, int b, ll x, int k, int l, int r) {
+		// k 番目のノードに対して遅延評価を行う
 		eval(k, l, r);
+		if (b <= l || r <= a) return;
+		if (a <= l && r <= b) {
+			lazy[k] += x; //////
+			eval(k, l, r);
+		}
+		else {
+			add(a, b, x, 2 * k + 1, l, (l + r) / 2);
+			add(a, b, x, 2 * k + 2, (l + r) / 2, r);
+			if (ismax) node[k] = max(node[2 * k + 1], node[2 * k + 2]);
+			else node[k] = min(node[2 * k + 1], node[2 * k + 2]);
+		}
 	}
 
-	// そうでないならば、子ノードの値を再帰的に計算して、
-	// 計算済みの値をもらってくる
-	else {
-		add(a, b, x, 2 * k + 1, l, (l + r) / 2);
-		add(a, b, x, 2 * k + 2, (l + r) / 2, r);
-		node[k] = max(node[2 * k + 1], node[2 * k + 2]);
+	ll getmax(int a, int b, int k, int l, int r) {
+		eval(k, l, r);
+		if (b <= l || r <= a) return 0;
+		if (a <= l && r <= b) return node[k];
+		ll resl = getmax(a, b, 2 * k + 1, l, (l + r) / 2);
+		ll resr = getmax(a, b, 2 * k + 2, (l + r) / 2, r);
+		if (ismax) return max(resl, resr);
+		else return min(resl, resr);
 	}
-}
 
-ll getsum(int a, int b, int k, int l, int r) {
-
-	// 関数が呼び出されたらまず評価！
-	eval(k, l, r);
-
-	if (b <= l || r <= a) return 0;
-	if (a <= l && r <= b) return node[k];
-	ll resl = getsum(a, b, 2 * k + 1, l, (l + r) / 2);
-	ll resr = getsum(a, b, 2 * k + 2, (l + r) / 2, r);
-	return max(resl, resr);
-}
+};
 
 
 

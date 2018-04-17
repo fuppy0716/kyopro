@@ -108,67 +108,81 @@ int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 
 
-#define N 20010
-#define R 50010
-int n, m, r;
-vector< pair<ll, pll> > M(R);
-vl par(N);
-vl ran(N);
 
-//n要素で初期化
-void init(int n) {
-	int i;
-	for (i = 0; i < n; i++) {
-		par[i] = i;
-		ran[i] = 0;
-	}
-}
 
-//木の根を求める
-int find(int x) {
-	if (par[x] == x) {
-		return x;
-	}
-	else {
-		return par[x] = find(par[x]);
-	}
-}
 
-//xとyの属する集合を併合
-void unite(int x, int y) {
-	x = find(x);
-	y = find(y);
-	if (x == y) {
-		return;
-	}
-	if (ran[x]<ran[y]) {
-		par[x] = y;
-	}
-	else {
-		par[y] = x;
-		if (ran[x] == ran[y]) {
-			ran[x]++;
+const int N = 1010;
+const int M = 2010;
+int n;
+vector< pair<ll, pll> > edges(M);
+vector<bool> used(M, false);
+
+class UnionFind {
+public:
+	int n;
+	vi par; //親
+	vi ran; //木の深さ
+	vi num; //要素数
+
+	UnionFind(int _n) {
+		n = _n;
+		par.resize(n); ran.resize(n); num.resize(n);
+		for (int i = 0; i < n; i++) {
+			par[i] = i; ran[i] = 0; num[i] = 1;
 		}
 	}
-}
 
-//xとyが同じ集合に属するか否か
-bool same(int x, int y) {
-	return find(x) == find(y);
-}
+	//木の根を求める
+	int find(int x) {
+		if (par[x] == x) {
+			return x;
+		}
+		else {
+			return par[x] = find(par[x]);
+		}
+	}
+
+	//xとyの属する集合を併合
+	void unite(int x, int y) {
+		x = find(x); y = find(y);
+		int numsum = num[x] + num[y];
+		if (x == y) {
+			return;
+		}
+		if (ran[x]<ran[y]) {
+			par[x] = y;
+		}
+		else {
+			par[y] = x;
+			if (ran[x] == ran[y]) {
+				ran[x]++;
+			}
+		}
+		num[x] = num[y] = numsum;
+	}
+
+	//xとyが同じ集合に属するか否か
+	bool same(int x, int y) {
+		return find(x) == find(y);
+	}
+
+};
+
 
 ll kruskal() {
-	sort(M.begin(), M.end());
-	init(n + m);
+	sort(edges.begin(), edges.end());
+	UnionFind uf(n);
 	ll res = 0;
-	for (int i = 0; i < M.size(); i++) {
-		if (!same(M[i].second.first, M[i].second.second)) {
-			unite(M[i].second.first, M[i].second.second);
-			res += M[i].first;
+	for (int i = 0; i < edges.size(); i++) {
+		if (!uf.same(edges[i].second.first, edges[i].second.second)) {
+			uf.unite(edges[i].second.first, edges[i].second.second);
+			res += edges[i].first;
+			used[i] = true;
 		}
 	}
 	return res;
 }
+
 
 int main() {
 	ll q;
@@ -176,13 +190,13 @@ int main() {
 	int i0;
 	for (i0 = 0; i0 < q; i0++) {
 		int i, j;
-		M.clear();
+		edges.clear();
 		cin >> n >> m >> r;
 		for (i = 0; i < r; i++) {
 			ll a, b, c;
 			cin >> a >> b >> c;
 			b += n;
-			M.push_back(make_pair(-c, make_pair(a, b)));
+			edges.push_back(make_pair(-c, make_pair(a, b)));
 		}
 		cout << kruskal() + 10000 * (m + n) << endl;
 

@@ -118,7 +118,7 @@ public:
 	}
 
 	// [a, b)‚ğx‚É‚·‚é
-	void update(int a, int b, ll x, int k, int l, int r) {
+	void add(int a, int b, ll x, int k, int l, int r) {
 		// k ”Ô–Ú‚Ìƒm[ƒh‚É‘Î‚µ‚Ä’x‰„•]‰¿‚ğs‚¤
 		eval(k, l, r);
 		if (b <= l || r <= a) return;
@@ -127,8 +127,8 @@ public:
 			eval(k, l, r);
 		}
 		else {
-			update(a, b, x, 2 * k + 1, l, (l + r) / 2);
-			update(a, b, x, 2 * k + 2, (l + r) / 2, r);
+			add(a, b, x, 2 * k + 1, l, (l + r) / 2);
+			add(a, b, x, 2 * k + 2, (l + r) / 2, r);
 			node[k] = node[2 * k + 1] + node[2 * k + 2];
 		}
 	}
@@ -242,3 +242,8 @@ signed main() {
 	}
 	printf("%lld\n", ans);
 }
+
+
+
+
+

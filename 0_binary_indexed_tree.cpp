@@ -23,38 +23,98 @@ const ll INF = 1e18 * 2;
 int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 
-#define N 100010
 
-//1-indexed! 1-indexed!
-vl bit(N + 1);
-int n;
+class Bit {
+public:
+	int n;
+	vl bit; // 1-index
 
-ll sum(int i) {
-	ll s = 0;
-	while (i > 0) {
-		s += bit[i];
-		i -= i & -i;
+	Bit(int _n) { n = _n; bit.resize(n + 1); }
+
+	ll sum(int i) {
+		ll s = 0;
+		while (i > 0) {
+			s += bit[i];
+			i -= i & -i;
+		}
+		return s;
 	}
-	return s;
-}
 
-void add(int i, ll x) {
-	while (i <= n) {
-		bit[i] += x;
-		i += i & -i;
+	void add(int i, ll x) {
+		while (i <= n) {
+			bit[i] += x;
+			i += i & -i;
+		}
 	}
-}
 
-// 1,2,...,nを並び替えた順列をバブルソートで
-// 順番通りにするための交換回数
-ll bubble(vi p) {
-	int n = p.size();
-	ll ans = 0;
-	for (int j = 0; j < n; j++) {
-		ans += (j - sum(p[j]));
-		add(p[j], 1);
+	// 1,2,...,nを並び替えた順列をバブルソートで
+	// 順番通りにするための交換回数
+	ll bubble(vi p) {
+		int n = p.size();
+		ll ans = 0;
+		for (int j = 0; j < n; j++) {
+			ans += (j - sum(p[j]));
+			add(p[j], 1);
+		}
+		return ans;
 	}
-}
+
+	// bitに入ってる中でx番目に小さい数を求める
+	// bitに3を入れる→add(3, 1), 3を出す→add(3, -1)
+	ll min_xth(int x) {
+		int left = 0, right = 200000;
+		while (left + 1 < right) {
+			int mid = (left + right) / 2;
+			int temp = sum(mid);
+			if (temp < x) {
+				left = mid;
+			}
+			else {
+				right = mid;
+			}
+		}
+		return right;
+	}
+
+};
+
+//二次元のビット、未AC
+class Bit2 {
+public:
+	int h, w;
+	vll bit;
+	Bit2(int _h, int _w) {
+		h = _h; w = _w;
+		bit.resize(h + 1);
+		for (int i = 0; i <= h; i++) bit[i].resize(w + 1);
+	}
+
+	ll sum(int i, int j) {
+		ll s = 0;
+		while (i > 0) {
+			int j0 = j;
+			while (j0 > 0) {
+				s += bit[i][j0];
+				j0 -= j0 & -j0;
+			}
+			i -= i & -i;
+		}
+		return s;
+	}
+
+	void add(int i, int j, ll x) {
+		int i0 = i;
+		while (i0 <= h) {
+			int j0 = j;
+			while (j0 <= w) {
+				bit[i0][j0] += x;
+				j0 += j0 & -j0;
+			}
+			i0 += i0 &-i0;
+		}
+	}
+};
+
 
 int main() {
 	int q, i;

@@ -23,7 +23,7 @@ const ll INF = 1e18 * 4;
 int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 
-#define ci complex<int>
+#define ci complex<ll>
 //x,yの順に辞書順ソート
 bool cmp_x(const ci p, const ci q) {
 	if (p.real() != q.real()) return p.real() < q.real();
@@ -31,12 +31,12 @@ bool cmp_x(const ci p, const ci q) {
 }
 
 //位置ベクトルa,bの外積
-int det(ci a, ci b) {
+ll det(ci a, ci b) {
 	return a.real()*b.imag() - b.real()*a.imag();
 }
 
 //位置ベクトルa,bの内積
-int dot(ci a, ci b) {
+ll dot(ci a, ci b) {
 	return a.real()*b.real() + a.imag()*b.imag();
 }
 

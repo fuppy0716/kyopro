@@ -29,7 +29,7 @@ struct Modint {
 	Modint(int n = 0) : n(n) {}
 };
 
-Modint operator+(Modint a, Modint b) { return Modint((a.n += b.n) >= mod ? a.n - a.Mod : a.n); }
+Modint operator+(Modint a, Modint b) { return Modint((a.n += b.n) >= MOD ? a.n - a.Mod : a.n); }
 Modint operator-(Modint a, Modint b) { return Modint((a.n -= b.n) < 0 ? a.n + a.Mod : a.n); }
 Modint operator*(Modint a, Modint b) { return Modint(1LL * a.n * b.n % a.Mod); }
 Modint &operator+=(Modint &a, Modint b) { return a = a + b; }
@@ -46,6 +46,16 @@ mat mul(mat &A, mat &B) {
 			for (int j = 0; j < B[0].size(); j++) {
 				C[i][j] = C[i][j] + A[i][k] * B[k][j];
 			}
+		}
+	}
+	return C;
+}
+
+vec mul(mat &A, vec &B) {
+	vec C(A.size());
+	for (int i = 0; i < A.size(); i++) {
+		for (int j = 0; j < B.size(); j++) {
+			C[i] += A[i][j] * B[j];
 		}
 	}
 	return C;

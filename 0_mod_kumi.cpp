@@ -21,16 +21,19 @@ const ll INF = 1e16;
 #define Sp(p) cout<<setprecision(15)<<fixed<<p<<endl;
 int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 
+
+
+
 ll MAXM = 100100;
 vl fact(MAXM);
-vl C(MAXM);
+vl rfact(MAXM);
 
 ll mod_pow(ll x, ll p, ll M) {
 	ll a = 1;
 	while (p) {
 		if (p % 2)
-			a = a*x%MOD;
-		x = x*x%MOD;
+			a = a*x%M;
+		x = x*x%M;
 		p /= 2;
 	}
 	return a;
@@ -76,3 +79,9 @@ int main() {
 	}
 	cout << ans << endl;
 }
+
+
+
+
+
+

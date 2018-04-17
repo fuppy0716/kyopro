@@ -72,3 +72,141 @@ int main() {
 	cout << endl << endl;
 	part_size(10, 4);
 }
+
+
+
+
+
+
+
+
+
+
+#include <random>
+ll r, b, c;
+vl m, s, p;
+
+
+
+void solve1() {
+	ll ans = INF;
+	rep(syugou, (1LL << c)) {
+		if (syugou == 0) {
+			continue;
+		}
+		vector<bool> use(c, false);
+		int cnt0 = 0;
+		rep(k, c) {
+			if ((syugou & (1LL << k))) {
+				use[k] = true;
+				cnt0++;
+			}
+		}
+		if (cnt0 > r) {
+			continue;
+		}
+		vl time(c);
+		vi cnt(c);
+		bool flag = true;
+		rep(aaa, b) {
+			pii mi = pii(inf, inf);
+			rep(i, c) {
+				if (!use[i]) {
+					continue;
+				}
+				if (cnt[i] == m[i]) {
+					continue;
+				}
+				if (time[i] == 0) {
+					mi = min(mi, pii(s[i] + p[i], i));
+				}
+				else {
+					mi = min(mi, pii(time[i] + s[i], i));
+				}
+			}
+			if (mi.second >= inf) {
+				flag = false;
+				break;
+			}
+			if (time[mi.second] == 0) {
+				time[mi.second] = s[mi.second] + p[mi.second];
+			}
+			else {
+				time[mi.second] += s[mi.second];
+			}
+			cnt[mi.second]++;
+		}
+		if (!flag) {
+			continue;
+		}
+		ll res = -1;
+		rep(i, c) {
+			if (!use[i]) {
+				continue;
+			}
+			res = max(res, time[i]);
+		}
+		ans = min(ans, res);
+	}
+	cout << ans << endl;
+}
+
+int main() {
+	/*
+	std::random_device rnd;
+	std::mt19937 mt(rnd());
+	std::uniform_int_distribution<> rand100(0, 99);
+	//*/
+	int t;
+	scanf("%d", &t);
+	rep1(cas, t) {
+		cin >> r >> b >> c;
+		m.resize(c); s.resize(c); p.resize(c);
+		rep(i, c) {
+			cin >> m[i] >> s[i] >> p[i];
+		}
+		printf("Case #%d: ", cas);
+		solve1();
+	}
+}
+
+
+
+
+
+
+int main() {
+	int t;
+	scanf("%d", &t);
+	rep1(cas, t) {
+		ll n;
+		double p;
+		cin >> n >> p;
+		vl h(n), w(n);
+		ll base = 0;
+		bool flagh = true, flagw = true;
+		rep(i, n) {
+			cin >> h[i] >> w[i];
+			base += 2 * (h[i] + w[i]);
+		}
+		printf("Case #%d: ", cas);
+		double ans = base;
+		double addmi = 0, addma = 0;
+		rep(i, n) {
+			addmi += 2 * min(h[i], w[i]);
+			addma += 2 * sqrt(h[i] * h[i] + w[i] * w[i]);
+			if (base + addmi <= p && p <= base + addma) {
+				ans = p;
+				break;
+			}
+			else {
+				if (base + addma <= p) {
+					if (abs(p - ans) > (p - (base + addma))) {
+						ans = base + addma;
+					}
+				}
+			}
+		}
+		Sp(ans);
+	}
+}

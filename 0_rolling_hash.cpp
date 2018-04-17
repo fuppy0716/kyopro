@@ -24,8 +24,8 @@ const ll INF = 1e18 * 4;
 int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 
-#define MAXN 100050
-//B1, B2:二つの基数　M: modをとる
+
+#define MAXN 100010
 const ll B1 = 100000007;
 const ll B2 = 103;
 const ll M = 1000000009;
@@ -33,20 +33,6 @@ vector<ll> Bpower1(MAXN);
 vector<ll> Bpower2(MAXN);
 vector<ll> Bpower_inv1(MAXN);
 vector<ll> Bpower_inv2(MAXN);
-
-
-//ローリングハッシュには特に関係ないよ
-bool cmp(string s1, string s2) {
-	if (s1.size() < s2.size()) {
-		return true;
-	}
-	else if (s1.size() > s2.size()) {
-		return false;
-	}
-	else {
-		return (s1 < s2);
-	}
-}
 
 ll mod_pow(ll x, ll p, ll M) {
 	ll a = 1;
@@ -63,8 +49,6 @@ ll mod_inverse(ll a, ll m) {
 	return mod_pow(a, m - 2, m);
 }
 
-
-
 void build_bpower() {
 	Bpower1[0] = 1;
 	for (int j = 1; j < MAXN; j++) {
@@ -80,28 +64,37 @@ void build_bpower() {
 	}
 }
 
-//sのハッシュ値を求める
-//rh[i] = s[i]*(b^(n - i - 1)) + s[i + 1]*(b^(n - i - 2)) + ... + s[n - 1] * b^0;
-vector<pll> rolling_hash(string s) {
-	vector<pll> rh(s.size() + 1);
-	rh[s.size()].first = rh[s.size()].second = 0;
-	for (int i = s.size() - 1; i >= 0; i--) {
-		rh[i].first = (rh[i + 1].first + s[i] * Bpower1[s.size() - i - 1]) % M;
-		rh[i].second = (rh[i + 1].second + s[i] * Bpower2[s.size() - i - 1]) % M;
-	}
-	return rh;
-}
 
-//hashに対応する文字列のi文字目からl文字ののハッシュ値を求める
-//しょっちゅう呼び出す場合は、時間がかかるため本文に直接コピペ
-pll part(vector<pll> hash, int i, int l) {
-	pll h = pll(hash[i].first - hash[i + l].first, hash[i].second - hash[i + l].second);
-	h.first += M; h.second += M;
-	h.first %= M; h.second %= M;
-	h.first = h.first * Bpower_inv1[hash.size() - 1 - i - l] % M;
-	h.second = h.second * Bpower_inv2[hash.size() - 1 - i - l] % M;
-	return h;
-}
+
+class RollingHash {
+public:
+	string s;
+	ll n;
+	vector<pll> hash;
+
+	//sのハッシュ値を求める
+	//hash[i] = s[i]*(b^(n - i - 1)) + s[i + 1]*(b^(n - i - 2)) + ... + s[n - 1] * b^0;
+	RollingHash(string s) :s(s), n(s.size()) {
+		hash.resize(n + 1);
+		hash[s.size()].first = hash[s.size()].second = 0;
+		for (int i = s.size() - 1; i >= 0; i--) {
+			hash[i].first = (hash[i + 1].first + s[i] * Bpower1[s.size() - i - 1]) % M;
+			hash[i].second = (hash[i + 1].second + s[i] * Bpower2[s.size() - i - 1]) % M;
+		}
+	}
+
+	//i文字目からl文字のハッシュ値を求める
+	pll part(int i, int l) {
+		pll h = pll(hash[i].first - hash[i + l].first, hash[i].second - hash[i + l].second);
+		h.first += M; h.second += M;
+		h.first %= M; h.second %= M;
+		h.first = h.first * Bpower_inv1[hash.size() - 1 - i - l] % M;
+		h.second = h.second * Bpower_inv2[hash.size() - 1 - i - l] % M;
+		return h;
+	}
+
+
+};
 
 int main() {
 	cin.tie(0);
