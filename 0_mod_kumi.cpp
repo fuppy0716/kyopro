@@ -24,12 +24,11 @@ int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 
 
 
-ll n, MOD;
+
 const int MAXN = 3010;
-vl ways(MAXN);
-vll ways2(MAXN, vl(MAXN));
 
 vll secondStirling(MAXN, vl(MAXN, 0));
+vll part(MAXN + 1, vl(MAXN + 1));
 vl fact(MAXN);
 vl rfact(MAXN);
 
@@ -82,6 +81,25 @@ void setSecondStirling(ll n, ll M = MOD) {
 		}
 	}
 }
+
+
+// •ªŠ„”
+// iŒÂ‚Ìˆá‚¢‚É‹æ•Ê‚Å‚«‚È‚¢•i•¨‚ğjŒÂˆÈ‰º‚É•ªŠ„‚·‚é•û–@partition[n][m]
+void setPartition(int n, ll M = MOD) {
+  part[0][0] = 1;
+  rep (i, n + 1) {
+    rep1 (j, n) {
+      if (i - j >= 0) {
+	part[i][j] = part[i - j][j] + part[i][j - 1];
+      }
+      else {
+	part[i][j] = part[i][j - 1];
+      }
+      part[i][j] %= M;
+    }
+  }
+}
+
 
 
 int main() {
