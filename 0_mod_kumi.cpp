@@ -27,8 +27,6 @@ int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 
 const int MAXN = 3010;
 
-vll secondStirling(MAXN, vl(MAXN, 0));
-vll part(MAXN + 1, vl(MAXN + 1));
 vl fact(MAXN);
 vl rfact(MAXN);
 
@@ -65,6 +63,7 @@ ll nCr(ll n, ll r, ll M = MOD) {
 // 第二種スターリング数
 // 互いに区別できるn個のものを区別のないk個のグループに分けるとき,その分け方はsecondStirling[n][k]
 // ただし空のグループがあってはいけない
+vll secondStirling(MAXN, vl(MAXN, 0));
 void setSecondStirling(ll n, ll M = MOD) {
 	secondStirling[0][0] = 1;
 	rep1(i, n) {
@@ -84,7 +83,8 @@ void setSecondStirling(ll n, ll M = MOD) {
 
 
 // 分割数
-// i個の違いに区別できない品物をj個以下に分割する方法partition[n][m]
+// i個の違いに区別できない品物をj個以下に分割する方法part[n][m]
+vll part(MAXN + 1, vl(MAXN + 1));
 void setPartition(int n, ll M = MOD) {
   part[0][0] = 1;
   rep (i, n + 1) {
