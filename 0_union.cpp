@@ -116,9 +116,9 @@ public:
 		}
 	}
 
-	//時刻t1のxとt2のyが同じ集合に属するか否か
-	bool same(ll t1, int x, ll t2, int y) {
-		return find(t1, x) == find(t2, y);
+	//時刻tのxとyが同じ集合に属するか否か
+	bool same(ll t, int x, int y) {
+		return find(t, x) == find(t, y);
 	}
 
 	//時刻tの時の要素xを含む集合のサイズ
@@ -139,155 +139,77 @@ public:
 
 };
 
+//数直線状のものに有効(年齢、身長など)
+class WeightedUF {
+public:
+  vi par, ran, num;
+  vl diff_weight; //親ノード(根ノードではない)との値の差分
+  
+  WeightedUF(int n) {
+    par.resize(n); ran.resize(n);
+    num.resize(n); diff_weight.resize(n);
+    for (int i = 0; i < n; i++) {
+      par[i] = i; ran[i] = 0;
+      num[i] = 1; diff_weight[i] = 0;
+    }
+  }
 
-int main(){
-	int n,k,i;
-	cin>>n>>k;
-	loop(i,0,k){
-		cin>>T[i]>>X[i]>>Y[i];
-	}
-	init(n*3);
-	int ans=0;
-	loop(i,0,k){
-		int t=T[i];
-		int x=X[i]-1,y=Y[i]-1;
-		
-		if(x<0 || x>=n || y<0 || y>=n){
-			ans++;
-			continue;
-		}
-		
-		if(t==1){
-			if(same(x,y+n) || same(x,y+2*n)){
-				ans++;
-			}
-			else{
-				unite(x,y);
-				unite(x+n,y+n);
-				unite(x+2*n,y+2*n);
-			}
-		}else{
-			if(same(x,y) || same(x,y+2*n)){
-				ans++;
-			}else{
-				unite(x,y+n);
-				unite(x+n,y+2*n);
-				unite(x+2*n,y);
-			}
-		}
-	}
-	cout<<ans<<endl;
-}
+  //木の根を求める
+  int find(int x) {
+    if (par[x] == x) {
+      return x;
+    }
+    else {
+      int root = find(par[x]);
+      diff_weight[x] += diff_weight[par[x]];
+      return par[x] = root;
+    }
+  }
 
+  ll weight(int x) {
+    find(x); //経路圧縮
+    return diff_weight[x];
+  }
 
+  //xからみたyの重み
+  ll diff(int x, int y) {
+    if (!same(x, y)) {
+      return -INF;
+    }
+    else {
+      return weight(y) - weight(x);
+    }
+  }
+  
+  //xからみたyの重みがwになるように併合
+  bool unite(int x, int y, ll w) {
+    w += weight(x); w -= weight(y);
+    x = find(x); y = find(y);
+    int numsum = num[x] + num[y];
+    if (x == y) {
+      if (diff(x, y) == w) {
+	return true;
+      }
+      else {
+	return false;
+      }
+    }
+    if (ran[x]<ran[y]) {
+      swap(x, y);
+      w = -w;
+    }
+    par[y] = x;
+    if (ran[x] == ran[y]) {
+	ran[x]++;
+    }
+    diff_weight[y] = w;
+    num[x] = num[y] = numsum;
+    return true;
+  }
 
+  //xとyが同じ集合に属するか否か
+  bool same(int x, int y) {
+    return find(x) == find(y);
+  }
 
-
-#define N 100010
-#define M 200010
-int n, m;
-vl l(M), r(M), d(M);
-vl x(N, -INF);
-vector<vector<pii> > G(N, vector<pii>());
-vector<bool> used(N, false);
-queue<int> nexta;
-ll minx = INF, maxx = -INF;
-
-void dfs(int u) {
-	int nowx = x[u];
-	for (int i = 0; i < G[u].size(); i++) {
-		if (!used[G[u][i].first]) {
-			nexta.push(G[u][i].first);
-			if (x[G[u][i].first] == -INF) {
-				x[G[u][i].first] = nowx + G[u][i].second;
-				minx = min(minx, x[G[u][i].first]);
-				maxx = max(maxx, x[G[u][i].first]);
-			}
-			else {
-				if (x[G[u][i].first] != nowx + G[u][i].second) {
-					cout << "No" << endl;
-					exit(0);
-				}
-			}
-		}
-	}
-	while (!nexta.empty()) {
-		int v = nexta.front();
-		nexta.pop();
-		if (!used[v]) {
-			dfs(v);
-		}
-	}
-}
-
-int main() {
-	cin >> n >> m;
-
-	int i, j;
-	map<int, int> mp;
-	int cnt = 1;
-	vector<vector<pair<pii, int> > > a;
-	for (i = 0; i < m; i++) {
-		cin >> l[i] >> r[i] >> d[i];
-		l[i]--; r[i]--;
-		G[l[i]].push_back(pii(r[i], d[i]));
-		G[r[i]].push_back(pii(l[i], -d[i]));
-	}
-	for (i = 0; i < n; i++) {
-		if (used[i]) {
-			continue;
-		}
-		dfs(i);
-		if (maxx - minx > 1000000000) {
-			cout << "No" << endl;
-			return 0;
-		}
-		minx = INF; maxx = -INF;
-	}
-	cout << "Yes" << endl;
-}
-
-/*
-int main() {
-int n, m;
-cin >> n >> m;
-
-init(n);
-int i, j;
-vl l(m), r(m), d(m);
-map<int, int> mp;
-int cnt = 1;
-vector<vector<pair<pii, int> > > a;
-for (i = 0; i < m; i++) {
-cin >> l[i] >> r[i] >> d[i];
-l[i]--; r[i]--;
-if (l[i] > r[i]) {
-swap(l[i], r[i]);
-d[i] *= -1;
-}
-unite(l[i], r[i]);
-}
-for (i = 0; i < m; i++) {
-int temp = mp[find(l[i])];
-if (temp == 0) {
-mp[find(l[i])] = cnt++;
-a.push_back(vector<pair<pii, int> >());
-a[cnt - 2].push_back(make_pair(pii(l[i], r[i]), d[i]));
-}
-else {
-a[temp - 1].push_back(make_pair(pii(l[i], r[i]), d[i]));
-}
-}
-vl x(n, -INF);
-for (i = 0; i < a.size(); i++) {
-sort(a.begin(), a.end());
-}
-for (i = 0; i < a.size(); i++) {
-x[a[i][0].first.first] = 0;
-x[a[i][0].first.second] = a[i][0].second;
-for (j = 1; j < a[i].size(); j++) {
-
-}
-}
-}
-*/
+};
