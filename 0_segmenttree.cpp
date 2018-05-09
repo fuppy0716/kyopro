@@ -88,7 +88,7 @@ public:
 ///////////////
 
 // updateパターン
-// addパターンはeval,updateのいくつかの=を+=にする
+// addパターンはeval,updateのいくつかの=を+=にする, -2*INFを0にする
 class LazySegmentTree {
 public:
 	int n;
@@ -98,7 +98,7 @@ public:
 		int _n = a.size();
 		n = 1; while (n < _n) n *= 2;
 		node.resize(2 * n - 1);
-		lazy.resize(2 * n - 1, 0);
+		lazy.resize(2 * n - 1, -2*INF);
 		for (int i = 0; i < _n; i++) node[i + n - 1] = a[i];
 		for (int i = n - 2; i >= 0; i--) {
 			node[i] = node[i * 2 + 1] + node[i * 2 + 2];
