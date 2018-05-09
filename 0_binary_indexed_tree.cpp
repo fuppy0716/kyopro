@@ -40,6 +40,7 @@ public:
 		return s;
 	}
 
+	//i‚Í1-index
 	void add(int i, ll x) {
 		while (i <= n) {
 			bit[i] += x;
@@ -60,6 +61,7 @@ public:
 	}
 
 	// bit‚É“ü‚Á‚Ä‚é’†‚Åx”Ô–Ú‚É¬‚³‚¢”‚ð‹‚ß‚é
+	// 1”Ô¬‚³‚¢”‚Íx = 1;
 	// bit‚É3‚ð“ü‚ê‚é¨add(3, 1), 3‚ðo‚·¨add(3, -1)
 	ll min_xth(int x) {
 		int left = 0, right = 200000;
