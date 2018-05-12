@@ -31,6 +31,8 @@ public:
 
 	Bit(int _n) { n = _n; bit.resize(n + 1); }
 
+
+	// [1, i]‚Ì˜a
 	ll sum(int i) {
 		ll s = 0;
 		while (i > 0) {
