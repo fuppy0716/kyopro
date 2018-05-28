@@ -23,53 +23,42 @@ const ll INF = 1e18 * 2;
 int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 
-
 class Bit {
 public:
 	int n;
 	vl bit; // 1-index
 
-	Bit(int _n) { n = _n; bit.resize(n + 1); }
+	Bit(int _n) { n = _n; bit.resize(n); }
 
 
-	// [1, i]の和
+	// [0, i)の和
 	ll sum(int i) {
 		ll s = 0;
 		while (i > 0) {
-			s += bit[i];
+			s += bit[i - 1];
 			i -= i & -i;
 		}
 		return s;
 	}
 
-	//iは1-index
+	//iは0-index
 	void add(int i, ll x) {
+		i++;
 		while (i <= n) {
-			bit[i] += x;
+			bit[i - 1] += x;
 			i += i & -i;
 		}
-	}
-
-	// 1,2,...,nを並び替えた順列をバブルソートで
-	// 順番通りにするための交換回数
-	ll bubble(vi p) {
-		int n = p.size();
-		ll ans = 0;
-		for (int j = 0; j < n; j++) {
-			ans += (j - sum(p[j]));
-			add(p[j], 1);
-		}
-		return ans;
 	}
 
 	// bitに入ってる中でx番目に小さい数を求める
 	// 1番小さい数はx = 1;
 	// bitに3を入れる→add(3, 1), 3を出す→add(3, -1)
+	// return == nの場合x個も入っていない
 	ll min_xth(int x) {
-		int left = 0, right = 200000;
+		int left = -1, right = n;
 		while (left + 1 < right) {
 			int mid = (left + right) / 2;
-			int temp = sum(mid);
+			int temp = sum(mid + 1);
 			if (temp < x) {
 				left = mid;
 			}
@@ -80,17 +69,30 @@ public:
 		return right;
 	}
 
+	// 0,1,...,n - 1を並び替えた順列をバブルソートで
+	// 順番通りにするための交換回数
+	ll bubble(vi p) {
+		int n = p.size();
+		ll ans = 0;
+		for (int j = 0; j < n; j++) {
+			ans += (j - sum(p[j]));
+			add(p[j], 1);
+		}
+		return ans;
+	}
 };
 
+
 //二次元のビット、未AC
+//0-index
 class Bit2 {
 public:
 	int h, w;
 	vll bit;
 	Bit2(int _h, int _w) {
 		h = _h; w = _w;
-		bit.resize(h + 1);
-		for (int i = 0; i <= h; i++) bit[i].resize(w + 1);
+		bit.resize(h);
+		for (int i = 0; i < h; i++) bit[i].resize(w);
 	}
 
 	ll sum(int i, int j) {
@@ -98,7 +100,7 @@ public:
 		while (i > 0) {
 			int j0 = j;
 			while (j0 > 0) {
-				s += bit[i][j0];
+				s += bit[i - 1][j0 - 1];
 				j0 -= j0 & -j0;
 			}
 			i -= i & -i;
@@ -107,16 +109,18 @@ public:
 	}
 
 	void add(int i, int j, ll x) {
+		i++; j++;
 		int i0 = i;
 		while (i0 <= h) {
 			int j0 = j;
 			while (j0 <= w) {
-				bit[i0][j0] += x;
+				bit[i0 - 1][j0 - 1] += x;
 				j0 += j0 & -j0;
 			}
 			i0 += i0 &-i0;
 		}
 	}
+
 };
 
 
