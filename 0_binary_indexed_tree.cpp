@@ -75,7 +75,7 @@ public:
 		int n = p.size();
 		ll ans = 0;
 		for (int j = 0; j < n; j++) {
-			ans += (j - sum(p[j]));
+			ans += (j - sum(p[j] + 1));
 			add(p[j], 1);
 		}
 		return ans;
