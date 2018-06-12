@@ -68,8 +68,8 @@ public:
 		return right;
 	}
 
-	// 0,1,...,n - 1を並び替えた順列をバブルソートで
-	// 順番通りにするための交換回数
+
+	// pを順番通りにするための交換回数
 	ll bubble(vi p) {
 		int n = p.size();
 		ll ans = 0;
@@ -122,24 +122,3 @@ public:
 
 };
 
-
-int main() {
-	int q, i;
-	cin >> n >> q;
-	bit.resize(n + 1);
-	for (i = 1; i <= n; i++) {
-		int a;
-		cin >> a;
-		add(i, a);
-	}
-	for (int unko = 0; unko < q; unko++) {
-		int t, l, r;
-		cin >> t >> l >> r;
-		if (t == 1) {
-			cout << sum(r) - sum(l - 1) << endl;
-		}
-		else {
-			add(l, r);
-		}
-	}
-}
