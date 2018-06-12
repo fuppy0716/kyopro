@@ -2,8 +2,8 @@
 
 using namespace std;
 
-#define DEBUG(x) cout<<#x<<": "<<x<<endl;
-#define DEBUG_VEC(v) cout<<#v<<":";for(int i=0;i<v.size();i++) cout<<" "<<v[i]; cout<<endl
+#define DEBUG(x) cerr<<#x<<": "<<x<<endl;
+#define DEBUG_VEC(v) cerr<<#v<<":";for(int i=0;i<v.size();i++) cerr<<" "<<v[i]; cerr<<endl
 
 typedef long long ll;
 #define vi vector<int>
@@ -18,8 +18,8 @@ typedef long long ll;
 template<class S, class T> pair<S, T> operator+(const pair<S, T> &s, const pair<S, T> &t) { return pair<S, T>(s.first + t.first, s.second + t.second); }
 template<class S, class T> pair<S, T> operator-(const pair<S, T> &s, const pair<S, T> &t) { return pair<S, T>(s.first - t.first, s.second - t.second); }
 template<class S, class T> ostream& operator<<(ostream& os, pair<S, T> p) { os << "(" << p.first << ", " << p.second << ")"; return os; }
-#define fi first
-#define se second
+#define X first
+#define Y second
 #define rep(i,n) for(ll i=0;i<(ll)(n);i++)
 #define rep1(i,n) for(ll i=1;i<=(ll)(n);i++)
 #define rrep(i,n) for(ll i=(ll)(n)-1;i>=0;i--)
@@ -38,9 +38,44 @@ int dx[4] = { 1,0, -1,0 }, dy[4] = { 0,1,0,-1 };
 int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 #define fio() cin.tie(0); ios::sync_with_stdio(false);
 
+ll ans = 0;
+int n;
+vl a;
 
-int main() {
-	pii a = pii(2, 3), b = pii(-4, 5);
-	pii c = a + b;
-	DEBUG(a);
+void dfs(vector<bool> &used, int cnt, ll now) {
+  if (cnt == n / 2) {
+    chmax(ans, now);
+    return;
+  }
+  ll res = 0;
+  int idx;
+  rep (i, n) {
+    if (!used[i]) {
+      used[i] = true;
+      res += a[i];
+      idx = i;
+      break;
+    }
+  }
+  rep (i, n) {
+    if (!used[i]) {
+      used[i] = true;
+      res += a[i];
+      dfs(used, cnt + 1, now ^ res);
+      res -= a[i];
+      used[i] = false;
+    }
+  }
+  used[idx] = false;
+}
+
+int main () {
+  cin >> n;
+  a.resize(n);
+  rep (i, n) {
+    cin >> a[i];
+  }
+  vector<bool> used(n, false);
+  dfs(used, 0, 0);
+  cout << ans << endl;
 }
