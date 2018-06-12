@@ -53,6 +53,28 @@ ll extgcd(ll a, ll b, ll& x, ll& y) {
 	return d;
 }
 
+
+//中国剰余定理
+//modの積がすごいときオーバーフローする。
+//am[i].first:a_i, am[i].second:m_i
+//return (x, y) y = lcm(m1, m2, ..., m_n),  x%m_i = a_i
+typedef __int128 lll;
+pll crt(vector<pll> am) {
+	rep(i, am.size() - 1) {
+		ll g, x, y, z;
+		am[i].first = (am[i].first % am[i].second + am[i].second) % am[i].second;
+		am[i + 1].first = (am[i + 1].first % am[i + 1].second + am[i + 1].second) % am[i + 1].second;
+		g = extgcd(am[i].second, am[i + 1].second, x, y);
+		if (am[i].first%g != am[i].second%g) return pll(-1, 0); //解なし
+		lll lcm = (lll)am[i].second*(am[i + 1].second / g);
+		if (lcm < am[i].second) return pll(-2, 0); //オーバーフロー
+		ll mo = am[i + 1].second = lcm;
+		lll v = am[i].first + ((lll)(am[i].second / g) * x % mo * (am[i + 1].first - am[i].first + mo) % mo);
+		am[i + 1].first = (v%mo + mo) % mo;
+	}
+	return am.back();
+}
+
 void prime(vector<bool> &isprime, vll &soinsu) {
 	ll i, j;
 	isprime[0] = isprime[1] = false;
