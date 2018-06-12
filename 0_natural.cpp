@@ -53,7 +53,6 @@ ll extgcd(ll a, ll b, ll& x, ll& y) {
 	return d;
 }
 
-
 //中国剰余定理
 //modの積がすごいときオーバーフローする。
 //am[i].first:a_i, am[i].second:m_i

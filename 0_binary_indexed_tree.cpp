@@ -26,10 +26,9 @@ int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 class Bit {
 public:
 	int n;
-	vl bit; // 1-index
+	vl bit; // 0-index
 
 	Bit(int _n) { n = _n; bit.resize(n); }
-
 
 	// [0, i)‚Ì˜a
 	ll sum(int i) {
