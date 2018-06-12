@@ -213,33 +213,3 @@ public:
   }
 
 };
-
-
-
-
-
-
-int main() {
-	string s;
-	cin >> s;
-	int cnto = 0, cntx = 0;
-	rep(i, s.size()) {
-		if (s[i] == 'o') {
-			cnto++;
-		}
-		else {
-			cntx++;
-		}
-	}
-	if (cnto == 0) {
-		cout << "YES" << endl;
-		return 0;
-	}
-	if (cntx % cnto == 0) {
-		cout << "YES" << endl;
-	}
-	else {
-		cout << "NO" << endl;
-	}
-
-}
