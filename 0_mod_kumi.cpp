@@ -53,6 +53,8 @@ void set_fact(ll n, ll M = MOD) {
 	}
 }
 
+//http://drken1215.hatenablog.com/entry/2018/06/08/210000
+//n‚ª‘å‚«‚­fact‚ªŒvZ‚Å‚«‚È‚¢‚Æ‚«‚Ì‚Ù‚©‚ÌŒvZ•û–@‚É‚Â‚¢‚Ä‘‚¢‚Ä‚ ‚é
 ll nCr(ll n, ll r, ll M = MOD) {
 	ll ret = fact[n];
 	ret = (ret*rfact[r]) % M;
