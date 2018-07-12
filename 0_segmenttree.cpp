@@ -157,7 +157,8 @@ public:
 		ismax = _ismax;
 		int _n = a.size();
 		n = 1; while (n < _n) n *= 2;
-		node.resize(2 * n - 1, INF * (1 - (int)ismax * 2));
+		node.resize(2 * n - 1);
+        fill(all(node), INF * (1 - (int)ismax * 2));
 		lazy.resize(2 * n - 1, 0);
 		for (int i = 0; i < _n; i++) node[i + n - 1] = a[i];
 		for (int i = n - 2; i >= 0; i--) {
@@ -196,7 +197,7 @@ public:
 
 	ll getmax(int a, int b, int k, int l, int r) {
 		eval(k, l, r);
-		if (b <= l || r <= a) return 0;
+		if (b <= l || r <= a) return (ismax ? -INF : INF);
 		if (a <= l && r <= b) return node[k];
 		ll resl = getmax(a, b, 2 * k + 1, l, (l + r) / 2);
 		ll resr = getmax(a, b, 2 * k + 2, (l + r) / 2, r);
