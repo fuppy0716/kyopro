@@ -75,19 +75,21 @@ pll crt(vector<pll> am) {
 	return am.back();
 }
 
-void prime(vector<bool> &isprime, vll &soinsu) {
+void prime(vector<bool> &isprime /*, vll &soinsu */) {
 	ll i, j;
 	isprime[0] = isprime[1] = false;
 	for (i = 2; i < isprime.size(); i++) {
 		if (isprime[i]) {
-			soinsu[i].push_back(i);
+          // soinsu[i].push_back(i);
 			for (j = 2; i*j < isprime.size(); j++) {
 				isprime[i*j] = false;
+                /*
 				soinsu[i * j].push_back(i);
 				int temp = i * j;
 				while (temp % i == 0) {
 					temp /= i;
 				}
+                */
 			}
 		}
 	}
@@ -138,5 +140,4 @@ int main() {
 		ans = lcm(ans, t[i]);
 	}
 	cout << ans << endl;
-
 }
