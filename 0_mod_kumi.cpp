@@ -56,10 +56,11 @@ void set_fact(ll n, ll M = MOD) {
 //http://drken1215.hatenablog.com/entry/2018/06/08/210000
 //nが大きくfactが計算できないときのほかの計算方法について書いてある
 ll nCr(ll n, ll r, ll M = MOD) {
-	ll ret = fact[n];
-	ret = (ret*rfact[r]) % M;
-	ret = (ret*rfact[n - r]) % M;
-	return ret;
+  if (r > n) return 0;
+  ll ret = fact[n];
+  ret = (ret*rfact[r]) % M;
+  ret = (ret*rfact[n - r]) % M;
+  return ret;
 }
 
 // 第二種スターリング数
