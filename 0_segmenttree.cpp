@@ -91,56 +91,56 @@ public:
 // addƒpƒ^[ƒ“‚Íeval,update‚Ì‚¢‚­‚Â‚©‚Ì=‚ğ+=‚É‚·‚é, -2*INF‚ğ0‚É‚·‚é
 class LazySegmentTree {
 public:
-	int n;
-	vl node, lazy;
+  int n;
+  vl node, lazy;
 
-	LazySegmentTree(vl a) {
-		int _n = a.size();
-		n = 1; while (n < _n) n *= 2;
-		node.resize(2 * n - 1);
-		lazy.resize(2 * n - 1, -2*INF);
-		for (int i = 0; i < _n; i++) node[i + n - 1] = a[i];
-		for (int i = n - 2; i >= 0; i--) {
-			node[i] = node[i * 2 + 1] + node[i * 2 + 2];
-		}
-	}
+  LazySegmentTree(vl a) {
+    int _n = a.size();
+    n = 1; while (n < _n) n *= 2;
+    node.resize(2 * n - 1);
+    lazy.resize(2 * n - 1, -2*INF); // Change
+    for (int i = 0; i < _n; i++) node[i + n - 1] = a[i];
+    for (int i = n - 2; i >= 0; i--) {
+      node[i] = node[i * 2 + 1] + node[i * 2 + 2];
+    }
+  }
 
-	// k”Ô–Ú‚Ìƒm[ƒh‚É‚Â‚¢‚Ä’x‰„•]‰¿‚ğs‚¤
-	inline void eval(int k, int l, int r) {
-		if (lazy[k] != -2 * INF) {
-			node[k] = (r - l) * lazy[k];
-			if (r - l > 1) {
-				lazy[2 * k + 1] = lazy[k]; /////
-				lazy[2 * k + 2] = lazy[k]; /////
-			}
-			lazy[k] = -2 * INF;
-		}
-	}
+  // k”Ô–Ú‚Ìƒm[ƒh‚É‚Â‚¢‚Ä’x‰„•]‰¿‚ğs‚¤
+  inline void eval(int k, int l, int r) {
+    if (lazy[k] != -2 * INF) { // Change
+      node[k] = (r - l) * lazy[k]; // Change
+      if (r - l > 1) {
+        lazy[2 * k + 1] = lazy[k]; // Change
+        lazy[2 * k + 2] = lazy[k]; //Change
+      }
+      lazy[k] = -2 * INF; // Change
+    }
+  }
 
-	// [a, b)‚ğx‚É‚·‚é
-	void add(int a, int b, ll x, int k, int l, int r) {
-		// k ”Ô–Ú‚Ìƒm[ƒh‚É‘Î‚µ‚Ä’x‰„•]‰¿‚ğs‚¤
-		eval(k, l, r);
-		if (b <= l || r <= a) return;
-		if (a <= l && r <= b) {
-			lazy[k] = x;
-			eval(k, l, r);
-		}
-		else {
-			add(a, b, x, 2 * k + 1, l, (l + r) / 2);
-			add(a, b, x, 2 * k + 2, (l + r) / 2, r);
-			node[k] = node[2 * k + 1] + node[2 * k + 2];
-		}
-	}
+  // [a, b)‚ğx‚É‚·‚é
+  void add(int a, int b, ll x, int k, int l, int r) {
+    // k ”Ô–Ú‚Ìƒm[ƒh‚É‘Î‚µ‚Ä’x‰„•]‰¿‚ğs‚¤
+    eval(k, l, r);
+    if (b <= l || r <= a) return;
+    if (a <= l && r <= b) {
+      lazy[k] = x; // Change
+      eval(k, l, r);
+    }
+    else {
+      add(a, b, x, 2 * k + 1, l, (l + r) / 2);
+      add(a, b, x, 2 * k + 2, (l + r) / 2, r);
+      node[k] = node[2 * k + 1] + node[2 * k + 2];
+    }
+  }
 
-	ll getsum(int a, int b, int k, int l, int r) {
-		eval(k, l, r);
-		if (b <= l || r <= a) return 0;
-		if (a <= l && r <= b) return node[k];
-		ll resl = getsum(a, b, 2 * k + 1, l, (l + r) / 2);
-		ll resr = getsum(a, b, 2 * k + 2, (l + r) / 2, r);
-		return resl + resr;
-	}
+  ll getsum(int a, int b, int k, int l, int r) {
+    eval(k, l, r);
+    if (b <= l || r <= a) return 0;
+    if (a <= l && r <= b) return node[k];
+    ll resl = getsum(a, b, 2 * k + 1, l, (l + r) / 2);
+    ll resr = getsum(a, b, 2 * k + 2, (l + r) / 2, r);
+    return resl + resr;
+  }
 };
 
 
