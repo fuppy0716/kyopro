@@ -27,7 +27,7 @@ int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 
 struct edge { int to, cap, cost, rev; };
 int V; //頂点数
-vector< vector<edge> > G(MAX_V, vector<edge>(MAX_V)); //グラフの隣接リスト表現
+vector< vector<edge> > G(MAX_V); //グラフの隣接リスト表現
 vi h(MAX_V); //ポテンシャル
 vi dist(MAX_V); //最短距離
 vi prevv(MAX_V), preve(MAX_V); //直前の頂点と辺
