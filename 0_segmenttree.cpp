@@ -24,63 +24,66 @@ int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 
 
-
+template <typename T>
 class SegmentTree {
 public:
-	const ll MAX_N = 1 << 20;
-	int n;
-	vl dat;
-	vl a;
+  using F = function<T(T&, T&)>;
+  int n;
+  vector<T > dat;
+  T e; // 単位元
+  F query_func;
+  F update_func;
+  
+  SegmentTree(vector<T> a, F query_func, F update_func, T e) :n(a.size()), query_func(query_func), update_func(update_func), e(e) {
+    dat.resize(4 * n);
+    init(0, 0, n, a);
+  }
 
-	SegmentTree(int _n, vl _a) :n(_n), a(_a) { dat.resize(2 * MAX_N - 1); }
-	SegmentTree() { dat.resize(2 * MAX_N - 1); }
+  void init(int k, int l, int r, vector<T> &a) {
+    if (r - l == 1) {
+      dat[k] = a[l];
+    }
+    else {
+      int lch = 2 * k + 1, rch = 2 * k + 2;
+      init(lch, l, (l + r) / 2, a);
+      init(rch, (l + r) / 2, r, a);
+      dat[k] = query_func(dat[lch], dat[rch]);
+    }
+  }
 
-	void init(int k, int l, int r) {
-		if (r - l == 1) {
-			dat[k] = a[l];
-		}
-		else {
-			int lch = 2 * k + 1, rch = 2 * k + 2;
-			init(lch, l, (l + r) / 2);
-			init(rch, (l + r) / 2, r);
-			dat[k] = min(dat[lch], dat[rch]);
-		}
-	}
+  //k番目の値をaに変更
+  void update(int k, T a, int v, int l, int r) {
+    if (r - l == 1) {
+      dat[v] = update_func(dat[v], a);
+    }
+    else {
+      if (k < (l + r) / 2)
+        update(k, a, 2 * v + 1, l, (l + r) / 2);
+      else {
+        update(k, a, 2 * v + 2, (l + r) / 2, r);
+      }
+      dat[v] = query_func(dat[v * 2 + 1], dat[v * 2 + 2]);
+    }
+  }
+    
 
-
-	//k番目の値をaに変更
-	void update(int k, ll a, int v, int l, int r) {
-		if (r - l == 1) {
-			dat[v] = a;
-		}
-		else {
-			if (k < (l + r) / 2)
-				update(k, a, 2 * v + 1, l, (l + r) / 2);
-			else {
-				update(k, a, 2 * v + 2, (l + r) / 2, r);
-			}
-			dat[v] = min(dat[v * 2 + 1], dat[v * 2 + 2]);
-		}
-	}
-
-	//[a,b)の最小値を求める
-	//後ろのほうの引数は計算の簡単のための引数
-	//kは接点の番号,l,rはその接点が[l,r)に対応していることを表す
-	//従って、外からはquery(a,b,0,0,n)としてよぶ
-	ll query(int a, int b, int k, int l, int r) {
-		if (r <= a || b <= l) {
-			return INF;
-		}
-		if (a <= l && r <= b) {
-			return dat[k];
-		}
-		else {
-			ll ul = query(a, b, k * 2 + 1, l, (l + r) / 2);
-			ll ur = query(a, b, k * 2 + 2, (l + r) / 2, r);
-			return min(ul, ur);
-		}
-	}
-
+  //[a,b)の最小値を求める
+  //後ろのほうの引数は計算の簡単のための引数
+  //kは接点の番号,l,rはその接点が[l,r)に対応していることを表す
+  //従って、外からはquery(a,b,0,0,n)としてよぶ
+  T query(int a, int b, int k, int l, int r) {
+    if (r <= a || b <= l) {
+      return e;
+    }
+    if (a <= l && r <= b) {
+      return dat[k];
+    }
+    else {
+      T ul = query(a, b, k * 2 + 1, l, (l + r) / 2);
+      T ur = query(a, b, k * 2 + 2, (l + r) / 2, r);
+      return query_func(ul, ur);
+    }
+  }
 };
 
 ///////////////
