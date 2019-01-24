@@ -86,6 +86,80 @@ public:
   }
 };
 
+
+template <typename T1, typename T2>
+class LazySegmentTree {
+public:
+  using F = function<T1(T1&, T1&)>; // query_func
+  using G = function<T2(T2&, T2&)>; // update_func
+  using H = function<T1(T1&, T2&, int, int)>; // lazy to node (node, lazy, left, right)
+  int n;
+  vector<T1> node;
+  vector<T2> lazy;
+  T1 e1;
+  T2 e2;
+  F query_func;
+  G update_func;
+  H eval_func;
+
+  LazySegmentTree(vector<T1> a, F query_func, G update_func, H eval_func, T1 e1, T2 e2)
+    :query_func(query_func), update_func(update_func), eval_func(eval_func), e1(e1), e2(e2)
+  {
+    int _n = a.size();
+    n = 1; while (n < _n) n *= 2;
+    node.resize(2 * n - 1, e1);
+    lazy.resize(2 * n - 1, e2);
+    for (int i = 0; i < _n; i++) node[i + n - 1] = a[i];
+    for (int i = n - 2; i >= 0; i--) {
+      node[i] = query_func(node[i * 2 + 1], node[i * 2 + 2]);
+    }
+  }
+
+  // k”Ô–Ú‚Ìƒm[ƒh‚É‚Â‚¢‚Ä’x‰„•]‰¿‚ğs‚¤
+  inline void eval(int k, int l, int r) {
+    if (lazy[k] != e2) { // Change
+      node[k] = eval_func(node[k], lazy[k], l, r);
+      if (r - l > 1) {
+        lazy[2 * k + 1] = update_func(lazy[2*k + 1], lazy[k]);
+        lazy[2 * k + 2] = update_func(lazy[2*k + 2], lazy[k]);
+      }
+      lazy[k] = e2; // Change
+    }
+  }
+
+  // [a, b)‚ğx‚É‚·‚é
+  void update(int a, int b, T2 x, int k, int l, int r) {
+    // k ”Ô–Ú‚Ìƒm[ƒh‚É‘Î‚µ‚Ä’x‰„•]‰¿‚ğs‚¤
+    eval(k, l, r);
+    if (b <= l || r <= a) return;
+    if (a <= l && r <= b) {
+      lazy[k] = update_func(lazy[k], x);
+      eval(k, l, r);
+    }
+    else {
+      update(a, b, x, 2 * k + 1, l, (l + r) / 2);
+      update(a, b, x, 2 * k + 2, (l + r) / 2, r);
+      node[k] = query_func(node[2 * k + 1], node[2 * k + 2]);
+    }
+  }
+
+  T1 query(int a, int b, int k, int l, int r) {
+    eval(k, l, r);
+    if (b <= l || r <= a) return e1;
+    if (a <= l && r <= b) return node[k];
+    T1 resl = query(a, b, 2 * k + 1, l, (l + r) / 2);
+    T1 resr = query(a, b, 2 * k + 2, (l + r) / 2, r);
+    return query_func(resl, resr);
+  }
+};
+
+
+
+
+
+
+
+
 ///////////////
 ////sum////////
 ///////////////
