@@ -24,33 +24,32 @@ int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 
 
 
-
 const int MAXN = 3010;
 
 vl fact(MAXN);
 vl rfact(MAXN);
 
 ll mod_pow(ll x, ll p, ll M = MOD) {
-	ll a = 1;
-	while (p) {
-		if (p % 2)
-			a = a*x%M;
-		x = x*x%M;
-		p /= 2;
-	}
-	return a;
+  ll a = 1;
+  while (p) {
+    if (p % 2)
+      a = a*x%M;
+    x = x*x%M;
+    p /= 2;
+  }
+  return a;
 }
 
 ll mod_inverse(ll a, ll M = MOD) {
-	return mod_pow(a, M - 2, M);
+  return mod_pow(a, M - 2, M);
 }
 
 void set_fact(ll n, ll M = MOD) {
-	fact[0] = fact[1] = rfact[0] = rfact[1] = 1;
-	for (ll i = 2; i <= n; i++) {
-		fact[i] = i * fact[i - 1] % M;
-		rfact[i] = mod_inverse(fact[i], M);
-	}
+  fact[0] = fact[1] = rfact[0] = rfact[1] = 1;
+  for (ll i = 2; i <= n; i++) {
+    fact[i] = i * fact[i - 1] % M;
+    rfact[i] = mod_inverse(fact[i], M);
+  }
 }
 
 //http://drken1215.hatenablog.com/entry/2018/06/08/210000
@@ -86,17 +85,19 @@ void setSecondStirling(ll n, ll M = MOD) {
 
 
 // 分割数
-// i個の違いに区別できない品物をj個以下に分割する方法part[n][m]
+// i個の違いに区別できない品物をjグループ以下に分割する方法part[i][j]
 vll part(MAXN + 1, vl(MAXN + 1));
 void setPartition(int n, ll M = MOD) {
   part[0][0] = 1;
   rep (i, n + 1) {
     rep1 (j, n) {
       if (i - j >= 0) {
-	part[i][j] = part[i - j][j] + part[i][j - 1];
+        // 個数が0のグループがあるとき, iのj-1グループと同じ
+        // ないとき, i - j のjグループと同じ(すべてのグループで個数を-=1する)
+        part[i][j] = part[i - j][j] + part[i][j - 1];
       }
       else {
-	part[i][j] = part[i][j - 1];
+        part[i][j] = part[i][j - 1];
       }
       part[i][j] %= M;
     }

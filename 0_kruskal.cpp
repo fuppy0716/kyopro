@@ -114,8 +114,6 @@ int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 const int N = 1010;
 const int M = 2010;
 int n;
-vector< pair<ll, pll> > edges(M);
-vector<bool> used(M, false);
 
 class UnionFind {
 public:
@@ -168,8 +166,9 @@ public:
 
 };
 
+vector< pair<ll, pll> > edges(M);
 
-ll kruskal() {
+ll kruskal(int n) {
 	sort(edges.begin(), edges.end());
 	UnionFind uf(n);
 	ll res = 0;
@@ -177,7 +176,6 @@ ll kruskal() {
 		if (!uf.same(edges[i].second.first, edges[i].second.second)) {
 			uf.unite(edges[i].second.first, edges[i].second.second);
 			res += edges[i].first;
-			used[i] = true;
 		}
 	}
 	return res;

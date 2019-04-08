@@ -1,9 +1,12 @@
-#include "bits/stdc++.h"
+#include <bits/stdc++.h>
+#include <unistd.h>
 
 using namespace std;
 
 #define DEBUG(x) cerr<<#x<<": "<<x<<endl;
 #define DEBUG_VEC(v) cerr<<#v<<":";for(int i=0;i<v.size();i++) cerr<<" "<<v[i]; cerr<<endl
+#define DEBUG_MAT(v) cerr<<#v<<endl;for(int i=0;i<v.size();i++){for(int j=0;j<v[i].size();j++) {cerr<<v[i][j]<<" ";}cerr<<endl;}
+
 
 typedef long long ll;
 #define vi vector<int>
@@ -20,62 +23,77 @@ template<class S, class T> pair<S, T> operator-(const pair<S, T> &s, const pair<
 template<class S, class T> ostream& operator<<(ostream& os, pair<S, T> p) { os << "(" << p.first << ", " << p.second << ")"; return os; }
 #define X first
 #define Y second
-#define rep(i,n) for(ll i=0;i<(ll)(n);i++)
-#define rep1(i,n) for(ll i=1;i<=(ll)(n);i++)
-#define rrep(i,n) for(ll i=(ll)(n)-1;i>=0;i--)
-#define rrep1(i,n) for(ll i=(ll)(n);i>0;i--)
-#define REP(i,a,b) for(ll i=(ll)a;i<(ll)b;i++)
+#define rep(i,n) for(int i=0;i<(n);i++)
+#define rep1(i,n) for(int i=1;i<=(n);i++)
+#define rrep(i,n) for(int i=(n)-1;i>=0;i--)
+#define rrep1(i,n) for(int i=(n);i>0;i--)
+#define REP(i,a,b) for(int i=a;i<b;i++)
 #define in(x, a, b) (a <= x && x < b)
 #define all(c) c.begin(),c.end()
 template<class T> bool chmax(T &a, const T &b) { if (a<b) { a = b; return 1; } return 0; }
 template<class T> bool chmin(T &a, const T &b) { if (a>b) { a = b; return 1; } return 0; }
+#define UNIQUE(v) v.erase(std::unique(v.begin(), v.end()), v.end());
 const ll inf = 1000000001;
-const ll INF = 2e18;
+const ll INF = (ll)1e18 + 1;
 const ll MOD = 1000000007;
+//const ll MOD = 998244353;
 const double pi = 3.14159265358979323846;
 #define Sp(p) cout<<setprecision(15)<< fixed<<p<<endl;
 int dx[4] = { 1,0, -1,0 }, dy[4] = { 0,1,0,-1 };
 int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 #define fio() cin.tie(0); ios::sync_with_stdio(false);
+//#define mp make_pair
 
-ll ans = 0;
-int n;
-vl a;
-
-void dfs(vector<bool> &used, int cnt, ll now) {
-  if (cnt == n / 2) {
-    chmax(ans, now);
-    return;
-  }
-  ll res = 0;
-  int idx;
-  rep (i, n) {
-    if (!used[i]) {
-      used[i] = true;
-      res += a[i];
-      idx = i;
-      break;
+void add(set<vector<pii> > &st, vector<pii> ori) {
+  st.insert(ori);
+  rep (aaa, 3) {
+    rep (j, ori.size()) {
+      if (ori[j].first != 0) {
+        swap(ori[j].first, ori[j].second);
+      }
+      else {
+        swap(ori[j].first, ori[j].second);
+        ori[j].first *= -1;
+      }
     }
+    st.insert(ori);
   }
-  rep (i, n) {
-    if (!used[i]) {
-      used[i] = true;
-      res += a[i];
-      dfs(used, cnt + 1, now ^ res);
-      res -= a[i];
-      used[i] = false;
-    }
-  }
-  used[idx] = false;
 }
 
-int main () {
-  cin >> n;
-  a.resize(n);
-  rep (i, n) {
-    cin >> a[i];
+int main() {
+  while (true) {
+    int n;
+    cin >> n;
+    if (n == 0) return 0;
+
+    vector<pii> ori;
+    vi ans;
+    set<vector<pii> > st;
+    rep (i, n + 1) {
+      int m;
+      cin >> m;
+      pii now;
+      cin >> now.first >> now.second;
+      vector<pii> diff;
+      rep (j, m - 1) {
+        pii nex;
+        cin >> nex.first >> nex.second;
+        diff.push_back(nex - now);
+        now = nex;
+      }
+      if (i == 0) {
+        ori = diff;
+        add(st, ori);
+      }
+      else {
+        auto diff2 = diff;
+        reverse(all(diff2));
+        if (st.count(diff) || st.count(diff2)) {
+          ans.push_back(i);
+        }
+      }
+    }
+    rep (i, ans.size()) cout << ans[i] << endl;
+    cout << "+++++" << endl;
   }
-  vector<bool> used(n, false);
-  dfs(used, 0, 0);
-  cout << ans << endl;
 }

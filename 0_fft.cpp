@@ -54,13 +54,13 @@ vector<P> fft(vector<P> v, bool rev = false) {
 }
 
 vector<P> MultPoly(vector<P> a, vector<P> b) {
+  // 前処理あり, main関数を読んで!
 	a = fft(a), b = fft(b);
 	for (int i = 0; i<a.size(); i++) a[i] *= b[i];
 	return fft(a, true);
 }
 
 
-class FFT
 
 
 template< int mod, int primitiveroot >

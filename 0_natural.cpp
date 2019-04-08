@@ -24,33 +24,33 @@ int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 
 ll gcd(ll a, ll b) {
-	if (b > a) {
-		swap(a, b);
-	}
-	ll r = a%b;
-	while (r != 0) {
-		a = b;
-		b = r;
-		r = a%b;
-	}
-	return b;
+  if (b > a) {
+    swap(a, b);
+  }
+  ll r = a%b;
+  while (r != 0) {
+    a = b;
+    b = r;
+    r = a%b;
+  }
+  return b;
 }
 
 ll lcm(ll a, ll b) {
-	return (a / gcd(a, b))*b;
+  return (a / gcd(a, b))*b;
 }
 
 //ax + by = gcd(a, b) となるx, yをもとめる
 ll extgcd(ll a, ll b, ll& x, ll& y) {
-	ll d = a;
-	if (b != 0) {
-		d = extgcd(b, a%b, y, x);
-		y -= (a / b)*x;
-	}
-	else {
-		x = 1; y = 0;
-	}
-	return d;
+  ll d = a;
+  if (b != 0) {
+    d = extgcd(b, a%b, y, x);
+    y -= (a / b)*x;
+  }
+  else {
+    x = 1; y = 0;
+  }
+  return d;
 }
 
 
@@ -60,53 +60,53 @@ ll extgcd(ll a, ll b, ll& x, ll& y) {
 //return (x, y) y = lcm(m1, m2, ..., m_n),  x%m_i = a_i
 typedef __int128 lll;
 pll crt(vector<pll> am) {
-	rep(i, am.size() - 1) {
-		ll g, x, y, z;
-		am[i].first = (am[i].first % am[i].second + am[i].second) % am[i].second;
-		am[i + 1].first = (am[i + 1].first % am[i + 1].second + am[i + 1].second) % am[i + 1].second;
-		g = extgcd(am[i].second, am[i + 1].second, x, y);
-		if (am[i].first%g != am[i].second%g) return pll(-1, 0); //解なし
-		lll lcm = (lll)am[i].second*(am[i + 1].second / g);
-		if (lcm < am[i].second) return pll(-2, 0); //オーバーフロー
-		ll mo = am[i + 1].second = lcm;
-		lll v = am[i].first + ((lll)(am[i].second / g) * x % mo * (am[i + 1].first - am[i].first + mo) % mo);
-		am[i + 1].first = (v%mo + mo) % mo;
-	}
-	return am.back();
+  rep(i, am.size() - 1) {
+    ll g, x, y, z;
+    am[i].first = (am[i].first % am[i].second + am[i].second) % am[i].second;
+    am[i + 1].first = (am[i + 1].first % am[i + 1].second + am[i + 1].second) % am[i + 1].second;
+    g = extgcd(am[i].second, am[i + 1].second, x, y);
+    if (am[i].first%g != am[i].second%g) return pll(-1, 0); //解なし
+    lll lcm = (lll)am[i].second*(am[i + 1].second / g);
+    if (lcm < am[i].second) return pll(-2, 0); //オーバーフロー
+    ll mo = am[i + 1].second = lcm;
+    lll v = am[i].first + ((lll)(am[i].second / g) * x % mo * (am[i + 1].first - am[i].first + mo) % mo);
+    am[i + 1].first = (v%mo + mo) % mo;
+  }
+  return am.back();
 }
 
 void prime(vector<bool> &isprime /*, vll &soinsu */) {
-	ll i, j;
-	isprime[0] = isprime[1] = false;
-	for (i = 2; i < isprime.size(); i++) {
-		if (isprime[i]) {
-          // soinsu[i].push_back(i);
-			for (j = 2; i*j < isprime.size(); j++) {
-				isprime[i*j] = false;
-                /*
-				soinsu[i * j].push_back(i);
-				int temp = i * j;
-				while (temp % i == 0) {
-					temp /= i;
-				}
-                */
-			}
-		}
-	}
+  ll i, j;
+  isprime[0] = isprime[1] = false;
+  for (i = 2; i < isprime.size(); i++) {
+    if (isprime[i]) {
+      // soinsu[i].push_back(i);
+      for (j = 2; i*j < isprime.size(); j++) {
+        isprime[i*j] = false;
+        /*
+          soinsu[i * j].push_back(i);
+          int temp = i * j;
+          while (temp % i == 0) {
+          temp /= i;
+          }
+        */
+      }
+    }
+  }
 }
 
 //n以下のnと互いに素な自然数の個数
 //O(sqrt(n))
 int eulerSingle(int n) {
-	int res = n;
-	for (int i = 2; i*i <= n; i++) {
-		if (n%i == 0) {
-			res = res / i * (i - 1);
-			for (; n%i == 0; n /= i);
-		}
-	}
-	if (n != 1) res = res / n * (n - 1);
-	return res;
+  int res = n;
+  for (int i = 2; i*i <= n; i++) {
+    if (n%i == 0) {
+      res = res / i * (i - 1);
+      for (; n%i == 0; n /= i);
+    }
+  }
+  if (n != 1) res = res / n * (n - 1);
+  return res;
 }
 
 
@@ -114,30 +114,30 @@ int eulerSingle(int n) {
 //O(n)
 vl euler(n + 1);
 void eulerTable(int n) {
-	for (i = 0; i <= n; i++) {
-		euler[i] = i;
-	}
-	for (i = 2; i <= n; i++) {
-		if (euler[i] == i) {
-			for (j = i; j <= n; j += i) {
-				euler[j] = euler[j] / i * (i - 1);
-			}
-		}
-	}
+  for (i = 0; i <= n; i++) {
+    euler[i] = i;
+  }
+  for (i = 2; i <= n; i++) {
+    if (euler[i] == i) {
+      for (j = i; j <= n; j += i) {
+        euler[j] = euler[j] / i * (i - 1);
+      }
+    }
+  }
 }
 
 
 int main() {
-	ll n;
-	int i, j;
-	cin >> n;
-	vl t(n);
-	for (i = 0; i < n; i++) {
-		cin >> t[i];
-	}
-	ll ans = 1;
-	for (i = 0; i < n; i++) {
-		ans = lcm(ans, t[i]);
-	}
-	cout << ans << endl;
+  ll n;
+  int i, j;
+  cin >> n;
+  vl t(n);
+  for (i = 0; i < n; i++) {
+    cin >> t[i];
+  }
+  ll ans = 1;
+  for (i = 0; i < n; i++) {
+    ans = lcm(ans, t[i]);
+  }
+  cout << ans << endl;
 }

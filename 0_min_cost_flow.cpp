@@ -23,7 +23,7 @@ const ll INF = 1e18 * 4;
 int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 
-#define MAX_V 1000
+#define MAX_V 60000
 
 struct edge { int to, cap, cost, rev; };
 int V; //’¸“_”
@@ -43,7 +43,7 @@ void add_edge(int from, int to, int cap, int cost) {
 
 //s‚©‚çt‚Ö‚Ì—¬—Êf‚ÌÅ¬”ï—p—¬‚ð‹‚ß‚é
 //—¬‚¹‚È‚¢ê‡‚Í-1‚ð•Ô‚·
-int min_cost_flow(int s, int t, int f) {
+int min_cost_flow(int s, int t, int f, int V) {
 	int res = 0;
 	fill(h.begin(), h.end(), 0);
 	while (f > 0) {

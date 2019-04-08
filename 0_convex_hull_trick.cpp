@@ -24,13 +24,14 @@ int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 
 //追加される傾きaが単調減少、求めたい点xが単調増加の時のみ最小値を求められる。
+//最大値の時は傾きaが単調増加、xは単調増加
 template<typename T> class ConvexHullTrick {
   deque<pair<T, T> > lines;
   // 大小を判断する関数
   std::function<bool(T l, T r)> comp;
   
 public:
-  ConvexHullTrick(std::function<bool(T l, T r)> compFunc = [](T l, T r) {return l >= r; })
+  ConvexHullTrick(std::function<bool(T l, T r)> compFunc = [](T l, T r) {return l >= r; }) // 最大値:l <= r
     :comp(compFunc)  {
   };
 
@@ -38,6 +39,8 @@ public:
   bool check(std::pair<T, T> l1, std::pair<T, T> l2, std::pair<T, T> l3) {
     if (l1 < l3) swap(l1, l3);
     return (l3.second - l2.second) * (l2.first - l1.first) >= (l2.second - l1.second) * (l3.first - l2.first);
+    // 最大値
+    // return (l3.second - l2.second) * (l2.first - l1.first) <= (l2.second - l1.second) * (l3.first - l2.first);
   }
 
   // 直線y=ax+bを追加する

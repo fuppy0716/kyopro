@@ -71,4 +71,3 @@ void dijkstra(int s){
 		}
 	}
 }
-	

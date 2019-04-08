@@ -36,7 +36,7 @@ Modint &operator+=(Modint &a, Modint b) { return a = a + b; }
 Modint &operator-=(Modint &a, Modint b) { return a = a - b; }
 Modint &operator*=(Modint &a, Modint b) { return a = a * b; }
 
-typedef vector<Modint> vec;
+typedef vector<ll> vec;
 typedef vector<vec> mat;
 
 mat mul(mat &A, mat &B) {
@@ -61,7 +61,6 @@ vec mul(mat &A, vec &B) {
 	return C;
 }
 
-
 mat pow(mat A, ll n) {
 	mat B(A.size(), vec(A.size()));
 	for (int i = 0; i < A.size(); i++) {
@@ -74,3 +73,4 @@ mat pow(mat A, ll n) {
 	}
 	return B;
 }
+
