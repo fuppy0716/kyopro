@@ -1,11 +1,26 @@
 #include <bits/stdc++.h>
 using namespace std;
+typedef long long ll;
+
+struct dice {
+  mt19937 mt;
+  dice() : mt(chrono::steady_clock::now().time_since_epoch().count()) {}
+  // [0, x)の一様乱数
+  ll operator()(ll x) { return this->operator()(0, x - 1); }
+  // [x, y)の一様乱数
+  ll operator()(ll x, ll y) {
+    uniform_int_distribution<ll> dist(x, y - 1);
+    return dist(mt);
+  }
+} rnd;
 
 int main() {
-  random_device rnd;     // 非決定的な乱数生成器を生成
-  mt19937 mt(rnd());     //  メルセンヌ・ツイスタの32ビット版、引数は初期シード値
-  uniform_int_distribution<> rand100(0, 99);        // [0, 99] 範囲の一様乱数
-  for (int i = 0; i < 20; ++i) {
-    cout << rand100(mt) << "\n";
+  for (int i = 0; i < 30; i++) {
+    cout << rnd(10) << " ";
   }
+  cout << endl;
+  for (int i = 0; i < 30; i++) {
+    cout << rnd(5, 10) << " ";
+  }
+  cout << endl;
 }
