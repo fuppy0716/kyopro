@@ -57,33 +57,36 @@ bool bipartite() {
 }
 
 //マッチングに使う
-bool dfs(int v) {
-	used[v] = true;
-	for (int i = 0; i < G[v].size(); i++) {
-		int u = G[v][i], w = match[u];
-		if (w < 0 || !used[w] && dfs(w)) {
-			match[v] = u;
-			match[u] = v;
-			return true;
-		}
-	}
-	return false;
+bool dfs(int v, vii &G, vi &match, vi &used) {
+  used[v] = true;
+  for (int i = 0; i < G[v].size(); i++) {
+    int u = G[v][i], w = match[u];
+    if (w < 0 || !used[w] && dfs(w, G, match, used)) {
+      match[v] = u;
+      match[u] = v;
+      return true;
+    }
+  }
+  return false;
 }
 
 //二部グラフの最大マッチングを求める
 //二部グラフの最大マッチング = 最小点カバー = n-最小辺カバー = n-最大安定集合
-int bipartite_matching() {
-	int res = 0;
-	fill(match.begin(), match.end(), -1);
-	for (int v = 0; v < n; v++) {
-		if (match[v] < 0) {
-			fill(used.begin(), used.end(), 0);
-			if (dfs(v)) {
-				res++;
-			}
-		}
-	}
-	return res;
+// http://buyoh.hateblo.jp/entry/2017/06/12/085722
+// 頂点に重みがついてる最小点カバーのurl, Dinicで解ける
+int bipartite_matching(vii &G) {
+  int res = 0;
+  vi match(G.size(), -1);
+  vi used(G.size());
+  for (int v = 0; v < G.size(); v++) {
+    if (match[v] < 0) {
+      fill(used.begin(), used.end(), 0);
+      if (dfs(v, G, match, used)) {
+        res++;
+      }
+    }
+  }
+  return res;
 }
 
 int main() {

@@ -20,56 +20,58 @@ const ll INF=1e18;
 int dx[4]={1,0,-1,0}, dy[4]={0,1,0,-1};
 
 
-
 class UnionFind {
 public:
-	int n;
-	vi par; //êe
-	vi ran; //ñÿÇÃê[Ç≥
-	vi num; //óvëfêî
-
-	UnionFind(int _n) {
-		n = _n;
-		par.resize(n); ran.resize(n); num.resize(n);
-		for (int i = 0; i < n; i++) {
-			par[i] = i; ran[i] = 0; num[i] = 1;
-		}
-	}
-
-	//ñÿÇÃç™ÇãÅÇﬂÇÈ
-	int find(int x) {
-		if (par[x] == x) {
-			return x;
-		}
-		else {
-			return par[x] = find(par[x]);
-		}
-	}
-
-	//xÇ∆yÇÃëÆÇ∑ÇÈèWçáÇïπçá
-	void unite(int x, int y) {
-		x = find(x); y = find(y);
-		int numsum = num[x] + num[y];
-		if (x == y) {
-			return;
-		}
-		if (ran[x]<ran[y]) {
-			par[x] = y;
-		}
-		else {
-			par[y] = x;
-			if (ran[x] == ran[y]) {
-				ran[x]++;
-			}
-		}
-		num[x] = num[y] = numsum;
-	}
-
-	//xÇ∆yÇ™ìØÇ∂èWçáÇ…ëÆÇ∑ÇÈÇ©î€Ç©
-	bool same(int x, int y) {
-		return find(x) == find(y);
-	}
-
+  int n;
+  vi par; //êe
+  vi ran; //ñÿÇÃê[Ç≥
+  vi num; //óvëfêî
+  int g; // groupêî
+ 
+  UnionFind(int _n) {
+    n = _n;
+    g = n;
+    par.resize(n); ran.resize(n); num.resize(n);
+    for (int i = 0; i < n; i++) {
+      par[i] = i; ran[i] = 0; num[i] = 1;
+    }
+  }
+ 
+  //ñÿÇÃç™ÇãÅÇﬂÇÈ
+  int find(int x) {
+    if (par[x] == x) {
+      return x;
+    }
+    else {
+      return par[x] = find(par[x]);
+    }
+  }
+ 
+  //xÇ∆yÇÃëÆÇ∑ÇÈèWçáÇïπçá
+  void unite(int x, int y) {
+    x = find(x); y = find(y);
+    int numsum = num[x] + num[y];
+    if (x == y) {
+      return;
+    }
+    if (ran[x]<ran[y]) {
+      par[x] = y;
+    }
+    else {
+      par[y] = x;
+      if (ran[x] == ran[y]) {
+        ran[x]++;
+      }
+    }
+    num[x] = num[y] = numsum;
+    g--;
+  }
+ 
+  //xÇ∆yÇ™ìØÇ∂èWçáÇ…ëÆÇ∑ÇÈÇ©î€Ç©
+  bool same(int x, int y) {
+    return find(x) == find(y);
+  }
+ 
 };
 
 //ïîï™âië±UF

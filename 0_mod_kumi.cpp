@@ -48,7 +48,7 @@ void set_fact(ll n, ll M = MOD) {
   fact[0] = fact[1] = rfact[0] = rfact[1] = 1;
   for (ll i = 2; i <= n; i++) {
     fact[i] = i * fact[i - 1] % M;
-    rfact[i] = mod_inverse(fact[i], M);
+    // rfact[i] = mod_inverse(fact[i], M);
   }
 }
 
@@ -56,10 +56,21 @@ void set_fact(ll n, ll M = MOD) {
 //nが大きくfactが計算できないときのほかの計算方法について書いてある
 ll nCr(ll n, ll r, ll M = MOD) {
   if (r > n) return 0;
+  assert(fact[2] == 2);
   ll ret = fact[n];
+  if (rfact[r] == 0) {
+    rfact[r] = mod_inverse(fact[r], M);
+  }
   ret = (ret*rfact[r]) % M;
+  if (rfact[n - r] == 0) {
+    rfact[n - r] = mod_inverse(fact[n - r], M);
+  }
   ret = (ret*rfact[n - r]) % M;
   return ret;
+}
+
+ll nHr(ll n, ll r) {
+  return nCr(n+r-1, r);
 }
 
 // 第二種スターリング数

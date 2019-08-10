@@ -45,8 +45,8 @@ bool bellman_ford(ll s) {
 			}
 		}
 
-		if (cnt == n - 1) return true;
 		if (!updateFlag) break;
+		if (cnt == n) return true;
 
 		cnt += 1;
 	}

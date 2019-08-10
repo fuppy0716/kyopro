@@ -33,8 +33,7 @@ public:
   }
 };
 
-
-
+// S と S[i:|S|-1] の最長共通接頭辞の長さ」を記録した配列 A を O(|S|) で構築
 vi z_algorithm(string s) {
   int n = s.size();
   vi a(n);

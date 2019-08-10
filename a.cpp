@@ -1,3 +1,4 @@
+
 #include <bits/stdc++.h>
 #include <unistd.h>
 
@@ -39,61 +40,74 @@ const ll MOD = 1000000007;
 //const ll MOD = 998244353;
 const double pi = 3.14159265358979323846;
 #define Sp(p) cout<<setprecision(15)<< fixed<<p<<endl;
-int dx[4] = { 1,0, -1,0 }, dy[4] = { 0,1,0,-1 };
+int dx[4] = { -1,0, 1,0 }, dy[4] = { 0,1,0,-1 };
 int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 #define fio() cin.tie(0); ios::sync_with_stdio(false);
-//#define mp make_pair
+// #define mp make_pair
+//#define endl '\n'
 
-void add(set<vector<pii> > &st, vector<pii> ori) {
-  st.insert(ori);
-  rep (aaa, 3) {
-    rep (j, ori.size()) {
-      if (ori[j].first != 0) {
-        swap(ori[j].first, ori[j].second);
-      }
-      else {
-        swap(ori[j].first, ori[j].second);
-        ori[j].first *= -1;
-      }
-    }
-    st.insert(ori);
+ll mod_pow(ll x, ll p, ll M = MOD) {
+  ll a = 1;
+  while (p) {
+    if (p % 2)
+      a = a*x%M;
+    x = x*x%M;
+    p /= 2;
+  }
+  return a;
+}
+
+ll mod_inverse(ll a, ll M = MOD) {
+  return mod_pow(a, M - 2, M);
+}
+
+vii idx;
+void add_idx(int i, int ma, vi& a) {
+  if (i == ma) {
+    idx.push_back(a);
+    return;
+  }
+  rep (j, ma) {
+    a.push_back(j);
+    add_idx(i + 1, ma, a);
+    a.pop_back();
   }
 }
 
 int main() {
-  while (true) {
-    int n;
-    cin >> n;
-    if (n == 0) return 0;
+  int p;
+  cin >> p;
+  vi a(p);
 
-    vector<pii> ori;
-    vi ans;
-    set<vector<pii> > st;
-    rep (i, n + 1) {
-      int m;
-      cin >> m;
-      pii now;
-      cin >> now.first >> now.second;
-      vector<pii> diff;
-      rep (j, m - 1) {
-        pii nex;
-        cin >> nex.first >> nex.second;
-        diff.push_back(nex - now);
-        now = nex;
+  vi temp;
+  add_idx(0, p, temp);
+  DEBUG_MAT(idx);
+
+  rep (i, idx.size()) {
+
+    vi f;
+    rep (x, p) {
+      int sum = 0;
+      rep (j, p) {
+        sum += idx[i][j] * mod_pow(x, j, p) % p;
       }
-      if (i == 0) {
-        ori = diff;
-        add(st, ori);
-      }
-      else {
-        auto diff2 = diff;
-        reverse(all(diff2));
-        if (st.count(diff) || st.count(diff2)) {
-          ans.push_back(i);
-        }
-      }
+      sum %= p;
+      f.push_back(sum);
     }
-    rep (i, ans.size()) cout << ans[i] << endl;
-    cout << "+++++" << endl;
+    bool zo = true;
+    rep (x, p) {
+      if (f[x] != 0 and f[x] != 1) zo = false;
+    }
+    if (zo) {
+      cout << "idx: ";
+      rep (j, idx[i].size()) cout << idx[i][j] << " ";
+      DEBUG_VEC(f);
+    }
+      
   }
+
+  //rep (i, p) cin >> a[i];
+
+  vi b(p);
+  
 }
