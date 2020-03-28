@@ -25,81 +25,102 @@ int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 
 #define P complex<double>
 
-// ‹–—e‚·‚éŒë·ƒÃ
+// ï¿½ï¿½ï¿½eï¿½ï¿½ï¿½ï¿½ë·ï¿½ï¿½
 #define EPS (1e-10)
-// 2‚Â‚ÌƒXƒJƒ‰[‚ª“™‚µ‚¢‚©‚Ç‚¤‚©
+// 2ï¿½Â‚ÌƒXï¿½Jï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç‚ï¿½ï¿½ï¿½
 #define EQ(a,b) (abs((a)-(b)) < EPS)
-// 2‚Â‚ÌƒxƒNƒgƒ‹‚ª“™‚µ‚¢‚©‚Ç‚¤‚©
+// 2ï¿½Â‚Ìƒxï¿½Nï¿½gï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç‚ï¿½ï¿½ï¿½
 #define EQV(a,b) ( EQ((a).real(), (b).real()) && EQ((a).imag(), (b).imag()) )
 
 /*
-// ƒxƒNƒgƒ‹a‚Ìâ‘Î’l‚ğ‹‚ß‚é
+// ï¿½xï¿½Nï¿½gï¿½ï¿½aï¿½Ìï¿½Î’lï¿½ï¿½ï¿½ï¿½ï¿½ß‚ï¿½
 double length = abs(a);
 
-// 2“_a,bŠÔ‚Ì‹——£‚ğ‹‚ß‚é
+// 2ï¿½_a,bï¿½Ô‚Ì‹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß‚ï¿½
 double distance = abs(a-b);
 
-// ƒxƒNƒgƒ‹a‚Ì’PˆÊƒxƒNƒgƒ‹‚ğ‹‚ß‚é
+// ï¿½xï¿½Nï¿½gï¿½ï¿½aï¿½Ì’Pï¿½Êƒxï¿½Nï¿½gï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß‚ï¿½
 P b = a / abs(a);
 
-// ƒxƒNƒgƒ‹a‚Ì–@üƒxƒNƒgƒ‹n1,n2‚ğ‹‚ß‚é
+// ï¿½xï¿½Nï¿½gï¿½ï¿½aï¿½Ì–@ï¿½ï¿½ï¿½xï¿½Nï¿½gï¿½ï¿½n1,n2ï¿½ï¿½ï¿½ï¿½ï¿½ß‚ï¿½
 P n1 = a * P(0, 1);
 P n2 = a * P(0, -1);
-// ƒxƒNƒgƒ‹a‚Ì’PˆÊ–@üƒxƒNƒgƒ‹un1,un2‚ğ‹‚ß‚é
+// ï¿½xï¿½Nï¿½gï¿½ï¿½aï¿½Ì’Pï¿½Ê–@ï¿½ï¿½ï¿½xï¿½Nï¿½gï¿½ï¿½un1,un2ï¿½ï¿½ï¿½ï¿½ï¿½ß‚ï¿½
 P un1 = (a * P(0, +1)) / abs(a);
 P un2 = (a * P(0, -1)) / abs(a);
 */
 
-// “àÏ (dot product) : aEb = |a||b|cosƒ¦
+// åè§’ã‚½ãƒ¼ãƒˆã®ãŸã‚ã®æ¯”è¼ƒé–¢æ•°ã€syouã¯è±¡é™
+int syou(pll a) {
+  int x = a.first, y = a.second;
+  if (x > 0 and y >= 0) return 1;
+  else if (x <= 0 and y > 0) return 2;
+  else if (x < 0 and y <= 0) return 3;
+  else return 4;
+}
+bool cmp(pll a, pll b) {
+  int ta = syou(a), tb = syou(b);
+  if (ta != tb) return ta < tb;
+  ll ax = a.first, ay = a.second;
+  ll bx = b.first, by = b.second;
+  if (ta == 2 or ta == 3) {
+    ax *= -1; ay *= -1;
+    bx *= -1; by *= -1;
+  }
+  ay *= bx; by *= ax;
+  return ay < by;
+}
+
+// ï¿½ï¿½ï¿½ï¿½ (dot product) : aï¿½Eb = |a||b|cosï¿½ï¿½
 double dot(P a, P b) {
 	return (a.real() * b.real() + a.imag() * b.imag());
 }
 
-// ŠOÏ (cross product) : a~b = |a||b|sinƒ¦
+// ï¿½Oï¿½ï¿½ (cross product) : aï¿½~b = |a||b|sinï¿½ï¿½
 double cross(P a, P b) {
 	return (a.real() * b.imag() - a.imag() * b.real());
 }
 
-// 2’¼ü‚Ì’¼Œğ”»’è : aÛb <=> dot(a, b) = 0
+// 2ï¿½ï¿½ï¿½ï¿½ï¿½Ì’ï¿½ï¿½ğ”»’ï¿½ : aï¿½ï¿½b <=> dot(a, b) = 0
 int is_orthogonal(P a1, P a2, P b1, P b2) {
 	return EQ(dot(a1 - a2, b1 - b2), 0.0);
 }
 
-// 2’¼ü‚Ì•½s”»’è : a//b <=> cross(a, b) = 0
+// 2ï¿½ï¿½ï¿½ï¿½ï¿½Ì•ï¿½ï¿½sï¿½ï¿½ï¿½ï¿½ : a//b <=> cross(a, b) = 0
 int is_parallel(P a1, P a2, P b1, P b2) {
 	return EQ(cross(a1 - a2, b1 - b2), 0.0);
 }
 
-// “_c‚ª’¼üa,bã‚É‚ ‚é‚©‚È‚¢‚©
+// ï¿½_cï¿½ï¿½ï¿½ï¿½ï¿½ï¿½a,bï¿½ï¿½É‚ï¿½ï¿½é‚©ï¿½È‚ï¿½ï¿½ï¿½
 int is_point_on_line(P a, P b, P c) {
 	return EQ(cross(b - a, c - a), 0.0);
 }
 
-// “_c‚ªü•ªa,bã‚É‚ ‚é‚©‚È‚¢‚©
+// ï¿½_cï¿½ï¿½ï¿½ï¿½ï¿½ï¿½a,bï¿½ï¿½É‚ï¿½ï¿½é‚©ï¿½È‚ï¿½ï¿½ï¿½
 int is_point_on_lines(P a, P b, P c) {
-	// |a-c| + |c-b| <= |a-b| ‚È‚çü•ªã
+	// |a-c| + |c-b| <= |a-b| ï¿½È‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	return (abs(a - c) + abs(c - b) < abs(a - b) + EPS);
 }
 
-// “_a,b‚ğ’Ê‚é’¼ü‚Æ“_c‚Æ‚Ì‹——£
+// ï¿½_a,bï¿½ï¿½Ê‚é’¼ï¿½ï¿½ï¿½Æ“_cï¿½Æ‚Ì‹ï¿½ï¿½ï¿½
 double distance_l_p(P a, P b, P c) {
 	return abs(cross(b - a, c - a)) / abs(b - a);
 }
 
-// “_a,b‚ğ’[“_‚Æ‚·‚éü•ª‚Æ“_c‚Æ‚Ì‹——£
+// ï¿½_a,bï¿½ï¿½[ï¿½_ï¿½Æ‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ“_cï¿½Æ‚Ì‹ï¿½ï¿½ï¿½
 double distance_ls_p(P a, P b, P c) {
 	if (dot(b - a, c - a) < EPS) return abs(c - a);
 	if (dot(a - b, c - b) < EPS) return abs(c - b);
 	return abs(cross(b - a, c - a)) / abs(b - a);
 }
 
-// a1,a2‚ğ’[“_‚Æ‚·‚éü•ª‚Æb1,b2‚ğ’[“_‚Æ‚·‚éü•ª‚ÌŒğ·”»’è
+// a1,a2ï¿½ï¿½[ï¿½_ï¿½Æ‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½b1,b2ï¿½ï¿½[ï¿½_ï¿½Æ‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÌŒï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 int is_intersected_ls(P a1, P a2, P b1, P b2) {
 	return (cross(a2 - a1, b1 - a1) * cross(a2 - a1, b2 - a1) < EPS) &&
 		(cross(b2 - b1, a1 - b1) * cross(b2 - b1, a2 - b1) < EPS);
 }
 
-// a1,a2‚ğ’[“_‚Æ‚·‚éü•ª‚Æb1,b2‚ğ’[“_‚Æ‚·‚éü•ª‚ÌŒğ“_ŒvZ
+// a1,a2ï¿½ï¿½[ï¿½_ï¿½Æ‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½b1,b2ï¿½ï¿½[ï¿½_ï¿½Æ‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÌŒï¿½_ï¿½vï¿½Z
 P intersection_ls(P a1, P a2, P b1, P b2) {
 	P b = b2 - b1;
 	double d1 = abs(cross(b, a1 - b1));
@@ -109,19 +130,19 @@ P intersection_ls(P a1, P a2, P b1, P b2) {
 	return a1 + (a2 - a1) * t;
 }
 
-// a1,a2‚ğ’Ê‚é’¼ü‚Æb1,b2‚ğ’Ê‚é’¼ü‚ÌŒğ·”»’è
+// a1,a2ï¿½ï¿½Ê‚é’¼ï¿½ï¿½ï¿½ï¿½b1,b2ï¿½ï¿½Ê‚é’¼ï¿½ï¿½ï¿½ÌŒï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 int is_intersected_l(P a1, P a2, P b1, P b2) {
 	return !EQ(cross(a1 - a2, b1 - b2), 0.0);
 }
 
-// a1,a2‚ğ’Ê‚é’¼ü‚Æb1,b2‚ğ’Ê‚é’¼ü‚ÌŒğ“_ŒvZ
+// a1,a2ï¿½ï¿½Ê‚é’¼ï¿½ï¿½ï¿½ï¿½b1,b2ï¿½ï¿½Ê‚é’¼ï¿½ï¿½ï¿½ÌŒï¿½_ï¿½vï¿½Z
 P intersection_l(P a1, P a2, P b1, P b2) {
 	P a = a2 - a1; P b = b2 - b1;
 	return a1 + a * cross(b, b1 - a1) / cross(b, a);
 }
 
-//‚Q‚Â‚ÌƒxƒNƒgƒ‹AB‚Ì‚È‚·Šp“xƒÆ‚ğ‹‚ß‚é
-//0<=theta<=180‚Ì”ÍˆÍ‚Å•Ô‚·
+//ï¿½Qï¿½Â‚Ìƒxï¿½Nï¿½gï¿½ï¿½ABï¿½Ì‚È‚ï¿½ï¿½pï¿½xï¿½Æ‚ï¿½ï¿½ï¿½ï¿½ß‚ï¿½
+//0<=theta<=180ï¿½Ì”ÍˆÍ‚Å•Ô‚ï¿½
 double AngleOf2Vector(P A, P B)
 {
 	double theta = acos(dot(A, B) / (abs(A)*abs(B)));

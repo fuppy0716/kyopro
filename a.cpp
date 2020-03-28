@@ -1,15 +1,13 @@
-
 #include <bits/stdc++.h>
-#include <unistd.h>
-
+ 
 using namespace std;
-
+ 
 #define DEBUG(x) cerr<<#x<<": "<<x<<endl;
-#define DEBUG_VEC(v) cerr<<#v<<":";for(int i=0;i<v.size();i++) cerr<<" "<<v[i]; cerr<<endl
+#define DEBUG_VEC(v) cerr<<#v<<":";for(int i=0;i<v.size();i++) cerr<<" "<<v[i]; cerr<<endl;
 #define DEBUG_MAT(v) cerr<<#v<<endl;for(int i=0;i<v.size();i++){for(int j=0;j<v[i].size();j++) {cerr<<v[i][j]<<" ";}cerr<<endl;}
-
-
 typedef long long ll;
+#define int ll
+ 
 #define vi vector<int>
 #define vl vector<ll>
 #define vii vector< vector<int> >
@@ -36,17 +34,28 @@ template<class T> bool chmin(T &a, const T &b) { if (a>b) { a = b; return 1; } r
 #define UNIQUE(v) v.erase(std::unique(v.begin(), v.end()), v.end());
 const ll inf = 1000000001;
 const ll INF = (ll)1e18 + 1;
+const long double pi = 3.1415926535897932384626433832795028841971L;
+#define Sp(p) cout<<setprecision(25)<< fixed<<p<<endl;
+//int dx[4] = {1, 0, -1, 0}, dy[4] = {0, 1, 0, -1};
+//int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
+vi dx = {1, 0, -1, 0}, dy = {0, 1, 0, -1};
+vi dx2 = { 1,1,0,-1,-1,-1,0,1 }, dy2 = { 0,1,1,1,0,-1,-1,-1 };
+#define fio() cin.tie(0); ios::sync_with_stdio(false);
 const ll MOD = 1000000007;
 //const ll MOD = 998244353;
-const double pi = 3.14159265358979323846;
-#define Sp(p) cout<<setprecision(15)<< fixed<<p<<endl;
-int dx[4] = { -1,0, 1,0 }, dy[4] = { 0,1,0,-1 };
-int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
-#define fio() cin.tie(0); ios::sync_with_stdio(false);
 // #define mp make_pair
 //#define endl '\n'
 
+const int MAXN = 555555;
+
+vl fact(MAXN);
+vl rfact(MAXN);
+
 ll mod_pow(ll x, ll p, ll M = MOD) {
+  if (p < 0) {
+    x = mod_pow(x, M - 2, M);
+    p = -p;
+  }
   ll a = 1;
   while (p) {
     if (p % 2)
@@ -61,53 +70,75 @@ ll mod_inverse(ll a, ll M = MOD) {
   return mod_pow(a, M - 2, M);
 }
 
-vii idx;
-void add_idx(int i, int ma, vi& a) {
-  if (i == ma) {
-    idx.push_back(a);
-    return;
-  }
-  rep (j, ma) {
-    a.push_back(j);
-    add_idx(i + 1, ma, a);
-    a.pop_back();
+void set_fact(ll n, ll M = MOD) {
+  fact[0] = fact[1] = rfact[0] = rfact[1] = 1;
+  for (ll i = 2; i <= n; i++) {
+    fact[i] = i * fact[i - 1] % M;
+    // rfact[i] = mod_inverse(fact[i], M);
   }
 }
 
-int main() {
-  int p;
-  cin >> p;
-  vi a(p);
-
-  vi temp;
-  add_idx(0, p, temp);
-  DEBUG_MAT(idx);
-
-  rep (i, idx.size()) {
-
-    vi f;
-    rep (x, p) {
-      int sum = 0;
-      rep (j, p) {
-        sum += idx[i][j] * mod_pow(x, j, p) % p;
-      }
-      sum %= p;
-      f.push_back(sum);
-    }
-    bool zo = true;
-    rep (x, p) {
-      if (f[x] != 0 and f[x] != 1) zo = false;
-    }
-    if (zo) {
-      cout << "idx: ";
-      rep (j, idx[i].size()) cout << idx[i][j] << " ";
-      DEBUG_VEC(f);
-    }
-      
+//http://drken1215.hatenablog.com/entry/2018/06/08/210000
+//n���傫��fact���v�Z�ł��Ȃ��Ƃ��̂ق��̌v�Z���@�ɂ��ď����Ă���
+ll nCr(ll n, ll r, ll M = MOD) {
+  if (r > n) return 0;
+  assert(fact[2] == 2);
+  ll ret = fact[n];
+  if (rfact[r] == 0) {
+    rfact[r] = mod_inverse(fact[r], M);
   }
+  ret = (ret*rfact[r]) % M;
+  if (rfact[n - r] == 0) {
+    rfact[n - r] = mod_inverse(fact[n - r], M);
+  }
+  ret = (ret*rfact[n - r]) % M;
+  return ret;
+}
 
-  //rep (i, p) cin >> a[i];
+ll nHr(ll n, ll r) {
+  return nCr(n+r-1, r);
+}
 
-  vi b(p);
-  
+ll gcd(ll a, ll b) {
+  if (b > a) {
+    swap(a, b);
+  }
+  ll r = a%b;
+  while (r != 0) {
+    a = b;
+    b = r;
+    r = a%b;
+  }
+  return b;
+}
+
+ll lcm(ll a, ll b) {
+  return (a / gcd(a, b))*b;
+}
+
+ll solve(int h, int w) {
+    if (h > w) swap(h, w);
+
+    ll ans = 0;
+    ans = mod_pow(2, h);
+    ans += mod_pow(2, w);
+    ans -= 1;
+    ll g = gcd(h, w);
+    ans += mod_pow(2, g);
+    ans -= 2;
+    ans = (ans % MOD + MOD) % MOD;
+    return ans;
+}
+
+
+signed main() {
+    fio();
+    ll h, w, t;
+    cin >> h >> w >> t;
+    ll hh = h / gcd(h, t);
+    ll ww = w / gcd(w, t);
+    ll ans = solve(hh, ww);
+    ans = mod_pow(ans, (h * w) / (hh * ww));
+
+    cout << ans << endl;
 }

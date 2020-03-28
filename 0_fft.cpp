@@ -28,41 +28,112 @@ const ll INF = 2e18 * 2;
 int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 
-typedef complex<double> P;
 
-vector<P> fft(vector<P> v, bool rev = false) {
-	int n = v.size(), i, j, m;
+// https://ei1333.github.io/luzhiled/snippets/math/fast-fourier-transform.html
+//https://atcoder.jp/contests/jsc2019-final/submissions/7783091
+namespace FastFourierTransform {
+  using real = double;
 
-	for (i = 0, j = 1; j<n - 1; j++) {
-		for (int k = n >> 1; k>(i ^= k); k >>= 1);
-		if (i>j) swap(v[i], v[j]);
-	}
-	for (int m = 2; m <= n; m *= 2) {
-		double deg = (rev ? -1 : 1) * 2 * acos(-1) / m;
-		P wr(cos(deg), sin(deg));
-		for (i = 0; i<n; i += m) {
-			P w(1, 0);
-			for (int j1 = i, j2 = i + m / 2; j2<i + m; j1++, j2++) {
-				P t1 = v[j1], t2 = w*v[j2];
-				v[j1] = t1 + t2, v[j2] = t1 - t2;
-				w *= wr;
-			}
-		}
-	}
-	if (rev) rep(i, n) v[i] *= 1.0 / n;
-	return v;
-}
+  struct C {
+    real x, y;
 
-vector<P> MultPoly(vector<P> a, vector<P> b) {
-  // 前処理あり, main関数を読んで!
-	a = fft(a), b = fft(b);
-	for (int i = 0; i<a.size(); i++) a[i] *= b[i];
-	return fft(a, true);
-}
+    C() : x(0), y(0) {}
+
+    C(real x, real y) : x(x), y(y) {}
+
+    inline C operator+(const C &c) const { return C(x + c.x, y + c.y); }
+
+    inline C operator-(const C &c) const { return C(x - c.x, y - c.y); }
+
+    inline C operator*(const C &c) const { return C(x * c.x - y * c.y, x * c.y + y * c.x); }
+
+    inline C conj() const { return C(x, -y); }
+  };
+
+  const real PI = acosl(-1);
+  int base = 1;
+  vector< C > rts = { {0, 0},
+                     {1, 0} };
+  vector< int > rev = {0, 1};
 
 
+  void ensure_base(int nbase) {
+    if(nbase <= base) return;
+    rev.resize(1 << nbase);
+    rts.resize(1 << nbase);
+    for(int i = 0; i < (1 << nbase); i++) {
+      rev[i] = (rev[i >> 1] >> 1) + ((i & 1) << (nbase - 1));
+    }
+    while(base < nbase) {
+      real angle = PI * 2.0 / (1 << (base + 1));
+      for(int i = 1 << (base - 1); i < (1 << base); i++) {
+        rts[i << 1] = rts[i];
+        real angle_i = angle * (2 * i + 1 - (1 << base));
+        rts[(i << 1) + 1] = C(cos(angle_i), sin(angle_i));
+      }
+      ++base;
+    }
+  }
+
+  void fft(vector< C > &a, int n) {
+    assert((n & (n - 1)) == 0);
+    int zeros = __builtin_ctz(n);
+    ensure_base(zeros);
+    int shift = base - zeros;
+    for(int i = 0; i < n; i++) {
+      if(i < (rev[i] >> shift)) {
+        swap(a[i], a[rev[i] >> shift]);
+      }
+    }
+    for(int k = 1; k < n; k <<= 1) {
+      for(int i = 0; i < n; i += 2 * k) {
+        for(int j = 0; j < k; j++) {
+          C z = a[i + j + k] * rts[j + k];
+          a[i + j + k] = a[i + j] - z;
+          a[i + j] = a[i + j] + z;
+        }
+      }
+    }
+  }
+
+  vector< int64_t > multiply(const vector< int > &a, const vector< int > &b) {
+    int need = (int) a.size() + (int) b.size() - 1;
+    int nbase = 1;
+    while((1 << nbase) < need) nbase++;
+    ensure_base(nbase);
+    int sz = 1 << nbase;
+    vector< C > fa(sz);
+    for(int i = 0; i < sz; i++) {
+      int x = (i < (int) a.size() ? a[i] : 0);
+      int y = (i < (int) b.size() ? b[i] : 0);
+      fa[i] = C(x, y);
+    }
+    fft(fa, sz);
+    C r(0, -0.25 / (sz >> 1)), s(0, 1), t(0.5, 0);
+    for(int i = 0; i <= (sz >> 1); i++) {
+      int j = (sz - i) & (sz - 1);
+      C z = (fa[j] * fa[j] - (fa[i] * fa[i]).conj()) * r;
+      fa[j] = (fa[i] * fa[i] - (fa[j] * fa[j]).conj()) * r;
+      fa[i] = z;
+    }
+    for(int i = 0; i < (sz >> 1); i++) {
+      C A0 = (fa[i] + fa[i + (sz >> 1)]) * t;
+      C A1 = (fa[i] - fa[i + (sz >> 1)]) * t * rts[(sz >> 1) + i];
+      fa[i] = A0 + A1 * s;
+    }
+    fft(fa, sz >> 1);
+    vector< int64_t > ret(need);
+    for(int i = 0; i < need; i++) {
+      ret[i] = llround(i & 1 ? fa[i >> 1].y : fa[i >> 1].x);
+    }
+    return ret;
+  }
+};
 
 
+// NTT<998244353, 3>で宣言
+// グローバルで一度宣言すれば何度でも使用可能
+// https://atcoder.jp/contests/jsc2019-final/submissions/7782824
 template< int mod, int primitiveroot >
 struct NTT {
   vector< vector< int > > rts, rrts;

@@ -77,6 +77,7 @@ pll crt(vector<pll> am) {
 
 void prime(vector<bool> &isprime /*, vll &soinsu */) {
   ll i, j;
+  assert(isprime[0]);
   isprime[0] = isprime[1] = false;
   for (i = 2; i < isprime.size(); i++) {
     if (isprime[i]) {

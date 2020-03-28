@@ -1,35 +1,65 @@
+struct dice {
+  mt19937 mt;
+  dice() : mt(chrono::steady_clock::now().time_since_epoch().count()) {}
+  // [0, x)の一様乱数
+  ll operator()(ll x) { return this->operator()(0, x); }
+  // [x, y)の一様乱数
+  ll operator()(ll x, ll y) {
+    uniform_int_distribution<ll> dist(x, y - 1);
+    return dist(mt);
+  }
+  vl operator()(int n, ll x, ll y) {
+    vl res(n);
+    for (int i = 0; i < n; i++) res[i] = this->operator()(x, y);
+    return res;
+  }
+} rnd;
+
+
+using ull = unsigned long long;
 class RollingHash {
 public:
-  using ull = unsigned long long;
-  using P = pair<ll, ull>;
-  const ll B1 = 100000007;
-  const ll M = 1000000009;
-  const ull B2 = 100000009;
   
-  int n;
-  string s;
-  vector<P> hash;
-  vector<ll> Bpower1;
-  vector<ull> Bpower2;
+  const ull MASK30 = (1UL << 30) - 1;
+  const ull MASK31 = (1UL << 31) - 1;
+  const ull M = (1UL << 61) - 1;
+  const ull B = rnd(2, M >> 1);
+  const ull POSITIVIZER = M * 3;;
+  
+  vector<ull> hash;
+  vector<ull> Bpower;
 
-  RollingHash(string s) :s(s), n(s.size()) {
-    hash.resize(n + 1); Bpower1.resize(n + 1); Bpower2.resize(n + 1);
-    Bpower1[0] = Bpower2[0] = 1;
+  RollingHash(string s) {
+    int n = s.size();
+    hash.resize(n + 1); Bpower.resize(n + 1);
+    Bpower[0] = 1;
+    
     for (int i = 0; i < n; i++) {
-      hash[i + 1].first = (hash[i].first * B1 % M + s[i]) % M;
-      hash[i + 1].second = hash[i].second * B2 + s[i];
-      Bpower1[i + 1] = Bpower1[i] * B1 % M;
-      Bpower2[i + 1] = Bpower2[i] * B2;
+      hash[i + 1] = _calc_mod(_mul(hash[i], B) + s[i]);
+      Bpower[i + 1] = _calc_mod(_mul(Bpower[i], B));
     }
   }
 
   //S[l, r)
-  P part(int l, int r) {
-    P res = hash[r];
-    (res.first -= hash[l].first * Bpower1[r - l] % M) %= M;
-    res.first = (res.first + M) % M;
-    res.second -= hash[l].second * Bpower2[r - l];
-    return res;
+  ull part(int l, int r) {
+    return _calc_mod(hash[r] + POSITIVIZER - _mul(hash[l], Bpower[r - l]));
+  }
+
+  ull _mul(ull a, ull b) {
+    ull au = a >> 31;
+    ull ad = a & MASK31;
+    ull bu = b >> 31;
+    ull bd = b & MASK31;
+    ull mid = ad * bu + au * bd;
+    ull midu = mid >> 30;
+    ull midd = mid & MASK30;
+    return au * bu * 2 + midu + (midd << 31) + ad * bd;
+  }
+
+  ull _calc_mod(ull val) {
+    val = (val & M) + (val >> 61);
+    if (val > M) val -= M;
+    return val;
   }
 };
 

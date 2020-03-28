@@ -84,6 +84,20 @@ public:
       return query_func(ul, ur);
     }
   }
+
+  // ğŒ‚ğ–‚½‚·Ä‰E‚ğ’T‚·
+  int find(int a, int b, int k, int l, int r, int x) {
+    // ‚±‚±‚ğ’¼‚·
+    if (dat[k] < x || r <= a || b <= l) return -1;
+    if (l + 1 == r) {
+      // ‚±‚±‚ğ’¼‚·
+      if (dat[k] >= x) return l;
+      else return -1;
+    }
+    int rv = find(a, b, 2 * k + 2, (l + r) / 2, r, x);
+    if (rv != -1) return rv;
+    return find(a, b, 2 * k + 1, l, (l + r) / 2, x);
+  }
 };
 
 
@@ -152,11 +166,6 @@ public:
     return query_func(resl, resr);
   }
 };
-
-
-
-
-
 
 
 

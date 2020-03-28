@@ -23,13 +23,16 @@ int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 
 
 
-
-const int MAXN = 3010;
+const int MAXN = 200010;
 
 vl fact(MAXN);
 vl rfact(MAXN);
 
 ll mod_pow(ll x, ll p, ll M = MOD) {
+  if (p < 0) {
+    x = mod_pow(x, M - 2, M);
+    p = -p;
+  }
   ll a = 1;
   while (p) {
     if (p % 2)
@@ -53,7 +56,7 @@ void set_fact(ll n, ll M = MOD) {
 }
 
 //http://drken1215.hatenablog.com/entry/2018/06/08/210000
-//n‚ª‘å‚«‚­fact‚ªŒvŽZ‚Å‚«‚È‚¢‚Æ‚«‚Ì‚Ù‚©‚ÌŒvŽZ•û–@‚É‚Â‚¢‚Ä‘‚¢‚Ä‚ ‚é
+//nï¿½ï¿½ï¿½å‚«ï¿½ï¿½factï¿½ï¿½ï¿½vï¿½Zï¿½Å‚ï¿½ï¿½È‚ï¿½ï¿½Æ‚ï¿½ï¿½Ì‚Ù‚ï¿½ï¿½ÌŒvï¿½Zï¿½ï¿½ï¿½@ï¿½É‚Â‚ï¿½ï¿½Äï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½
 ll nCr(ll n, ll r, ll M = MOD) {
   if (r > n) return 0;
   assert(fact[2] == 2);
@@ -73,9 +76,9 @@ ll nHr(ll n, ll r) {
   return nCr(n+r-1, r);
 }
 
-// ‘æ“ñŽíƒXƒ^[ƒŠƒ“ƒO”
-// ŒÝ‚¢‚É‹æ•Ê‚Å‚«‚énŒÂ‚Ì‚à‚Ì‚ð‹æ•Ê‚Ì‚È‚¢kŒÂ‚ÌƒOƒ‹[ƒv‚É•ª‚¯‚é‚Æ‚«,‚»‚Ì•ª‚¯•û‚ÍsecondStirling[n][k]
-// ‚½‚¾‚µ‹ó‚ÌƒOƒ‹[ƒv‚ª‚ ‚Á‚Ä‚Í‚¢‚¯‚È‚¢
+// ï¿½ï¿½ï¿½ï¿½Xï¿½^ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½Oï¿½ï¿½
+// ï¿½Ý‚ï¿½ï¿½É‹ï¿½Ê‚Å‚ï¿½ï¿½ï¿½nï¿½Â‚Ì‚ï¿½ï¿½Ì‚ï¿½ï¿½ï¿½Ê‚Ì‚È‚ï¿½kï¿½Â‚ÌƒOï¿½ï¿½ï¿½[ï¿½vï¿½É•ï¿½ï¿½ï¿½ï¿½ï¿½Æ‚ï¿½,ï¿½ï¿½ï¿½Ì•ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½secondStirling[n][k]
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÌƒOï¿½ï¿½ï¿½[ï¿½vï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä‚Í‚ï¿½ï¿½ï¿½ï¿½È‚ï¿½
 vll secondStirling(MAXN, vl(MAXN, 0));
 void setSecondStirling(ll n, ll M = MOD) {
 	secondStirling[0][0] = 1;
@@ -95,16 +98,16 @@ void setSecondStirling(ll n, ll M = MOD) {
 }
 
 
-// •ªŠ„”
-// iŒÂ‚Ìˆá‚¢‚É‹æ•Ê‚Å‚«‚È‚¢•i•¨‚ðjƒOƒ‹[ƒvˆÈ‰º‚É•ªŠ„‚·‚é•û–@part[i][j]
+// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+// iï¿½Â‚Ìˆá‚¢ï¿½É‹ï¿½Ê‚Å‚ï¿½ï¿½È‚ï¿½ï¿½iï¿½ï¿½ï¿½ï¿½jï¿½Oï¿½ï¿½ï¿½[ï¿½vï¿½È‰ï¿½ï¿½É•ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½@part[i][j]
 vll part(MAXN + 1, vl(MAXN + 1));
 void setPartition(int n, ll M = MOD) {
   part[0][0] = 1;
   rep (i, n + 1) {
     rep1 (j, n) {
       if (i - j >= 0) {
-        // ŒÂ”‚ª0‚ÌƒOƒ‹[ƒv‚ª‚ ‚é‚Æ‚«, i‚Ìj-1ƒOƒ‹[ƒv‚Æ“¯‚¶
-        // ‚È‚¢‚Æ‚«, i - j ‚ÌjƒOƒ‹[ƒv‚Æ“¯‚¶(‚·‚×‚Ä‚ÌƒOƒ‹[ƒv‚ÅŒÂ”‚ð-=1‚·‚é)
+        // ï¿½Âï¿½ï¿½ï¿½0ï¿½ÌƒOï¿½ï¿½ï¿½[ï¿½vï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ‚ï¿½, iï¿½ï¿½j-1ï¿½Oï¿½ï¿½ï¿½[ï¿½vï¿½Æ“ï¿½ï¿½ï¿½
+        // ï¿½È‚ï¿½ï¿½Æ‚ï¿½, i - j ï¿½ï¿½jï¿½Oï¿½ï¿½ï¿½[ï¿½vï¿½Æ“ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½×‚Ä‚ÌƒOï¿½ï¿½ï¿½[ï¿½vï¿½ÅŒÂï¿½ï¿½ï¿½-=1ï¿½ï¿½ï¿½ï¿½)
         part[i][j] = part[i - j][j] + part[i][j - 1];
       }
       else {

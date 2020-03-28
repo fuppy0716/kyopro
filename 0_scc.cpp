@@ -25,13 +25,13 @@ int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 
 //scc : strongly connected component
 
-int n; //’¸“_”
+int n; //ï¿½ï¿½ï¿½_ï¿½ï¿½
 #define N 10010
-vii G(N, vi()); //ƒOƒ‰ƒt‚Ì—×ÚƒŠƒXƒg•\Œ»
-vii rG(N, vi()); //•Ó‚ÌŒü‚«‚ð‹t‚É‚µ‚½ƒOƒ‰ƒt
-vi vr; //‹A‚è‚ª‚¯‡‚Ì‚È‚ç‚Ñ
-vector<bool> used(N); //‚·‚Å‚É’²‚×‚½‚©
-vi cmp(N); //‘®‚·‚é‹­˜AŒ‹¬•ª‚Ìƒgƒ|ƒƒWƒJƒ‹‡˜
+vii G(N, vi()); //ï¿½Oï¿½ï¿½ï¿½tï¿½Ì—×Úƒï¿½ï¿½Xï¿½gï¿½\ï¿½ï¿½
+vii rG(N, vi()); //ï¿½Ó‚ÌŒï¿½ï¿½ï¿½ï¿½ï¿½ï¿½tï¿½É‚ï¿½ï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½t
+vi vr; //ï¿½Aï¿½è‚ªï¿½ï¿½ï¿½ï¿½ï¿½Ì‚È‚ï¿½ï¿½
+vector<bool> used(N); //ï¿½ï¿½ï¿½Å‚É’ï¿½ï¿½×‚ï¿½ï¿½ï¿½
+vi cmp(N); //ï¿½ï¿½ï¿½ï¿½ï¿½é‹­ï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ìƒgï¿½|ï¿½ï¿½ï¿½Wï¿½Jï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 void add_edge(int from, int to) {
 	G[from].push_back(to);

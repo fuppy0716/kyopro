@@ -1,12 +1,12 @@
 
 class CentroidDecomposition {
 public:
-	int n; //’¸“_”
-	vii G; //ƒOƒ‰ƒt‚Ì—×ÚƒŠƒXƒg•\Œ»
-	vector<bool> isused; //‚»‚Ì’¸“_‚ª‚·‚Å‚É•ªŠ„‚Ég‚í‚ê‚Ä‚¢‚é‚©
-	vi subtreesize; //•”•ª–Ø‚ÌƒTƒCƒY,XV‚³‚ê‚é
+	int n; //ï¿½ï¿½ï¿½_ï¿½ï¿½
+	vii G; //ï¿½Oï¿½ï¿½ï¿½tï¿½Ì—×Úƒï¿½ï¿½Xï¿½gï¿½\ï¿½ï¿½
+	vector<bool> isused; //ï¿½ï¿½ï¿½Ì’ï¿½ï¿½_ï¿½ï¿½ï¿½ï¿½ï¿½Å‚É•ï¿½ï¿½ï¿½ï¿½Égï¿½ï¿½ï¿½Ä‚ï¿½ï¿½é‚©
+	vi subtreesize; //ï¿½ï¿½ï¿½ï¿½ï¿½Ø‚ÌƒTï¿½Cï¿½Y,ï¿½Xï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½
 	vi parent;
-	vi centroid; //dS‚ªŒã‚ë‚É’Ç‰Á‚³‚ê‚Ä‚¢‚­
+	vi centroid; //ï¿½dï¿½Sï¿½ï¿½ï¿½ï¿½ï¿½É’Ç‰ï¿½ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½
 	vector<char> ans;
 
 	CentroidDecomposition(int n) : n(n) {
@@ -40,7 +40,7 @@ public:
 		return subtreesize[now];
 	}
 
-	//–â‘è‚É‚æ‚Á‚Ä•Ï‚í‚é
+	//ï¿½ï¿½ï¿½É‚ï¿½ï¿½ï¿½Ä•Ï‚ï¿½ï¿½
 	void solve(int root, char c, int size) {
 		search_centroid(root, -1, size);
 		int cent = centroid.back();
@@ -65,121 +65,124 @@ public:
 };
 
 
-
+//ï¿½ï¿½ï¿½_ï¿½É’lï¿½ï¿½ï¿½Ú‚ï¿½ï¿½Ä‚ï¿½ï¿½é
+//https://yukicoder.me/submissions/410940
+//ï¿½Ó‚É’lï¿½ï¿½ï¿½Ú‚ï¿½ï¿½Ä‚ï¿½ï¿½é
+//https://yukicoder.me/submissions/410947
+//https://atcoder.jp/contests/abc133/submissions/9120584
+//ï¿½ï¿½ï¿½_ï¿½É’lï¿½ï¿½ï¿½Ú‚ï¿½ï¿½Ä‚ï¿½ï¿½éï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½ØƒNï¿½Gï¿½ï¿½
+//https://atcoder.jp/contests/iroha2019-day2/submissions/9039015
 //http://beet-aizu.hatenablog.com/entry/2017/12/12/235950
-struct HLDecomposition {
-	int n, pos;
-	vector<vector<int> > G;
-	vector<int> vid, head, sub, hvy, par, dep, inv, type;
+class HLD {
+private:
+  void dfs_sz(int v) {
+    for(int &u:G[v])
+      if(u==par[v]) swap(u,G[v].back());
+    if(~par[v]) G[v].pop_back();
 
-	HLDecomposition() {}
-	HLDecomposition(int sz) :
-		n(sz), pos(0), G(n),
-		vid(n, -1), head(n), sub(n, 1), hvy(n, -1),
-		par(n), dep(n), inv(n), type(n) {}
+    for(int &u:G[v]){
+      par[u]=v;
+      dep[u]=dep[v]+1;
+      dfs_sz(u);
+      sub[v]+=sub[u];
+      if(sub[u]>sub[G[v][0]]) swap(u,G[v][0]);
+    }
+  }
 
-	void add_edge(int u, int v) {
-		G[u].push_back(v);
-		G[v].push_back(u);
-	}
+  void dfs_hld(int v,int c,int &pos) {
+    vid[v]=pos++;
+    inv[vid[v]]=v;
+    type[v]=c;
+    for(int u:G[v]){
+      if(u==par[v]) continue;
+      head[u]=(u==G[v][0]?head[v]:u);
+      dfs_hld(u,c,pos);
+    }
+  }
 
-	void build(vector<int> rs = { 0 }) {
-		int c = 0;
-		for (int r : rs) {
-			dfs(r);
-			bfs(r, c++);
-		}
-	}
+public:
+  vector< vector<int> > G;
+  vector<int> vid, head, sub, par, dep, inv, type;
 
-	void dfs(int rt) {
-		using T = pair<int, int>;
-		stack<T> st;
-		par[rt] = -1;
-		dep[rt] = 0;
-		st.emplace(rt, 0);
-		while (!st.empty()) {
-			int v = st.top().first;
-			int &i = st.top().second;
-			if (i<(int)G[v].size()) {
-				int u = G[v][i++];
-				if (u == par[v]) continue;
-				par[u] = v;
-				dep[u] = dep[v] + 1;
-				st.emplace(u, 0);
-			}
-			else {
-				st.pop();
-				int res = 0;
-				for (int u : G[v]) {
-					if (u == par[v]) continue;
-					sub[v] += sub[u];
-					if (res<sub[u]) res = sub[u], hvy[v] = u;
-				}
-			}
-		}
-	}
+  HLD(int n):
+    G(n),vid(n,-1),head(n),sub(n,1),
+    par(n,-1),dep(n,0),inv(n),type(n){}
 
-	void bfs(int r, int c) {
-		int &k = pos;
-		queue<int> q({ r });
-		while (!q.empty()) {
-			int h = q.front(); q.pop();
-			for (int i = h; i != -1; i = hvy[i]) {
-				type[i] = c;
-				vid[i] = k++;
-				inv[vid[i]] = i;
-				head[i] = h;
-				for (int j : G[i])
-					if (j != par[i] && j != hvy[i]) q.push(j);
-			}
-		}
-	}
+  void add_edge(int u,int v) {
+    G[u].emplace_back(v);
+    G[v].emplace_back(u);
+  }
 
-	// for_each(vertex)
-	// [l,r] <- attention!!
-	void for_each(int u, int v, const function<void(int, int)>& f) {
-		while (1) {
-			if (vid[u]>vid[v]) swap(u, v);
-			f(max(vid[head[v]], vid[u]), vid[v]);
-			if (head[u] != head[v]) v = par[head[v]];
-			else break;
-		}
-	}
+  void build(vector<int> rs={0}) {
+    int c=0,pos=0;
+    for(int r:rs){
+      dfs_sz(r);
+      head[r]=r;
+      dfs_hld(r,c++,pos);
+    }
+  }
 
-	// for_each(edge)
-	// [l,r] <- attention!!
-	// ’l‚ª•Ó‚Éæ‚Á‚Ä‚¢‚é‚Æ‚«‚ÍA’¸“_‚©‚ç‰“‚¢‚Ù‚¤(‚·‚È‚í‚¿vid‚ª‘å‚«‚¢‚Ù‚¤)‚Ì
-	// ’¸“_‚É’l‚ğˆÚ‚·Byuki650
-	void for_each_edge(int u, int v, const function<void(int, int)>& f) {
-		while (1) {
-			if (vid[u]>vid[v]) swap(u, v);
-			if (head[u] != head[v]) {
-				f(vid[head[v]], vid[v]);
-				v = par[head[v]];
-			}
-			else {
-				if (u != v) f(vid[u] + 1, vid[v]);
-				break;
-			}
-		}
-	}
+  int lca(int u,int v){
+    while(1){
+      if(vid[u]>vid[v]) swap(u,v);
+      if(head[u]==head[v]) return u;
+      v=par[head[v]];
+    }
+  }
 
-	int lca(int u, int v) {
-		while (1) {
-			if (vid[u]>vid[v]) swap(u, v);
-			if (head[u] == head[v]) return u;
-			v = par[head[v]];
-		}
-	}
+  int distance(int u,int v){
+    return dep[u]+dep[v]-2*dep[lca(u,v)];
+  }
 
-	int distance(int u, int v) {
-		return dep[u] + dep[v] - 2 * dep[lca(u, v)];
-	}
+  // for_each(vertex)
+  // [l, r) <- attention!!
+  template<typename F>
+  void for_each(int u, int v, const F& f) {
+    while(1){
+      if(vid[u]>vid[v]) swap(u,v);
+      f(max(vid[head[v]],vid[u]),vid[v]+1);
+      if(head[u]!=head[v]) v=par[head[v]];
+      else break;
+    }
+  }
+
+  template<typename T,typename Q,typename F>
+  T for_each(int u,int v,T ti,const Q &q,const F &f){
+    T l=ti,r=ti;
+    while(1){
+      if(vid[u]>vid[v]){
+        swap(u,v);
+        swap(l,r);
+      }
+      l=f(l,q(max(vid[head[v]],vid[u]),vid[v]+1));
+      if(head[u]!=head[v]) v=par[head[v]];
+      else break;
+    }
+    return f(l,r);
+  }
+
+  // for_each(edge)
+  // [l, r) <- attention!!
+  template<typename F>
+  void for_each_edge(int u, int v,const F& f) {
+    while(1){
+      if(vid[u]>vid[v]) swap(u,v);
+      if(head[u]!=head[v]){
+        f(vid[head[v]],vid[v]+1);
+        v=par[head[v]];
+      }else{
+        if(u!=v) {
+          f(vid[u]+1,vid[v]+1);
+        }
+        break;
+      }
+    }
+  }
 };
 
 
-//ª•t‚«–Ø‚ÌƒnƒbƒVƒ…
-//–Ø‚Ì“¯Œ^”»’è‚Ég‚¤
+//ï¿½ï¿½ï¿½tï¿½ï¿½ï¿½Ø‚Ìƒnï¿½bï¿½Vï¿½ï¿½
+//ï¿½Ø‚Ì“ï¿½ï¿½^ï¿½ï¿½ï¿½ï¿½Égï¿½ï¿½
 #include <random>
 vl rand1(100010);
 vl rand2(100010);

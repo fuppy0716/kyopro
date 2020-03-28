@@ -12,7 +12,20 @@ struct dice {
     uniform_int_distribution<ll> dist(x, y - 1);
     return dist(mt);
   }
+  vl operator()(int n, ll x, ll y) {
+    vl res(n);
+    for (int i = 0; i < n; i++) res[i] = this->operator()(x, y);
+    return res;
+  }
 } rnd;
+
+vi random_vector(int n, int mi, int ma) {
+  vi a(n);
+  for (int i = 0; i < n; i++) {
+    a[i] = 
+  }
+}
+
 
 int main() {
   for (int i = 0; i < 30; i++) {
