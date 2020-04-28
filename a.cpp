@@ -6,7 +6,7 @@ using namespace std;
 #define DEBUG_VEC(v) cerr<<#v<<":";for(int i=0;i<v.size();i++) cerr<<" "<<v[i]; cerr<<endl;
 #define DEBUG_MAT(v) cerr<<#v<<endl;for(int i=0;i<v.size();i++){for(int j=0;j<v[i].size();j++) {cerr<<v[i][j]<<" ";}cerr<<endl;}
 typedef long long ll;
-#define int ll
+// #define int ll
  
 #define vi vector<int>
 #define vl vector<ll>
@@ -22,10 +22,10 @@ template<class S, class T> pair<S, T> operator-(const pair<S, T> &s, const pair<
 template<class S, class T> ostream& operator<<(ostream& os, pair<S, T> p) { os << "(" << p.first << ", " << p.second << ")"; return os; }
 #define X first
 #define Y second
-#define rep(i,n) for(int i=0;i<(n);i++)
-#define rep1(i,n) for(int i=1;i<=(n);i++)
-#define rrep(i,n) for(int i=(n)-1;i>=0;i--)
-#define rrep1(i,n) for(int i=(n);i>0;i--)
+#define rep(i,n) for(int i=0;i<(int)(n);i++)
+#define rep1(i,n) for(int i=1;i<=(int)(n);i++)
+#define rrep(i,n) for(int i=(int)(n)-1;i>=0;i--)
+#define rrep1(i,n) for(int i=(int)(n);i>0;i--)
 #define REP(i,a,b) for(int i=a;i<b;i++)
 #define in(x, a, b) (a <= x && x < b)
 #define all(c) c.begin(),c.end()
@@ -46,99 +46,63 @@ const ll MOD = 1000000007;
 // #define mp make_pair
 //#define endl '\n'
 
-const int MAXN = 555555;
 
-vl fact(MAXN);
-vl rfact(MAXN);
+using u32 = unsigned int;
+using u64 = unsigned long long;
+using u128 = __uint128_t;
 
-ll mod_pow(ll x, ll p, ll M = MOD) {
-  if (p < 0) {
-    x = mod_pow(x, M - 2, M);
-    p = -p;
-  }
-  ll a = 1;
-  while (p) {
-    if (p % 2)
-      a = a*x%M;
-    x = x*x%M;
-    p /= 2;
-  }
-  return a;
+template <class Uint, class BinOp>
+bool is_prime_impl(const Uint &n, const Uint *witness, BinOp modmul) {
+    if (n == 2) return true;
+    if (n < 2 || n % 2 == 0) return false;
+    const Uint m = n - 1, d = m / (m & -m);
+    auto modpow = [&](Uint a, Uint b) {
+        Uint res = 1;
+        for (; b; b /= 2) {
+            if (b & 1) res = modmul(res, a);
+            a = modmul(a, a);
+        }
+        return res;
+    };
+    auto suspect = [&](Uint a, Uint t) {
+        a = modpow(a, t);
+        while (t != n - 1 && a != 1 && a != n - 1) {
+            a = modmul(a, a);
+            t = modmul(t, 2);
+        }
+        return a == n - 1 || t % 2 == 1;
+    };
+    for (const Uint *w = witness; *w; w++) {
+        if (*w % n != 0 && !suspect(*w, d)) return false;
+    }
+    return true;
 }
 
-ll mod_inverse(ll a, ll M = MOD) {
-  return mod_pow(a, M - 2, M);
-}
-
-void set_fact(ll n, ll M = MOD) {
-  fact[0] = fact[1] = rfact[0] = rfact[1] = 1;
-  for (ll i = 2; i <= n; i++) {
-    fact[i] = i * fact[i - 1] % M;
-    // rfact[i] = mod_inverse(fact[i], M);
-  }
-}
-
-//http://drken1215.hatenablog.com/entry/2018/06/08/210000
-//n���傫��fact���v�Z�ł��Ȃ��Ƃ��̂ق��̌v�Z���@�ɂ��ď����Ă���
-ll nCr(ll n, ll r, ll M = MOD) {
-  if (r > n) return 0;
-  assert(fact[2] == 2);
-  ll ret = fact[n];
-  if (rfact[r] == 0) {
-    rfact[r] = mod_inverse(fact[r], M);
-  }
-  ret = (ret*rfact[r]) % M;
-  if (rfact[n - r] == 0) {
-    rfact[n - r] = mod_inverse(fact[n - r], M);
-  }
-  ret = (ret*rfact[n - r]) % M;
-  return ret;
-}
-
-ll nHr(ll n, ll r) {
-  return nCr(n+r-1, r);
-}
-
-ll gcd(ll a, ll b) {
-  if (b > a) {
-    swap(a, b);
-  }
-  ll r = a%b;
-  while (r != 0) {
-    a = b;
-    b = r;
-    r = a%b;
-  }
-  return b;
-}
-
-ll lcm(ll a, ll b) {
-  return (a / gcd(a, b))*b;
-}
-
-ll solve(int h, int w) {
-    if (h > w) swap(h, w);
-
-    ll ans = 0;
-    ans = mod_pow(2, h);
-    ans += mod_pow(2, w);
-    ans -= 1;
-    ll g = gcd(h, w);
-    ans += mod_pow(2, g);
-    ans -= 2;
-    ans = (ans % MOD + MOD) % MOD;
-    return ans;
+bool is_prime(const u128 &n) {
+    assert(n < 1ULL << 63);
+    if (n < 1ULL << 32) {
+        // n < 2^32
+        constexpr u64 witness[] = {2, 7, 61, 0};
+        auto modmul = [&](u64 a, u64 b) { return a * b % n; };
+        return is_prime_impl<u64>(n, witness, modmul);
+    } 
+    else {
+        // n < 2^63
+        constexpr u128 witness[] = {2, 325, 9375, 28178, 450775, 9780504, 1795265022, 0};
+        // if u128 is available
+        auto modmul = [&](u128 a, u128 b) { return a * b % n; };
+        return is_prime_impl<u128>(n, witness, modmul);
+    }
 }
 
 
 signed main() {
-    fio();
-    ll h, w, t;
-    cin >> h >> w >> t;
-    ll hh = h / gcd(h, t);
-    ll ww = w / gcd(w, t);
-    ll ans = solve(hh, ww);
-    ans = mod_pow(ans, (h * w) / (hh * ww));
-
-    cout << ans << endl;
+    int q;
+    cin >> q;
+    while (q--) {
+        ll x;
+        cin >> x;
+        
+        cout << x << " " << (int)is_prime(x) << endl;
+    }
 }

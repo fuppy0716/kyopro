@@ -25,49 +25,28 @@ vl d(N,INF);
 
 void dijkstra(int s);
 
-int main(){
-	int k,u,v,c,i,j;
-	cin>>n;
-	loop(i,0,n){
-		cin>>u>>k;
-		loop(j,0,k){
-			cin>>v>>c;
-			adj[u].push_back(make_pair(c,v));
-		}
-	}
-	dijkstra();
-	loop(i,0,n){
-		cout<<i<<" "<<((d[i]==inf)? -1:d[i])<<endl;
-	}
-}
 
-void dijkstra(int s){
+vl dijkstra(int s, int n){
 	priority_queue<pll, vector<pll>, greater<pll> > pq;
 	int i;
-	vi color(n,WHITE);
-	
+	vl d(n, INF);
 	d[s]=0;
 	pq.push(make_pair(0,s));
-	color[s]=GRAY;
 	
 	while(!pq.empty()){
 		pll f=pq.top();
 		pq.pop();
 		int u=f.second;
-		color[u]=BLACK;
 		if(d[u]<f.first){
 			continue;
 		}
 		for (i = 0; i < adj[u].size(); i++) {
 			int v=adj[u][i].second;
-			if(color[v]==BLACK){
-				continue;
-			}
-			if (d[v] > d[u] + adj[u][i].first) {
-				d[v] = d[u] + adj[u][i].first;
+			if (d[v] > d[u] + G[u][i].first) {
+				d[v] = d[u] + G[u][i].first;
 				pq.push(make_pair(d[v], v));
-				color[v] = GRAY;
 			}
 		}
 	}
+	return d;
 }

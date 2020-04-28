@@ -40,7 +40,7 @@ ll lcm(ll a, ll b) {
   return (a / gcd(a, b))*b;
 }
 
-//ax + by = gcd(a, b) ‚Æ‚È‚éx, y‚ğ‚à‚Æ‚ß‚é
+//ax + by = gcd(a, b) ï¿½Æ‚È‚ï¿½x, yï¿½ï¿½ï¿½ï¿½ï¿½Æ‚ß‚ï¿½
 ll extgcd(ll a, ll b, ll& x, ll& y) {
   ll d = a;
   if (b != 0) {
@@ -54,8 +54,8 @@ ll extgcd(ll a, ll b, ll& x, ll& y) {
 }
 
 
-//’†‘è—]’è—
-//mod‚ÌÏ‚ª‚·‚²‚¢‚Æ‚«ƒI[ƒo[ƒtƒ[‚·‚éB
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½]ï¿½è—
+//modï¿½ÌÏ‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ‚ï¿½ï¿½Iï¿½[ï¿½oï¿½[ï¿½tï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½B
 //am[i].first:a_i, am[i].second:m_i
 //return (x, y) y = lcm(m1, m2, ..., m_n),  x%m_i = a_i
 typedef __int128 lll;
@@ -65,9 +65,9 @@ pll crt(vector<pll> am) {
     am[i].first = (am[i].first % am[i].second + am[i].second) % am[i].second;
     am[i + 1].first = (am[i + 1].first % am[i + 1].second + am[i + 1].second) % am[i + 1].second;
     g = extgcd(am[i].second, am[i + 1].second, x, y);
-    if (am[i].first%g != am[i].second%g) return pll(-1, 0); //‰ğ‚È‚µ
+    if (am[i].first%g != am[i].second%g) return pll(-1, 0); //ï¿½ï¿½ï¿½È‚ï¿½
     lll lcm = (lll)am[i].second*(am[i + 1].second / g);
-    if (lcm < am[i].second) return pll(-2, 0); //ƒI[ƒo[ƒtƒ[
+    if (lcm < am[i].second) return pll(-2, 0); //ï¿½Iï¿½[ï¿½oï¿½[ï¿½tï¿½ï¿½ï¿½[
     ll mo = am[i + 1].second = lcm;
     lll v = am[i].first + ((lll)(am[i].second / g) * x % mo * (am[i + 1].first - am[i].first + mo) % mo);
     am[i + 1].first = (v%mo + mo) % mo;
@@ -96,7 +96,7 @@ void prime(vector<bool> &isprime /*, vll &soinsu */) {
   }
 }
 
-//nˆÈ‰º‚Ìn‚ÆŒİ‚¢‚É‘f‚È©‘R”‚ÌŒÂ”
+//nï¿½È‰ï¿½ï¿½ï¿½nï¿½ÆŒİ‚ï¿½ï¿½É‘fï¿½Èï¿½ï¿½Rï¿½ï¿½ï¿½ÌŒÂï¿½
 //O(sqrt(n))
 int eulerSingle(int n) {
   int res = n;
@@ -111,7 +111,7 @@ int eulerSingle(int n) {
 }
 
 
-//ƒIƒCƒ‰[ŠÖ”‚Ì’l‚Ìƒe[ƒuƒ‹
+//ï¿½Iï¿½Cï¿½ï¿½ï¿½[ï¿½Öï¿½ï¿½Ì’lï¿½Ìƒeï¿½[ï¿½uï¿½ï¿½
 //O(n)
 vl euler(n + 1);
 void eulerTable(int n) {
@@ -128,17 +128,52 @@ void eulerTable(int n) {
 }
 
 
-int main() {
-  ll n;
-  int i, j;
-  cin >> n;
-  vl t(n);
-  for (i = 0; i < n; i++) {
-    cin >> t[i];
-  }
-  ll ans = 1;
-  for (i = 0; i < n; i++) {
-    ans = lcm(ans, t[i]);
-  }
-  cout << ans << endl;
+
+// Miller Rubin
+using u32 = unsigned int;
+using u64 = unsigned long long;
+using u128 = __uint128_t;
+
+template <class Uint, class BinOp>
+bool is_prime_impl(const Uint &n, const Uint *witness, BinOp modmul) {
+    if (n == 2) return true;
+    if (n < 2 || n % 2 == 0) return false;
+    const Uint m = n - 1, d = m / (m & -m);
+    auto modpow = [&](Uint a, Uint b) {
+        Uint res = 1;
+        for (; b; b /= 2) {
+            if (b & 1) res = modmul(res, a);
+            a = modmul(a, a);
+        }
+        return res;
+    };
+    auto suspect = [&](Uint a, Uint t) {
+        a = modpow(a, t);
+        while (t != n - 1 && a != 1 && a != n - 1) {
+            a = modmul(a, a);
+            t = modmul(t, 2);
+        }
+        return a == n - 1 || t % 2 == 1;
+    };
+    for (const Uint *w = witness; *w; w++) {
+        if (*w % n != 0 && !suspect(*w, d)) return false;
+    }
+    return true;
+}
+
+bool is_prime(const u128 &n) {
+    assert(n < 1ULL << 63);
+    if (n < 1ULL << 32) {
+        // n < 2^32
+        constexpr u64 witness[] = {2, 7, 61, 0};
+        auto modmul = [&](u64 a, u64 b) { return a * b % n; };
+        return is_prime_impl<u64>(n, witness, modmul);
+    } 
+    else {
+        // n < 2^63
+        constexpr u128 witness[] = {2, 325, 9375, 28178, 450775, 9780504, 1795265022, 0};
+        // if u128 is available
+        auto modmul = [&](u128 a, u128 b) { return a * b % n; };
+        return is_prime_impl<u128>(n, witness, modmul);
+    }
 }
