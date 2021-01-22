@@ -23,64 +23,70 @@ const ll INF = 1e18 * 4;
 int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 
-#define MAX_V 60000
 
-struct edge { int to, cap, cost, rev; };
-int V; //頂点数
-vector< vector<edge> > G(MAX_V); //グラフの隣接リスト表現
-vi h(MAX_V); //ポテンシャル
-vi dist(MAX_V); //最短距離
-vi prevv(MAX_V), preve(MAX_V); //直前の頂点と辺
 
-							   //fromからtoへ向かう容量cap,コストcostの辺をグラフに追加する
-void add_edge(int from, int to, int cap, int cost) {
-	edge temp;
-	temp.to = to; temp.cap = cap; temp.cost = cost; temp.rev = G[to].size();
-	G[from].push_back(temp);
-	temp.to = from; temp.cap = 0; temp.cost = -cost; temp.rev = G[from].size() - 1;
-	G[to].push_back(temp);
+
+// http://sigma425.hatenablog.com/entry/2014/10/12/122018
+struct edge {int to,cap,cost,rev;};
+const int MAX_V=6100;
+int V;			//莉｣蜈･!!
+vector<edge> G[MAX_V];
+int h[MAX_V];
+int dist[MAX_V];
+int prevv[MAX_V],preve[MAX_V];
+int top[MAX_V];
+void add_edge(int from, int to, int cap, int cost){
+//	printf("%d->%d  cap=%d,cost=%d\n",from,to,cap,cost);
+	edge e1={to,cap,cost,(int)G[to].size()},e2={from,0,-cost,(int)G[from].size()};
+	G[from].push_back(e1);
+	G[to].push_back(e2);
 }
 
-//sからtへの流量fの最小費用流を求める
-//流せない場合は-1を返す
-int min_cost_flow(int s, int t, int f, int V) {
-	int res = 0;
-	fill(h.begin(), h.end(), 0);
-	while (f > 0) {
-		priority_queue<pii, vector<pii>, greater<pii> > que; //firstは最短距離、secondは頂点の番号
-		fill(dist.begin(), dist.end(), inf);
-		dist[s] = 0;
-		que.push(pii(0, s));
-		while (!que.empty()) {
-			pii p = que.top(); que.pop();
-			int v = p.second;
-			if (dist[v] < p.first) continue;
-			for (int i = 0; i < G[v].size(); i++) {
-				edge &e = G[v][i];
-				if (e.cap > 0 && dist[e.to] > dist[v] + e.cost + h[v] - h[e.to]) {
-					dist[e.to] = dist[v] + e.cost + h[v] - h[e.to];
-					prevv[e.to] = v;
-					preve[e.to] = i;
-					que.push(pii(dist[e.to], e.to));
+int min_cost_flow(int s, int t, int f){
+    using P = pair<int, int>;
+	int res=0;
+	fill(h,h+V,0);
+	rep(i,V){
+		int v=top[i];
+		rep(j,G[v].size()){
+			edge &e=G[v][j];
+			if(e.cap==0) continue;
+			int u=e.to;
+			h[u]=min(h[u],h[v]+e.cost);
+		}
+	}
+	while(f>0){
+		priority_queue< P,vector<P>,greater<P> > que;
+		fill(dist,dist+V,inf);
+		dist[s]=0;
+		que.push(P(0,s));
+		while(!que.empty()){
+			P p=que.top();
+			que.pop();
+			int v=p.second;
+			if(dist[v]<p.first) continue;
+			for(int i=0;i<G[v].size();i++){
+				edge &e=G[v][i];
+				if(e.cap>0 && dist[e.to]>dist[v]+e.cost+h[v]-h[e.to]){
+					dist[e.to]=dist[v]+e.cost+h[v]-h[e.to];
+					prevv[e.to]=v;
+					preve[e.to]=i;
+					que.push(P(dist[e.to],e.to));
 				}
 			}
 		}
-		if (dist[t] == inf) { //これ以上流せない
-			return -1;
+		if(dist[t]==inf) return -1;
+		for(int v=0;v<V;v++) h[v]+=dist[v];
+		int d=f;
+		for(int v=t;v!=s;v=prevv[v]){
+			d=min(d,G[prevv[v]][preve[v]].cap);
 		}
-		for (int v = 0; v < V; v++) {
-			h[v] += dist[v];
-		}
-		int d = f;
-		for (int v = t; v != s; v = prevv[v]) {
-			d = min(d, G[prevv[v]][preve[v]].cap);
-		}
-		f -= d;
-		res += d*h[t];
-		for (int v = t; v != s; v = prevv[v]) {
-			edge &e = G[prevv[v]][preve[v]];
-			e.cap -= d;
-			G[v][e.rev].cap += d;
+		f-=d;
+		res+=d*h[t];
+		for(int v=t;v!=s;v=prevv[v]){
+			edge &e=G[prevv[v]][preve[v]];
+			e.cap-=d;
+			G[v][e.rev].cap+=d;
 		}
 	}
 	return res;

@@ -30,9 +30,9 @@ public:
   using F = function<T(T&, T&)>;
   int n;
   vector<T > dat;
-  T e; // ’PˆÊŒ³
   F query_func;
   F update_func;
+  T e; // ï¿½Pï¿½ÊŒï¿½
   
   SegmentTree(vector<T> a, F query_func, F update_func, T e) :n(a.size()), query_func(query_func), update_func(update_func), e(e) {
     dat.resize(4 * n);
@@ -51,7 +51,7 @@ public:
     }
   }
 
-  //k”Ô–Ú‚Ì’l‚ğa‚É•ÏX
+  //kï¿½Ô–Ú‚Ì’lï¿½ï¿½aï¿½É•ÏX
   void update(int k, T a, int v, int l, int r) {
     if (r - l == 1) {
       dat[v] = update_func(dat[v], a);
@@ -67,10 +67,10 @@ public:
   }
     
 
-  //[a,b)‚ÌÅ¬’l‚ğ‹‚ß‚é
-  //Œã‚ë‚Ì‚Ù‚¤‚Ìˆø”‚ÍŒvZ‚ÌŠÈ’P‚Ì‚½‚ß‚Ìˆø”
-  //k‚ÍÚ“_‚Ì”Ô†,l,r‚Í‚»‚ÌÚ“_‚ª[l,r)‚É‘Î‰‚µ‚Ä‚¢‚é‚±‚Æ‚ğ•\‚·
-  //]‚Á‚ÄAŠO‚©‚ç‚Íquery(a,b,0,0,n)‚Æ‚µ‚Ä‚æ‚Ô
+  //[a,b)ï¿½ÌÅï¿½ï¿½lï¿½ï¿½ï¿½ï¿½ï¿½ß‚ï¿½
+  //ï¿½ï¿½ï¿½Ì‚Ù‚ï¿½ï¿½Ìˆï¿½ï¿½ï¿½ï¿½ÍŒvï¿½Zï¿½ÌŠÈ’Pï¿½Ì‚ï¿½ï¿½ß‚Ìˆï¿½ï¿½ï¿½
+  //kï¿½ÍÚ“_ï¿½Ì”Ôï¿½,l,rï¿½Í‚ï¿½ï¿½ÌÚ“_ï¿½ï¿½[l,r)ï¿½É‘Î‰ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½é‚±ï¿½Æ‚ï¿½\ï¿½ï¿½
+  //ï¿½]ï¿½ï¿½ï¿½ÄAï¿½Oï¿½ï¿½ï¿½ï¿½ï¿½query(a,b,0,0,n)ï¿½Æ‚ï¿½ï¿½Ä‚ï¿½ï¿½
   T query(int a, int b, int k, int l, int r) {
     if (r <= a || b <= l) {
       return e;
@@ -85,12 +85,12 @@ public:
     }
   }
 
-  // ğŒ‚ğ–‚½‚·Ä‰E‚ğ’T‚·
+  // ï¿½ï¿½ï¿½ï¿½ï¿½ğ–‚ï¿½ï¿½ï¿½ï¿½Ä‰Eï¿½ï¿½Tï¿½ï¿½
   int find(int a, int b, int k, int l, int r, int x) {
-    // ‚±‚±‚ğ’¼‚·
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ğ’¼‚ï¿½
     if (dat[k] < x || r <= a || b <= l) return -1;
     if (l + 1 == r) {
-      // ‚±‚±‚ğ’¼‚·
+      // ï¿½ï¿½ï¿½ï¿½ï¿½ğ’¼‚ï¿½
       if (dat[k] >= x) return l;
       else return -1;
     }
@@ -110,11 +110,11 @@ public:
   int n;
   vector<T1> node;
   vector<T2> lazy;
-  T1 e1;
-  T2 e2;
   F query_func;
   G update_func;
   H eval_func;
+  T1 e1;
+  T2 e2;
 
   LazySegmentTree(vector<T1> a, F query_func, G update_func, H eval_func, T1 e1, T2 e2)
     :query_func(query_func), update_func(update_func), eval_func(eval_func), e1(e1), e2(e2)
@@ -129,7 +129,7 @@ public:
     }
   }
 
-  // k”Ô–Ú‚Ìƒm[ƒh‚É‚Â‚¢‚Ä’x‰„•]‰¿‚ğs‚¤
+  // kï¿½Ô–Ú‚Ìƒmï¿½[ï¿½hï¿½É‚Â‚ï¿½ï¿½Ä’xï¿½ï¿½ï¿½]ï¿½ï¿½ï¿½ï¿½ï¿½sï¿½ï¿½
   inline void eval(int k, int l, int r) {
     if (lazy[k] != e2) { // Change
       node[k] = eval_func(node[k], lazy[k], l, r);
@@ -141,9 +141,9 @@ public:
     }
   }
 
-  // [a, b)‚ğx‚É‚·‚é
+  // [a, b)ï¿½ï¿½xï¿½É‚ï¿½ï¿½ï¿½
   void update(int a, int b, T2 x, int k, int l, int r) {
-    // k ”Ô–Ú‚Ìƒm[ƒh‚É‘Î‚µ‚Ä’x‰„•]‰¿‚ğs‚¤
+    // k ï¿½Ô–Ú‚Ìƒmï¿½[ï¿½hï¿½É‘Î‚ï¿½ï¿½Ä’xï¿½ï¿½ï¿½]ï¿½ï¿½ï¿½ï¿½ï¿½sï¿½ï¿½
     eval(k, l, r);
     if (b <= l || r <= a) return;
     if (a <= l && r <= b) {
@@ -173,8 +173,8 @@ public:
 ////sum////////
 ///////////////
 
-// updateƒpƒ^[ƒ“
-// addƒpƒ^[ƒ“‚Íeval,update‚Ì‚¢‚­‚Â‚©‚Ì=‚ğ+=‚É‚·‚é, -2*INF‚ğ0‚É‚·‚é
+// updateï¿½pï¿½^ï¿½[ï¿½ï¿½
+// addï¿½pï¿½^ï¿½[ï¿½ï¿½ï¿½ï¿½eval,updateï¿½Ì‚ï¿½ï¿½ï¿½ï¿½Â‚ï¿½ï¿½ï¿½=ï¿½ï¿½+=ï¿½É‚ï¿½ï¿½ï¿½, -2*INFï¿½ï¿½0ï¿½É‚ï¿½ï¿½ï¿½
 class LazySegmentTree {
 public:
   int n;
@@ -191,7 +191,7 @@ public:
     }
   }
 
-  // k”Ô–Ú‚Ìƒm[ƒh‚É‚Â‚¢‚Ä’x‰„•]‰¿‚ğs‚¤
+  // kï¿½Ô–Ú‚Ìƒmï¿½[ï¿½hï¿½É‚Â‚ï¿½ï¿½Ä’xï¿½ï¿½ï¿½]ï¿½ï¿½ï¿½ï¿½ï¿½sï¿½ï¿½
   inline void eval(int k, int l, int r) {
     if (lazy[k] != -2 * INF) { // Change
       node[k] = (r - l) * lazy[k]; // Change
@@ -203,9 +203,9 @@ public:
     }
   }
 
-  // [a, b)‚ğx‚É‚·‚é
+  // [a, b)ï¿½ï¿½xï¿½É‚ï¿½ï¿½ï¿½
   void add(int a, int b, ll x, int k, int l, int r) {
-    // k ”Ô–Ú‚Ìƒm[ƒh‚É‘Î‚µ‚Ä’x‰„•]‰¿‚ğs‚¤
+    // k ï¿½Ô–Ú‚Ìƒmï¿½[ï¿½hï¿½É‘Î‚ï¿½ï¿½Ä’xï¿½ï¿½ï¿½]ï¿½ï¿½ï¿½ï¿½ï¿½sï¿½ï¿½
     eval(k, l, r);
     if (b <= l || r <= a) return;
     if (a <= l && r <= b) {
@@ -231,13 +231,13 @@ public:
 
 
 ///////////
-//Å‘å’l///
+//ï¿½Å‘ï¿½l///
 ///////////
 class LazySegmentTree {
 public:
 	int n;
 	vl node, lazy;
-	bool ismax; //true‚È‚çÅ‘å’lAfalse‚È‚çÅ¬’l
+	bool ismax; //trueï¿½È‚ï¿½Å‘ï¿½lï¿½Afalseï¿½È‚ï¿½Åï¿½ï¿½l
 
 	LazySegmentTree(vl a, bool _ismax) {
 		ismax = _ismax;
@@ -253,7 +253,7 @@ public:
 		}
 	}
 
-	// k”Ô–Ú‚Ìƒm[ƒh‚É‚Â‚¢‚Ä’x‰„•]‰¿‚ğs‚¤
+	// kï¿½Ô–Ú‚Ìƒmï¿½[ï¿½hï¿½É‚Â‚ï¿½ï¿½Ä’xï¿½ï¿½ï¿½]ï¿½ï¿½ï¿½ï¿½ï¿½sï¿½ï¿½
 	inline void eval(int k, int l, int r) {
 		if (lazy[k] != 0) {
 			node[k] += lazy[k];
@@ -266,7 +266,7 @@ public:
 	}
 
 	void add(int a, int b, ll x, int k, int l, int r) {
-		// k ”Ô–Ú‚Ìƒm[ƒh‚É‘Î‚µ‚Ä’x‰„•]‰¿‚ğs‚¤
+		// k ï¿½Ô–Ú‚Ìƒmï¿½[ï¿½hï¿½É‘Î‚ï¿½ï¿½Ä’xï¿½ï¿½ï¿½]ï¿½ï¿½ï¿½ï¿½ï¿½sï¿½ï¿½
 		eval(k, l, r);
 		if (b <= l || r <= a) return;
 		if (a <= l && r <= b) {

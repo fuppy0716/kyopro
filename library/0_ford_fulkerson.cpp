@@ -22,14 +22,14 @@ const ll INF = 1e16;
 int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
 int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
 
-// •Ó‚ğ•\‚·\‘¢‘Ì {sæA—e—ÊA‹t•Ó}
+// ï¿½Ó‚ï¿½\ï¿½ï¿½ï¿½\ï¿½ï¿½ï¿½ï¿½ {ï¿½sï¿½ï¿½Aï¿½eï¿½ÊAï¿½tï¿½ï¿½}
 struct edge { int to; ll cap; int rev; };
 #define V 1010
-int s, t; //s‚ªstart, t‚ªgoal
-vector< vector<edge> > G(V, vector<edge>());; //ƒOƒ‰ƒt‚Ì—×ÚƒŠƒXƒg•\Œ»
-vector<bool> used(V); //DEF‚Å’²‚×‚½‚©‚Ìƒtƒ‰ƒO
+int s, t; //sï¿½ï¿½start, tï¿½ï¿½goal
+vector< vector<edge> > G(V, vector<edge>());; //ï¿½Oï¿½ï¿½ï¿½tï¿½Ì—×Úƒï¿½ï¿½Xï¿½gï¿½\ï¿½ï¿½
+vector<bool> used(V); //DEFï¿½Å’ï¿½ï¿½×‚ï¿½ï¿½ï¿½ï¿½Ìƒtï¿½ï¿½ï¿½O
 
-					  //from‚©‚çto‚ÖŒü‚©‚¤—e—Êcap‚Ì•Ó‚ğƒOƒ‰ƒt‚É’Ç‰Á‚·‚é
+					  //fromï¿½ï¿½ï¿½ï¿½toï¿½ÖŒï¿½ï¿½ï¿½ï¿½ï¿½ï¿½eï¿½ï¿½capï¿½Ì•Ó‚ï¿½ï¿½Oï¿½ï¿½ï¿½tï¿½É’Ç‰ï¿½ï¿½ï¿½ï¿½ï¿½
 void add_edge(int from, int to, ll cap) {
 	edge a;
 	a.to = to; a.cap = cap; a.rev = G[to].size();

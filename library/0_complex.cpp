@@ -149,3 +149,52 @@ double AngleOf2Vector(P A, P B)
 	theta *= 180.0 / pi;
 	return theta;
 }
+
+// https://poporix.hatenablog.com/entry/2020/03/03/223631
+vector<P> intersection_circle(P c1, P c2, double r1, double r2) {
+	double d = abs(c1 - c2);
+	if (d > r1 + r2 + EPS) {
+		return vector<P>(0);
+	}
+	double cos_theta = (r2 * r2 - r1 * r1 - d * d) / (-2 * r1 * d);
+	cos_theta = max(-1., min(1., cos_theta));
+	double sin_theta = sqrt(1 - cos_theta * cos_theta);
+	P e = (c2 - c1) / d;
+
+	vector<P> res;
+	P temp;
+	temp.real(e.real() * cos_theta - e.imag() * sin_theta);
+	temp.imag(e.real() * sin_theta + e.imag() * cos_theta);
+	res.push_back(temp);
+	if (abs(sin_theta) > EPS) {
+		temp.real(e.real() * cos_theta + e.imag() * sin_theta);
+		temp.imag(-e.real() * sin_theta + e.imag() * cos_theta);
+		res.push_back(temp);
+	}
+	return res;
+}
+
+// https://poporix.hatenablog.com/entry/2020/03/03/223631
+// 誤差のこと考えてない
+vector<P> intersection_circle(P c1, P c2, long double r1, long double r2) {
+	long double d = abs(c1 - c2);
+	if (d > r1 + r2) {
+		return vector<P>(0);
+	}
+	long double cos_theta = (r2 * r2 - r1 * r1 - d * d) / (-2 * r1 * d);
+	cos_theta = max((long double)-1., min((long double)1., cos_theta));
+	long double sin_theta = sqrtl(1 - cos_theta * cos_theta);
+	P e = (c2 - c1) / d * r1;
+
+	vector<P> res;
+	P temp;
+	temp.real(e.real() * cos_theta - e.imag() * sin_theta);
+	temp.imag(e.real() * sin_theta + e.imag() * cos_theta);
+	res.push_back(temp + c1);
+	if (abs(sin_theta) > EPS) {
+		temp.real(e.real() * cos_theta + e.imag() * sin_theta);
+		temp.imag(-e.real() * sin_theta + e.imag() * cos_theta);
+		res.push_back(temp + c1);
+	}
+	return res;
+}

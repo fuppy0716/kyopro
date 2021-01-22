@@ -29,9 +29,9 @@ int n; //���_��
 #define N 10010
 vii G(N, vi()); //�O���t�̗אڃ��X�g�\��
 vii rG(N, vi()); //�ӂ̌������t�ɂ����O���t
-vi vr; //�A�肪�����̂Ȃ��
+vi vr; //帰りがけ順の並び
 vector<bool> used(N); //���łɒ��ׂ���
-vi cmp(N); //�����鋭�A�������̃g�|���W�J������
+vi cmp(N); //属する強連結成分のトポロジカル順序
 
 void add_edge(int from, int to) {
 	G[from].push_back(to);

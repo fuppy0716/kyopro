@@ -19,13 +19,44 @@ struct dice {
   }
 } rnd;
 
-vi random_vector(int n, int mi, int ma) {
-  vi a(n);
-  for (int i = 0; i < n; i++) {
-    a[i] = 
-  }
-}
+vii generate_random_tree(int n) {
+    vi prufer(n - 2);
+    rep (i, n - 2) prufer[i] = rnd(n);
 
+    vector<bool> appear(n);
+    rep (i, n - 2) appear[prufer[i]] = true;
+
+    vii G(n);
+    rep (i, n - 2) {
+        int u = prufer[i];
+        rep (i, n) {
+            if (not appear[i]) {
+                G[u].push_back(i);
+                G[i].push_back(u);
+                appear[i] = true;
+                break;
+            }
+        }
+
+        bool flag = false;
+        for (int j = i + 1; j < n - 2; j++) {
+            if (prufer[j] == u) {
+                flag = true;
+                break;
+            }
+        }
+        if (not flag) appear[u] = false;
+    }
+    vi rem;
+    rep (i, n) {
+        if (not appear[i]) rem.push_back(i);
+    }
+    assert(rem.size() == 2);
+    int u = rem[0], v = rem[1];
+    G[u].push_back(v);
+    G[v].push_back(u);
+    return G;
+}
 
 int main() {
   for (int i = 0; i < 30; i++) {

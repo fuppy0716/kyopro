@@ -1,71 +1,4 @@
-struct dice {
-  mt19937 mt;
-  dice() : mt(chrono::steady_clock::now().time_since_epoch().count()) {}
-  // [0, x)の一様乱数
-  ll operator()(ll x) { return this->operator()(0, x); }
-  // [x, y)の一様乱数
-  ll operator()(ll x, ll y) {
-    uniform_int_distribution<ll> dist(x, y - 1);
-    return dist(mt);
-  }
-  vl operator()(int n, ll x, ll y) {
-    vl res(n);
-    for (int i = 0; i < n; i++) res[i] = this->operator()(x, y);
-    return res;
-  }
-} rnd;
-
-
-using ull = unsigned long long;
-const ull MASK30 = (1ULL << 30) - 1;
-const ull MASK31 = (1ULL << 31) - 1;
-const ull M = (1ULL << 61) - 1;
-const ull B = rnd(129, M);
-const ull POSITIVIZER = M * ((1UL << 3) - 1);
-
 class RollingHash {
-public:
-  
-  vector<ull> hash;
-  vector<ull> Bpower;
-
-  RollingHash(vi s) {
-    int n = s.size();
-    hash.resize(n + 1); Bpower.resize(n + 1);
-    Bpower[0] = 1;
-    hash[0] = 0;
-    
-    for (int i = 0; i < n; i++) {
-      hash[i + 1] = _calc_mod(_mul(hash[i], B) + (ull)s[i]);
-      Bpower[i + 1] = _calc_mod(_mul(Bpower[i], B));
-    }
-  }
-
-  //S[l, r)
-  ull part(int l, int r) {
-    return _calc_mod(hash[r] + POSITIVIZER - _mul(hash[l], Bpower[r - l]));
-  }
-
-  ull _mul(ull a, ull b) {
-    ull au = a >> 31;
-    ull ad = a & MASK31;
-    ull bu = b >> 31;
-    ull bd = b & MASK31;
-    ull mid = ad * bu + au * bd;
-    ull midu = mid >> 30;
-    ull midd = mid & MASK30;
-    return au * bu * 2 + midu + (midd << 31) + ad * bd;
-  }
-
-  ull _calc_mod(ull val) {
-    val = (val & M) + (val >> 61);
-    if (val >= M) val -= M;
-    return val;
-  }
-};
-
-
-class RollingHash2 {
 public:
   using ull = unsigned long long;
   using P = pair<ll, ull>;
@@ -74,12 +7,12 @@ public:
   const ull B2 = 100000009;
   
   int n;
-  vi s;
+  string s;
   vector<P> hash;
   vector<ll> Bpower1;
   vector<ull> Bpower2;
 
-  RollingHash2(vi s) :s(s), n(s.size()) {
+  RollingHash(string s) :s(s), n(s.size()) {
     hash.resize(n + 1); Bpower1.resize(n + 1); Bpower2.resize(n + 1);
     Bpower1[0] = Bpower2[0] = 1;
     for (int i = 0; i < n; i++) {
@@ -100,7 +33,8 @@ public:
   }
 };
 
-// S と S[i:|S|-1] の最長共通接頭辞の長さ」を記録した配列 A を O(|S|) で構築
+
+
 vi z_algorithm(string s) {
   int n = s.size();
   vi a(n);

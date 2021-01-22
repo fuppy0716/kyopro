@@ -37,7 +37,7 @@ public:
 };
 priority_queue<pii, vector<pii>, Cmp> pq;
 
-//‚±‚ê‚Å‘å‚«‚¢‡‚Éo‚Ä‚­‚é
+//ï¿½ï¿½ï¿½ï¿½Å‘å‚«ï¿½ï¿½ï¿½ï¿½ï¿½Éoï¿½Ä‚ï¿½ï¿½ï¿½
 class Cmp2 {
 public:
 	bool operator() (int a, int b) {

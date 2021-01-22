@@ -23,10 +23,10 @@ int dx[4]={1,0,-1,0}, dy[4]={0,1,0,-1};
 class UnionFind {
 public:
   int n;
-  vi par; //e
-  vi ran; //–Ø‚Ì[‚³
-  vi num; //—v‘f”
-  int g; // group”
+  vi par; //ï¿½e
+  vi ran; //ï¿½Ø‚Ì[ï¿½ï¿½
+  vi num; //ï¿½vï¿½fï¿½ï¿½
+  int g; // groupï¿½ï¿½
  
   UnionFind(int _n) {
     n = _n;
@@ -37,7 +37,7 @@ public:
     }
   }
  
-  //–Ø‚Ìª‚ğ‹‚ß‚é
+  //ï¿½Ø‚Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß‚ï¿½
   int find(int x) {
     if (par[x] == x) {
       return x;
@@ -47,7 +47,7 @@ public:
     }
   }
  
-  //x‚Æy‚Ì‘®‚·‚éW‡‚ğ•¹‡
+  //xï¿½ï¿½yï¿½Ì‘ï¿½ï¿½ï¿½ï¿½ï¿½Wï¿½ï¿½ï¿½ğ•¹ï¿½
   void unite(int x, int y) {
     x = find(x); y = find(y);
     int numsum = num[x] + num[y];
@@ -67,21 +67,21 @@ public:
     g--;
   }
  
-  //x‚Æy‚ª“¯‚¶W‡‚É‘®‚·‚é‚©”Û‚©
+  //xï¿½ï¿½yï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Wï¿½ï¿½ï¿½É‘ï¿½ï¿½ï¿½ï¿½é‚©ï¿½Û‚ï¿½
   bool same(int x, int y) {
     return find(x) == find(y);
   }
  
 };
 
-//•”•ª‰i‘±UF
+//ï¿½ï¿½ï¿½ï¿½ï¿½iï¿½ï¿½UF
 class PermanenceUF {
 public:
 	int n;
-	vi par; //e
-	vi ran; //–Ø‚Ì[‚³
-	vector<vector<pll> > num; //—v‘f”
-	vl time; //–Ø‚ªXV‚³‚ê‚½‚Ì
+	vi par; //ï¿½e
+	vi ran; //ï¿½Ø‚Ì[ï¿½ï¿½
+	vector<vector<pll> > num; //ï¿½vï¿½fï¿½ï¿½
+	vl time; //ï¿½Ø‚ï¿½ï¿½Xï¿½Vï¿½ï¿½ï¿½ê‚½ï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½
 
 	PermanenceUF(int _n) {
 		n = _n;
@@ -93,14 +93,14 @@ public:
 		}
 	}
 
-	//t‚Ì‚Ì–Ø‚Ìª‚ğ‹‚ß‚é
+	//ï¿½ï¿½ï¿½ï¿½tï¿½Ìï¿½ï¿½Ì–Ø‚Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß‚ï¿½
 	int find(ll t, int x) {
 		if (time[x] > t) return x;
 		else return find(t, par[x]);
 	}
 
-	//t‚Éx‚Æy‚Ì‘®‚·‚éW‡‚ğ•¹‡
-	//t‚Í’P’²‘‰Á‚µ‚Ä‚¢‚é
+	//ï¿½ï¿½ï¿½ï¿½tï¿½ï¿½xï¿½ï¿½yï¿½Ì‘ï¿½ï¿½ï¿½ï¿½ï¿½Wï¿½ï¿½ï¿½ğ•¹ï¿½
+	//tï¿½Í’Pï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½
 	void unite(ll t, int x, int y) {
 		x = find(t, x); y = find(t, y);
 		ll numsum = num[x].back().second + num[y].back().second;
@@ -118,12 +118,12 @@ public:
 		}
 	}
 
-	//t‚Ìx‚Æy‚ª“¯‚¶W‡‚É‘®‚·‚é‚©”Û‚©
+	//ï¿½ï¿½ï¿½ï¿½tï¿½ï¿½xï¿½ï¿½yï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Wï¿½ï¿½ï¿½É‘ï¿½ï¿½ï¿½ï¿½é‚©ï¿½Û‚ï¿½
 	bool same(ll t, int x, int y) {
 		return find(t, x) == find(t, y);
 	}
 
-	//t‚Ì‚Ì—v‘fx‚ğŠÜ‚ŞW‡‚ÌƒTƒCƒY
+	//ï¿½ï¿½ï¿½ï¿½tï¿½Ìï¿½ï¿½Ì—vï¿½fxï¿½ï¿½ï¿½Ü‚ŞWï¿½ï¿½ï¿½ÌƒTï¿½Cï¿½Y
 	int size(ll t, int x) {
 		int root = find(t, x);
 		int left = 0, right = num[root].size();
@@ -141,11 +141,11 @@ public:
 
 };
 
-//”’¼üó‚Ì‚à‚Ì‚É—LŒø(”N—îAg’·‚È‚Ç)
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì‚ï¿½ï¿½Ì‚É—Lï¿½ï¿½(ï¿½Nï¿½ï¿½Aï¿½gï¿½ï¿½ï¿½È‚ï¿½)
 class WeightedUF {
 public:
   vi par, ran, num;
-  vl diff_weight; //eƒm[ƒh(ªƒm[ƒh‚Å‚Í‚È‚¢)‚Æ‚Ì’l‚Ì·•ª
+  vl diff_weight; //ï¿½eï¿½mï¿½[ï¿½h(ï¿½ï¿½ï¿½mï¿½[ï¿½hï¿½Å‚Í‚È‚ï¿½)ï¿½Æ‚Ì’lï¿½Ìï¿½ï¿½ï¿½
   
   WeightedUF(int n) {
     par.resize(n); ran.resize(n);
@@ -156,7 +156,7 @@ public:
     }
   }
 
-  //–Ø‚Ìª‚ğ‹‚ß‚é
+  //ï¿½Ø‚Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß‚ï¿½
   int find(int x) {
     if (par[x] == x) {
       return x;
@@ -169,11 +169,11 @@ public:
   }
 
   ll weight(int x) {
-    find(x); //Œo˜Hˆ³k
+    find(x); //ï¿½oï¿½Hï¿½ï¿½ï¿½k
     return diff_weight[x];
   }
 
-  //x‚©‚ç‚İ‚½y‚Ìd‚İ
+  //xï¿½ï¿½ï¿½ï¿½İ‚ï¿½yï¿½Ìdï¿½ï¿½
   ll diff(int x, int y) {
     if (!same(x, y)) {
       return -INF;
@@ -183,7 +183,7 @@ public:
     }
   }
   
-  //x‚©‚ç‚İ‚½y‚Ìd‚İ‚ªw‚É‚È‚é‚æ‚¤‚É•¹‡
+  //xï¿½ï¿½ï¿½ï¿½İ‚ï¿½yï¿½Ìdï¿½İ‚ï¿½wï¿½É‚È‚ï¿½æ‚¤ï¿½É•ï¿½ï¿½ï¿½
   bool unite(int x, int y, ll w) {
     w += weight(x); w -= weight(y);
     x = find(x); y = find(y);
@@ -209,7 +209,7 @@ public:
     return true;
   }
 
-  //x‚Æy‚ª“¯‚¶W‡‚É‘®‚·‚é‚©”Û‚©
+  //xï¿½ï¿½yï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Wï¿½ï¿½ï¿½É‘ï¿½ï¿½ï¿½ï¿½é‚©ï¿½Û‚ï¿½
   bool same(int x, int y) {
     return find(x) == find(y);
   }
