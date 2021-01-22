@@ -102,6 +102,7 @@ int main() {
 // https://atcoder.jp/contests/arc087/submissions/19517611 (dfsの使用例)
 // https://onlinejudge.u-aizu.ac.jp/beta/review.html#OUPC2020/5146784 (trie木上の木DP．dfsで木DPを，queryでprefixに対する検索をしている)
 // https://atcoder.jp/contests/dwacon5th-final/submissions/19549436 (xor_min, subの使用例)
+
 template<int char_size>
 struct TrieNode {
     // 持たせたい好きな状態を持たせよう
@@ -250,5 +251,106 @@ struct Trie {
         assert(str_num > 0);
         string res;
         return xor_min(s, 0, 0, res);
+    }
+};
+
+// https://yukicoder.me/submissions/608154 (match, frequencyのverify)
+template< int char_size, int initial_char >
+struct AhoCorasick : Trie< char_size + 1, initial_char > {
+
+    const int FAIL = char_size; // next_idx で失敗した時の行き先をたどるための文字、最長の共通接尾辞の頂点に行く（なければ根）
+    vector<int> suf_cnt; // 現在のノードのsuffixに含まれる辞書に含まれる文字列の総和
+    bool is_built = false;
+
+    // node_idxの状態に文字cが追加された際に訪れるノード
+    int move(int node_idx, int c) {
+        return this->nodes[node_idx].next_idx[c - initial_char];
+    }
+
+    void build() {
+        is_built = true;
+        suf_cnt.resize(this->nodes.size());
+
+        // 自分そのものの数
+        for (int i = 0; i < this->nodes.size(); i++) {
+            suf_cnt[i] = this->nodes[i].state_idx.size();
+        }
+
+        // 根ルートと長さ一の文字列は別に処理
+        queue<int> qu;
+        for (int i = 0; i <= char_size; i++) {
+            if (this->nodes[0].next_idx[i] == -1) {
+                this->nodes[0].next_idx[i] = 0;
+            }
+            else {
+                int next_node = this->nodes[0].next_idx[i];
+                this->nodes[next_node].next_idx[FAIL] = 0;
+                qu.push(next_node);
+            }
+        }
+
+        while (qu.size()) {
+            int node_idx = qu.front();
+            qu.pop();
+            int fail_idx = this->nodes[node_idx].next_idx[FAIL];
+            suf_cnt[node_idx] += suf_cnt[fail_idx]; // 頭をとった接尾辞の分を足す
+
+            // cを追加したノードの失敗の行き先は、このノードの失敗の行き先にcを追加したノード
+            // https://jetbead.hatenablog.com/entry/20121027/1351317982
+            for (int c = 0; c < char_size; c++) {
+                if (this->nodes[node_idx].next_idx[c] == -1) {
+                    this->nodes[node_idx].next_idx[c] = move(fail_idx, c + initial_char);
+                    continue;
+                }
+                int next_node = this->nodes[node_idx].next_idx[c];
+                this->nodes[next_node].next_idx[FAIL] = this->nodes[fail_idx].next_idx[c];
+                qu.push(next_node);
+            }
+        }
+    }
+
+    // sの部分文字列中に含まれる辞書の文字の数の総和（種類ではない）O(|s|)
+    ll match(string s) {
+        assert(is_built);
+        ll res = 0;
+        int node_idx = 0;
+        for (int i = 0; i < s.size(); i++) {
+            node_idx = move(node_idx, s[i]);
+            res += suf_cnt[node_idx];
+        }
+        return res;
+    }
+
+    // sの部分文字列に含まれる辞書の文字それぞれについての回数
+    vl frequency(string s) {
+        assert(is_built);
+        vl num(this->nodes.size());
+        int node_idx = 0;
+        for (int i = 0; i < s.size(); i++) {
+            node_idx = move(node_idx, s[i]);
+            num[node_idx]++;
+        }
+
+        queue<int> qu;
+        qu.push(0);
+        vi path;
+        while (qu.size()) {
+            int node_idx = qu.front();
+            qu.pop();
+            path.push_back(node_idx);
+            for (int c: this->nodes[node_idx].exist_char) {
+                qu.push(this->nodes[node_idx].next_idx[c]);
+            }
+        }
+
+        vl res(this->strs.size());
+        for (int i = (int)path.size() - 1; i >= 0; i--) {
+            int node_idx = path[i];
+            for (int u: this->nodes[node_idx].state_idx) {
+                res[u] += num[node_idx];
+            }
+            num[move(node_idx, FAIL + initial_char)] += num[node_idx];
+        }
+        return res;
     }
 };
