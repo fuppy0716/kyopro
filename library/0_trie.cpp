@@ -252,9 +252,15 @@ struct Trie {
         string res;
         return xor_min(s, 0, 0, res);
     }
+
+    // ノード数（!= 追加された文字列の数）
+    int size() {
+        return nodes.size();
+    }
 };
 
 // https://yukicoder.me/submissions/608154 (match, frequencyのverify)
+// https://yukicoder.me/submissions/609368 (アホコラを用いたDPの問題)
 template< int char_size, int initial_char >
 struct AhoCorasick : Trie< char_size + 1, initial_char > {
 

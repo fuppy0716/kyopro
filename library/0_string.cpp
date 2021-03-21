@@ -21,7 +21,7 @@ const ull MASK30 = (1ULL << 30) - 1;
 const ull MASK31 = (1ULL << 31) - 1;
 const ull M = (1ULL << 61) - 1;
 const ull B = rnd(129, M);
-const ull POSITIVIZER = M * ((1UL << 3) - 1);
+const ull POSITIVIZER = M * ((1ULL << 3) - 1);
 
 class RollingHash {
 public:

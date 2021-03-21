@@ -27,6 +27,7 @@ ll gcd(ll a, ll b) {
   if (b > a) {
     swap(a, b);
   }
+  if (b == 0) return a;
   ll r = a%b;
   while (r != 0) {
     a = b;
@@ -40,18 +41,58 @@ ll lcm(ll a, ll b) {
   return (a / gcd(a, b))*b;
 }
 
-//ax + by = gcd(a, b) �ƂȂ�x, y�����Ƃ߂�
-ll extgcd(ll a, ll b, ll& x, ll& y) {
-  ll d = a;
-  if (b != 0) {
-    d = extgcd(b, a%b, y, x);
-    y -= (a / b)*x;
-  }
-  else {
-    x = 1; y = 0;
-  }
-  return d;
+
+//ax + by = gcd(a, b) gcd > 0 は保証
+ll extgcd(ll a, ll b, ll& x, ll& y, bool first_call=true) {
+    ll d = a;
+    if (b != 0) {
+        d = extgcd(b, a%b, y, x, false);
+        y -= (a / b)*x;
+    }
+    else {
+        x = 1; y = 0;
+    }
+    if (first_call and d < 0) {
+        d *= -1;
+        x *= -1;
+        y *= -1;
+    }
+    return d;
 }
+
+// ax - by = c, a > 0, b > 0 において，x >= 0, y >= 0 を満たし，yがminとなる組み合わせ
+bool min_extgcd(ll a, ll b, ll c, ll& x, ll& y) {
+    assert(a > 0 and b > 0);
+
+    ll g = extgcd(a, -b, x, y);
+    if (c % g != 0) return false;
+
+    ll mul = c / g;
+    x *= mul; y *= mul;
+    assert(a * x - b * y == c);
+    if (x < 0 or y < 0) {
+        ll mul = 0;
+        if (x < 0) {
+            if (x % (b / g) == 0) chmax(mul, (-x) / (b / g));
+            else chmax(mul, (-x) / (b / g) + 1);
+        }
+        if (y < 0) {
+            if (y % (a / g) == 0) chmax(mul, (-y) / (a / g));
+            else chmax(mul, (-y) / (a / g) + 1);
+        }
+        x += mul * (b / g);
+        y += mul * (a / g);
+    }
+    if (x - b / g >= 0 and y - a / g >= 0) {
+        ll mul = INF;
+        if (x - b / g >= 0) chmin(mul, x / (b / g));
+        if (y - a / g >= 0) chmin(mul, y / (a / g));
+        x -= mul * (b / g);
+        y -= mul * (a / g);
+    }
+    return true;
+}
+
 
 
 //������]�藝

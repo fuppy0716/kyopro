@@ -334,3 +334,7 @@ signed main() {
 
 
 
+// lazysegtree
+// http://judge.u-aizu.ac.jp/onlinejudge/review.jsp?rid=5191953#1
+// https://csacademy.com/submission/3120701/
+// https://yukicoder.me/submissions/612437
