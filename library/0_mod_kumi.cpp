@@ -76,6 +76,25 @@ ll nHr(ll n, ll r) {
   return nCr(n+r-1, r);
 }
 
+
+// M は素数である
+// M が小さい時に有効（r >= M のとき通常の方はゼロ除算が発生する）
+ll nCr_lucas(ll n, ll r, ll M = MOD) {
+    vi np, rp;
+    while (n > 0 or r > 0) {
+        np.push_back(n % M);
+        rp.push_back(r % M);
+        n /= M;
+        r /= M;
+    }
+    ll ans = 1;
+    rep (i, np.size()) {
+        ans *= nCr(np[i], rp[i]);
+        ans %= M;
+    }
+    return ans;
+}
+
 // ����X�^�[�����O��
 // �݂��ɋ�ʂł���n�̂��̂���ʂ̂Ȃ�k�̃O���[�v�ɕ�����Ƃ�,���̕�������secondStirling[n][k]
 // ��������̃O���[�v�������Ă͂����Ȃ�
