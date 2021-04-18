@@ -74,3 +74,38 @@ mat pow(mat A, ll n) {
 	return B;
 }
 
+ll det(vector<vector<ll>> G) {
+    int n = G.size();
+    ll ans = 1;
+    rep (j, n) {
+        int i = -1;
+        REP (k, j, n) {
+            if (G[k][j] != 0) {
+                i = k;
+                break;
+            }
+        }
+        if (i == -1) return 0;
+
+        if (i != j) {
+            swap(G[i], G[j]);
+        }
+
+        (ans *= G[j][j]) %= MOD;
+        ll inv = mod_inverse(G[j][j]);
+        rep (jj, n) {
+            (G[j][jj] *= inv) %= MOD;
+        }
+
+        rep (i, n) {
+            if (i == j) continue;
+            ll mul = G[i][j];
+            rep (k, n) {
+                (G[i][k] -= G[j][k] * mul) %= MOD;
+            }
+        }
+    }
+
+    rep (i, n) (ans *= G[i][i]) %= MOD;
+    return (ans + MOD) % MOD;
+}

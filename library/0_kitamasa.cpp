@@ -7,6 +7,7 @@ k項線線型化式を解く。
 f(n) = (x_0, x_1, ..., x_{k-1}) を求める。ただし、
 a_n = x_0 * a_0 + ... + x_{k-1} * a_{k-1}
 
+https://yosupo.hatenablog.com/entry/2015/03/27/025132
 https://atcoder.jp/contests/tdpc/submissions/21499077
 */
 template <typename T>

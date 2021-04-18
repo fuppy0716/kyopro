@@ -209,3 +209,54 @@ pll hs(vii &G, int now, int parent, int depth) {
 	}
 	return res;
 }
+
+
+
+// 直径、（端点1, 端点2）
+pair<int, pii> diameter(vii G) {
+    int n = G.size();
+    vi dist(n);
+    function<void(int, int, int, vii&, vi&)> dfs = [&dfs](int now, int par, int d, vii& G, vi& dist) {
+        dist[now] = d;
+        for (int ch: G[now]) {
+            if (ch == par) continue;
+            dfs(ch, now, d + 1, G, dist);
+        }
+    };
+    dfs(0, -1, 0, G, dist);
+    pii ma(-1, -1);
+    rep (i, n) chmax(ma, pii(dist[i], i));
+    int u = ma.second;
+
+    dfs(u, -1, 0, G, dist);
+
+    ma = pii(-1, -1);
+    rep (i, n) chmax(ma, pii(dist[i], i));
+    int v = ma.second;
+    return make_pair(ma.first, pii(u, v));
+}
+
+// u -> v のパスを返す
+vector<int> find_path(vii& G, int u, int v) {
+    int n = G.size();
+
+    vi path;
+    function<bool(int, int, int, vii&, vi&)> dfs = [&dfs](int now, int par, int tar, vii& G, vi& path) {
+        if (now == tar) {
+            path.push_back(now);
+            return true;
+        }
+        for (int ch: G[now]) {
+            if (ch == par) continue;
+            if (dfs(ch, now, tar, G, path)) {
+                path.push_back(now);
+                return true;
+            }
+        }
+        return false;
+    };
+
+    dfs(u, -1, v, G, path);
+    reverse(all(path));
+    return path;
+}
