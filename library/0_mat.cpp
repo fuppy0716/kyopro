@@ -109,3 +109,31 @@ ll det(vector<vector<ll>> G) {
     rep (i, n) (ans *= G[i][i]) %= MOD;
     return (ans + MOD) % MOD;
 }
+
+// max(a) < 1 << k
+vector<int> hakidashi(vector<int> a, int k) {
+    int base_num = 0;
+    rep (i, k) {
+        int mask = 1 << i;
+        bool flag = false;
+        REP (j, base_num, a.size()) {
+            if ((a[j] & mask) != 0) {
+                swap(a[base_num], a[j]);
+                flag = true;
+                break;
+            }
+        }
+        if (not flag) {
+            continue;
+        }
+
+        rep (j, a.size()) {
+            if (base_num == j) continue;
+            if (a[j] & mask) {
+                a[j] ^= a[base_num];
+            }
+        }
+        base_num++;
+    }
+    return a;
+}
