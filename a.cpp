@@ -7,15 +7,16 @@
 #include <bits/stdc++.h>
 
 // #include <atcoder/all>
+// #include <atcoder/math>
 
 using namespace std;
 // using namespace atcoder;
 
 #define DEBUG(x) cerr << #x << ": " << x << endl;
-#define DEBUG_VEC(v)                   \
-    cerr << #v << ":";                 \
-    for (int i = 0; i < v.size(); i++) \
-        cerr << " " << v[i];           \
+#define DEBUG_VEC(v)                                        \
+    cerr << #v << ":";                                      \
+    for (int iiiiiiii = 0; iiiiiiii < v.size(); iiiiiiii++) \
+        cerr << " " << v[iiiiiiii];                         \
     cerr << endl;
 #define DEBUG_MAT(v)                            \
     cerr << #v << endl;                         \
@@ -38,7 +39,9 @@ typedef long long ll;
 #define psi pair<string, int>
 #define pll pair<ll, ll>
 template <class S, class T>
-pair<S, T> operator+(const pair<S, T> &s, const pair<S, T> &t) { return pair<S, T>(s.first + t.first, s.second + t.second); }
+pair<S, T> operator+(const pair<S, T> &s, const pair<S, T> &t) {
+    return pair<S, T>(s.first + t.first, s.second + t.second);
+}
 template <class S, class T>
 pair<S, T> operator-(const pair<S, T> &s, const pair<S, T> &t) { return pair<S, T>(s.first - t.first, s.second - t.second); }
 template <class S, class T>
@@ -55,7 +58,9 @@ ostream &operator<<(ostream &os, pair<S, T> p) {
 #define REP(i, a, b) for (int i = a; i < b; i++)
 #define in(x, a, b) (a <= x && x < b)
 #define all(c) c.begin(), c.end()
-void YES(bool t = true) { cout << (t ? "YES" : "NO") << endl; }
+void YES(bool t = true) {
+    cout << (t ? "YES" : "NO") << endl;
+}
 void Yes(bool t = true) { cout << (t ? "Yes" : "No") << endl; }
 void yes(bool t = true) { cout << (t ? "yes" : "no") << endl; }
 void NO(bool t = true) { cout << (t ? "NO" : "YES") << endl; }
@@ -93,169 +98,208 @@ struct Setup_io {
     }
 } setup_io;
 // const ll MOD = 1000000007;
-// const ll MOD = 998244353;
+const ll MOD = 998244353;
 // #define mp make_pair
 //#define endl '\n'
 
-// 辺の削除が O(1) でできる無向グラフ
-// G[u] 上での並びが重要な時には適用不能
-// 自己ループがある際には適用不能
-class ErasableGraph {
-    void _erase(int u, int i) {
-        int i2 = (int)G[u].size() - 1;
-        swap(G[u][i], G[u][i2]);
-        swap(partner_position[u][i], partner_position[u][i2]);
-        G[u].pop_back();
-        partner_position[u].pop_back();
-        if (i == i2) return;
-
-        int v = G[u][i];
-        int j = partner_position[u][i];
-        assert(G[v][j] == u);
-        partner_position[v][j] = i;
-    }
-
+class Bitset {
   public:
+    using ull = unsigned long long;
+    const int w = 64;
+
+    int size;
     int n;
-    vii G;
-    vii partner_position;
+    int needless;
+    vector<ull> bits;
+    // 上から大きい方 i 個の bit が立ったもの
+    vector<ull> large_mask;
 
-    ErasableGraph(int n = 0) : n(n), G(n), partner_position(n) {}
+    Bitset(int n_) : size(n_) {
+        n = (n_ + w - 1) / w;
+        bits.resize(n + 1);
+        large_mask.resize(w + 1);
+        for (int i = 1; i <= w; i++) {
+            large_mask[i] = (large_mask[i - 1] >> 1) | (1ULL << (w - 1));
+        }
 
-    void add_edge(int u, int v) {
-        assert(u != v);
-        G[u].push_back(v);
-        partner_position[u].push_back(G[v].size());
-        G[v].push_back(u);
-        partner_position[v].push_back((int)G[u].size() - 1);
+        needless = large_mask[(w - n_ % w) % w];
     }
 
-    // u の i 番目の辺を削除する
-    void erase(int u, int i) {
-        int v = G[u][i];
-        int j = partner_position[u][i];
-
-        _erase(u, i);
-        _erase(v, j);
-    }
-};
-
-template <typename T>
-class ErasableWeightedGraph {
-    void _erase(int u, int i) {
-        int i2 = (int)G[u].size() - 1;
-        swap(G[u][i], G[u][i2]);
-        swap(partner_position[u][i], partner_position[u][i2]);
-        G[u].pop_back();
-        partner_position[u].pop_back();
-        if (i == i2) return;
-
-        int v = G[u][i].first;
-        int j = partner_position[u][i];
-        assert(G[v][j].first == u);
-        partner_position[v][j] = i;
+    bool get(int i) const {
+        int i1 = i / w;
+        int i2 = i - i1 * w;
+        return bits[i1] & (1ULL << i2);
     }
 
-  public:
-    int n;
-    vector<vector<pair<int, T>>> G;
-    vii partner_position;
-
-    ErasableWeightedGraph(int n = 0) : n(n), G(n), partner_position(n) {}
-
-    void add_edge(int u, int v, T w) {
-        assert(u != v);
-        G[u].push_back({v, w});
-        partner_position[u].push_back(G[v].size());
-        G[v].push_back({u, w});
-        partner_position[v].push_back((int)G[u].size() - 1);
+    void set(int i) {
+        int i1 = i / w;
+        int i2 = i - i1 * w;
+        bits[i1] |= 1ULL << i2;
     }
 
-    // u の i 番目の辺を削除する
-    void erase(int u, int i) {
-        int v = G[u][i].first;
-        int j = partner_position[u][i];
-
-        _erase(u, i);
-        _erase(v, j);
+    void reset() {
+        fill(all(bits), 0);
     }
-};
 
-struct dice {
-    mt19937 mt;
-    dice() : mt(chrono::steady_clock::now().time_since_epoch().count()) {}
-    // [0, x)の一様乱数
-    ll operator()(ll x) { return this->operator()(0, x); }
-    // [x, y)の一様乱数
-    ll operator()(ll x, ll y) {
-        uniform_int_distribution<ll> dist(x, y - 1);
-        return dist(mt);
-    }
-    vl operator()(int n, ll x, ll y) {
-        vl res(n);
-        for (int i = 0; i < n; i++)
-            res[i] = this->operator()(x, y);
+    int count() {
+        int res = 0;
+        for (int i = 0; i < n; i++) {
+            res += __builtin_popcountll(bits[i]);
+        }
         return res;
     }
-} rnd;
 
-signed main() {
+    // i 以上の bit を 1 だけ左シフトする（i -> i + 1）
+    void left_shift(int i) {
+        int i1 = i / w;
+        int i2 = i - i1 * w;
+
+        for (int i = n - 1; i > i1; i--) {
+            bool top = bits[i] & (1ULL << (w - 1));
+            bits[i] <<= 1;
+            if (top) {
+                bits[i + 1] |= 1ULL;
+            }
+        }
+        bool top = bits[i1] & (1ULL << (w - 1));
+
+        ull tar = bits[i1] & large_mask[w - i2];
+        tar <<= 1;
+        bits[i1] &= ~large_mask[w - i2];
+        bits[i1] |= tar;
+        if (top) {
+            bits[i1 + 1] |= 1ULL;
+        }
+
+        bits[n] = 0;
+        bits[n - 1] &= ~needless;
+    }
+
+    void show() {
+        for (int i = 0; i < size; i++) {
+            cout << (int)get(i);
+        }
+        cout << endl;
+    }
+};
+
+const int MAXN = 555555;
+
+vl fact(MAXN);
+vl rfact(MAXN);
+
+ll mod_pow(ll x, ll p, ll M = MOD) {
+    if (p < 0) {
+        x = mod_pow(x, M - 2, M);
+        p = -p;
+    }
+    x %= M;
+    ll a = 1;
+    while (p) {
+        if (p % 2)
+            a = a * x % M;
+        x = x * x % M;
+        p /= 2;
+    }
+    return a;
+}
+
+ll mod_inverse(ll a, ll M = MOD) {
+    return mod_pow(a, M - 2, M);
+}
+
+void set_fact(ll n, ll M = MOD) {
+    fact[0] = 1;
+    for (ll i = 1; i <= n; i++) {
+        fact[i] = i * fact[i - 1] % M;
+    }
+    rfact[n] = mod_inverse(fact[n], M);
+    for (ll i = n - 1; i >= 0; i--) {
+        rfact[i] = (i + 1) * rfact[i + 1] % M;
+    }
+}
+
+//http://drken1215.hatenablog.com/entry/2018/06/08/210000
+//n���傫��fact���v�Z�ł��Ȃ��Ƃ��̂ق��̌v�Z���@�ɂ��ď����Ă���
+ll nCr(ll n, ll r, ll M = MOD) {
+    if (r > n) return 0;
+    assert(fact[2] == 2);
+    ll ret = fact[n];
+    if (rfact[r] == 0) {
+        rfact[r] = mod_inverse(fact[r], M);
+    }
+    ret = (ret * rfact[r]) % M;
+    if (rfact[n - r] == 0) {
+        rfact[n - r] = mod_inverse(fact[n - r], M);
+    }
+    ret = (ret * rfact[n - r]) % M;
+    return ret;
+}
+
+ll nHr(ll n, ll r) {
+    return nCr(n + r - 1, r);
+}
+
+// Bitset bit(200011);
+Bitset bit(8);
+
+void solve() {
+    bit.reset();
+
     int n, m;
     cin >> n >> m;
-    // vii G(n);
-    ErasableGraph GG(n);
-    vector<pii> es;
-    map<pii, int> mp;
     rep(i, m) {
-        int u, v;
-        cin >> u >> v;
-        u--;
-        v--;
-        GG.add_edge(u, v);
-        es.emplace_back(u, v);
-        mp[pii(u, v)] = mp[pii(v, u)] = i;
-        // G[u].push_back(v);
-        // G[v].push_back(u);
-    }
+        int x, y;
+        cin >> x >> y;
+        y--;
+        bool exi = bit.get(y);
+        bit.left_shift(y);
 
-    vector<bool> used(m, true);
-    rep(_, 10000) {
-        int idx = rnd(m);
-        if (used[idx]) {
-            int u = es[idx].first;
-            int j = rnd(GG.G[u].size());
-            int v = GG.G[u][j];
-            GG.erase(u, j);
-            used[mp[pii(u, v)]] = false;
-        } else {
-            GG.add_edge(es[idx].first, es[idx].second);
-            used[idx] = true;
+        if (!exi) {
+            bit.set(y + 1);
         }
+        // bit.show();
     }
-    rep(idx, m) {
-        if (not used[idx]) {
-            GG.add_edge(es[idx].first, es[idx].second);
-        }
-    }
+    // bit.show();
+    int p = bit.count();
+    cout << nHr(n + 1, n - 1 - p) << endl;
+}
 
-    auto G = GG.G;
+// void solve() {
+//     int n, m;
+//     cin >> n >> m;
+//     vi a;
+//     rep(i, m) {
+//         int x, y;
+//         cin >> x >> y;
+//         y--;
+//         bool exi = false;
+//         for (int j = 0; j < a.size(); j++) {
+//             if (a[j] == y) {
+//                 exi = true;
+//             }
+//         }
+//         for (int j = 0; j < a.size(); j++) {
+//             if (a[j] >= y) {
+//                 a[j]++;
+//             }
+//         }
 
-    vi ans(n, -1);
+//         if (!exi) {
+//             a.push_back(y + 1);
+//             sort(all(a));
+//         }
+//     }
+//     int p = a.size();
+//     DEBUG_VEC(a);
+//     cout << nHr(n + 1, n - 1 - p) << endl;
+// }
 
-    queue<int> qu;
-    qu.push(0);
-    while (qu.size()) {
-        int u = qu.front();
-        qu.pop();
-        for (int v : G[u]) {
-            if (ans[v] != -1) continue;
-            ans[v] = u;
-            qu.push(v);
-        }
-    }
-
-    cout << "Yes" << endl;
-    rep1(i, n - 1) {
-        cout << ans[i] + 1 << endl;
+signed main() {
+    set_fact(400011);
+    int t = 1;
+    cin >> t;
+    while (t--) {
+        solve();
     }
 }
