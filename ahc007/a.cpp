@@ -303,8 +303,30 @@ signed main() {
         es[i].first.first = d;
 
         if (use[i]) {
-            kruskal(es, kakutei, nuse, nG);
-            if (nuse[i]) {
+            UnionFind uf2(n);
+            rep(j, m) {
+                auto [u, v] = edges[j];
+                if (use[j] && j != i) uf2.unite(u, v);
+            }
+            assert(uf2.g == 2);
+
+            vi ds;
+            rep(j, m) {
+                if (j == i) continue;
+                if (kakutei[j] != 0) continue;
+                auto [u, v] = edges[j];
+                if (!uf2.same(u, v)) {
+                    ds.push_back(es[j].first.first / 2);
+                }
+            }
+
+            // p1: d が最小となる確率
+            double p1 = 1.0001;
+            for (int d2 : ds) {
+                p1 *= min(max((double)(3 * d2 - d) / (2 * d2), 0.0), 1.0);
+            }
+
+            if (p1 >= 1.0 / (ds.size() + 1)) {
                 uf.unite(u, v);
                 score += d;
                 cout << 1 << endl;
@@ -313,6 +335,8 @@ signed main() {
                 cout << 0 << endl;
                 kakutei[i] = -1;
             }
+
+            kruskal(es, kakutei, nuse, nG);
             swap(nuse, use);
             swap(nG, G);
         } else {
