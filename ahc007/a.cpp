@@ -122,10 +122,8 @@ uint32_t rnd(int r) {
 
 class UnionFind {
   private:
-    vi par_;      //�e
-    vi ran_;      //�؂̐[��
-    vi num_;      //�v�f��
-    vi edge_num_; //�v�f��
+    vi par_; //�e
+    vi ran_; //�؂̐[��
   public:
     int n;
     int g; // group��
@@ -134,8 +132,6 @@ class UnionFind {
         n = _n;
         par_.resize(n);
         ran_.resize(n);
-        num_.resize(n);
-        edge_num_.resize(n);
         reset(_n);
     }
 
@@ -145,8 +141,6 @@ class UnionFind {
         for (int i = 0; i < n; i++) {
             par_[i] = i;
             ran_[i] = 0;
-            num_[i] = 1;
-            edge_num_[i] = 0;
         }
     }
 
@@ -163,10 +157,7 @@ class UnionFind {
     void unite(int x, int y) {
         x = find(x);
         y = find(y);
-        int numsum = num_[x] + num_[y];
-        int edge_numsum = edge_num_[x] + edge_num_[y];
         if (x == y) {
-            edge_num_[x]++;
             return;
         }
         if (ran_[x] < ran_[y]) {
@@ -177,22 +168,12 @@ class UnionFind {
                 ran_[x]++;
             }
         }
-        num_[x] = num_[y] = numsum;
-        edge_num_[x] = edge_num_[y] = edge_numsum + 1;
         g--;
     }
 
     //x��y�������W���ɑ����邩�ۂ�
     bool same(int x, int y) {
         return find(x) == find(y);
-    }
-
-    int num(int x) {
-        return num_[find(x)];
-    }
-
-    int edge_num(int x) {
-        return edge_num_[find(x)];
     }
 };
 
