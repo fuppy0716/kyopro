@@ -255,13 +255,7 @@ signed main() {
     }
     vector<int> use(m);
     int ori_score = kruskal(es, kakutei, use);
-    DEBUG(ori_score);
-    assert(es[0].first.first = 68);
-    es[0].first.first++;
-    int new_score = kruskal(es, kakutei, use);
-    DEBUG(new_score);
 
-    vector<int> new_use(m), no_use(m);
     rep(i, m) {
         int d;
         cin >> d;
@@ -272,46 +266,19 @@ signed main() {
             continue;
         }
 
-        kakutei[i] = -1;
-        int diff = d - es[i].first.first;
-        DEBUG(pii(es[i].first.first, d));
         es[i].first.first = d;
-        int no_score = kruskal(es, kakutei, no_use);
-        DEBUG(no_score);
+        int new_score = kruskal(es, kakutei, use);
 
-        kakutei[i] = 1;
-        new_score = kruskal(es, kakutei, new_use);
-
-        if (no_score == inf) {
-            uf.unite(u, v);
-            score += d;
-            cout << 1 << endl;
-            kakutei[i] = 1;
-            ori_score = new_score;
-            continue;
-        }
-
-        DEBUG(pii(ori_score, new_score));
-        DEBUG(diff);
-
-        bool is_use = false;
         if (use[i]) {
-            is_use = (new_score <= ori_score + diff);
-        } else {
-            is_use = new_score <= ori_score;
-        }
-
-        if (is_use) {
             uf.unite(u, v);
             score += d;
             cout << 1 << endl;
             kakutei[i] = 1;
-            ori_score = new_score;
         } else {
             cout << 0 << endl;
             kakutei[i] = -1;
-            ori_score = no_score;
         }
+        ori_score = new_score;
 
         // if (i == 30) break;
     }
