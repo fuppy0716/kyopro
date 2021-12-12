@@ -132,11 +132,16 @@ class UnionFind {
 
     UnionFind(int _n) {
         n = _n;
-        g = n;
         par_.resize(n);
         ran_.resize(n);
         num_.resize(n);
         edge_num_.resize(n);
+        reset(_n);
+    }
+
+    void reset(int _n) {
+        n = _n;
+        g = n;
         for (int i = 0; i < n; i++) {
             par_[i] = i;
             ran_[i] = 0;
@@ -214,7 +219,8 @@ int kruskal(vector<P> es, const vector<int> &kakutei, vector<int> &res, int tar)
 
     fill(all(res), 0);
     sort(all(es));
-    UnionFind uf(n);
+    static UnionFind uf(n);
+    uf.reset(n);
 
     int score = 0;
     rep(i, es.size()) {
