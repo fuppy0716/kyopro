@@ -198,7 +198,7 @@ using P = pair<pii, pii>;
 int kruskal(vector<P> es, const vector<P> kakutei, vector<int> &res, int tar) {
     auto [tu, tv] = es[m - 1 - tar].second;
 
-    fill(all(res), 0);
+    res[tar] = 0;
     sort(all(es));
     static UnionFind uf(n);
     uf.reset(n);
@@ -261,8 +261,8 @@ signed main() {
         }
 
         int use_cnt = 0, not_cnt = 0;
-        int max_try_num = 69;
-        int diff = 8;
+        int max_try_num = 89;
+        int diff = 10;
         rep(try_num, max_try_num) {
             for (int j = 0; j < es.size() - 1; j++) {
                 int d = dists[m - 1 - j];
@@ -276,6 +276,7 @@ signed main() {
                 not_cnt++;
             }
 
+            if ((use_cnt == 0 || not_cnt == 0) && (use_cnt + not_cnt == diff - 4)) break;
             if (abs(use_cnt - not_cnt) == diff) break;
         }
 
