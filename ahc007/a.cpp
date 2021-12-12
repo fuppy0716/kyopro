@@ -210,7 +210,7 @@ int dist(pii xy1, pii xy2) {
 
 using P = pair<pii, pii>;
 int kruskal(vector<P> es, const vector<int> &kakutei, vector<int> &res, int tar) {
-    auto [tu, tv] = es[tar];
+    auto [tu, tv] = es[tar].second;
 
     fill(all(res), 0);
     sort(all(es));
@@ -240,6 +240,7 @@ int kruskal(vector<P> es, const vector<int> &kakutei, vector<int> &res, int tar)
         score += es[i].first.first;
 
         if (tar != -1 && tar == idx) return 0;
+        if (uf.same(tu, tv)) return 0;
     }
     if (uf.g > 1) return inf;
     return score;
