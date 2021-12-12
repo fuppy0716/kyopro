@@ -1,4 +1,4 @@
-/*
+//*
 #pragma GCC target("avx2")
 #pragma GCC optimize("O3")
 #pragma GCC optimize("unroll-loops")
@@ -7,7 +7,7 @@
 #include <bits/stdc++.h>
 
 // #include <atcoder/all>
-// #include <atcoder/math>
+// #include <atcoder/maxflow>
 
 using namespace std;
 // using namespace atcoder;
@@ -18,16 +18,16 @@ using namespace std;
     for (int iiiiiiii = 0; iiiiiiii < v.size(); iiiiiiii++) \
         cerr << " " << v[iiiiiiii];                         \
     cerr << endl;
-#define DEBUG_MAT(v)                            \
-    cerr << #v << endl;                         \
-    for (int i = 0; i < v.size(); i++) {        \
-        for (int j = 0; j < v[i].size(); j++) { \
-            cerr << v[i][j] << " ";             \
-        }                                       \
-        cerr << endl;                           \
+#define DEBUG_MAT(v)                                \
+    cerr << #v << endl;                             \
+    for (int iv = 0; iv < v.size(); iv++) {         \
+        for (int jv = 0; jv < v[iv].size(); jv++) { \
+            cerr << v[iv][jv] << " ";               \
+        }                                           \
+        cerr << endl;                               \
     }
 typedef long long ll;
-// #define int ll
+#define int ll
 
 #define vi vector<int>
 #define vl vector<ll>
@@ -102,87 +102,6 @@ const ll MOD = 998244353;
 // #define mp make_pair
 //#define endl '\n'
 
-class Bitset {
-  public:
-    using ull = unsigned long long;
-    const int w = 64;
-
-    int size;
-    int n;
-    int needless;
-    vector<ull> bits;
-    // 上から大きい方 i 個の bit が立ったもの
-    vector<ull> large_mask;
-
-    Bitset(int n_) : size(n_) {
-        n = (n_ + w - 1) / w;
-        bits.resize(n + 1);
-        large_mask.resize(w + 1);
-        for (int i = 1; i <= w; i++) {
-            large_mask[i] = (large_mask[i - 1] >> 1) | (1ULL << (w - 1));
-        }
-
-        needless = large_mask[(w - n_ % w) % w];
-    }
-
-    bool get(int i) const {
-        int i1 = i / w;
-        int i2 = i - i1 * w;
-        return bits[i1] & (1ULL << i2);
-    }
-
-    void set(int i) {
-        int i1 = i / w;
-        int i2 = i - i1 * w;
-        bits[i1] |= 1ULL << i2;
-    }
-
-    void reset() {
-        fill(all(bits), 0);
-    }
-
-    int count() {
-        int res = 0;
-        for (int i = 0; i < n; i++) {
-            res += __builtin_popcountll(bits[i]);
-        }
-        return res;
-    }
-
-    // i 以上の bit を 1 だけ左シフトする（i -> i + 1）
-    void left_shift(int i) {
-        int i1 = i / w;
-        int i2 = i - i1 * w;
-
-        for (int i = n - 1; i > i1; i--) {
-            bool top = bits[i] & (1ULL << (w - 1));
-            bits[i] <<= 1;
-            if (top) {
-                bits[i + 1] |= 1ULL;
-            }
-        }
-        bool top = bits[i1] & (1ULL << (w - 1));
-
-        ull tar = bits[i1] & large_mask[w - i2];
-        tar <<= 1;
-        bits[i1] &= ~large_mask[w - i2];
-        bits[i1] |= tar;
-        if (top) {
-            bits[i1 + 1] |= 1ULL;
-        }
-
-        bits[n] = 0;
-        bits[n - 1] &= ~needless;
-    }
-
-    void show() {
-        for (int i = 0; i < size; i++) {
-            cout << (int)get(i);
-        }
-        cout << endl;
-    }
-};
-
 const int MAXN = 555555;
 
 vl fact(MAXN);
@@ -240,66 +159,38 @@ ll nHr(ll n, ll r) {
     return nCr(n + r - 1, r);
 }
 
-// Bitset bit(200011);
-Bitset bit(8);
-
-void solve() {
-    bit.reset();
-
-    int n, m;
-    cin >> n >> m;
-    rep(i, m) {
-        int x, y;
-        cin >> x >> y;
-        y--;
-        bool exi = bit.get(y);
-        bit.left_shift(y);
-
-        if (!exi) {
-            bit.set(y + 1);
-        }
-        // bit.show();
-    }
-    // bit.show();
-    int p = bit.count();
-    cout << nHr(n + 1, n - 1 - p) << endl;
-}
-
-// void solve() {
-//     int n, m;
-//     cin >> n >> m;
-//     vi a;
-//     rep(i, m) {
-//         int x, y;
-//         cin >> x >> y;
-//         y--;
-//         bool exi = false;
-//         for (int j = 0; j < a.size(); j++) {
-//             if (a[j] == y) {
-//                 exi = true;
-//             }
-//         }
-//         for (int j = 0; j < a.size(); j++) {
-//             if (a[j] >= y) {
-//                 a[j]++;
-//             }
-//         }
-
-//         if (!exi) {
-//             a.push_back(y + 1);
-//             sort(all(a));
-//         }
-//     }
-//     int p = a.size();
-//     DEBUG_VEC(a);
-//     cout << nHr(n + 1, n - 1 - p) << endl;
-// }
-
 signed main() {
-    set_fact(400011);
-    int t = 1;
-    cin >> t;
-    while (t--) {
-        solve();
+    int n;
+    cin >> n;
+    vi w(n);
+    rep(i, n) cin >> w[i];
+
+    set_fact(n + 10);
+
+    int W = 10010;
+    vll dp(n + 1, vl(2 * W));
+    dp[0][W] = 1;
+
+    vll ndp(n + 1, vl(2 * W));
+    rep(i, n) {
+        rep(j, n + 1) rep(k, 2 * W) ndp[j][k] = 0;
+        int x = w[i];
+
+        rep(l, n) {
+            rep(j, 2 * W) {
+                if (dp[l][j] == 0) continue;
+
+                (ndp[l][j - x] += dp[l][j]) %= MOD;
+                (ndp[l + 1][j + x] += dp[l][j]) %= MOD;
+            }
+        }
+        swap(dp, ndp);
     }
+
+    ll ans = 0;
+    rep(i, n + 1) {
+        // DEBUG(pii(i, dp[i][W]));
+        ans += fact[i] * fact[n - i] % MOD * dp[i][W] % MOD;
+    }
+    cout << ans % MOD << endl;
 }
