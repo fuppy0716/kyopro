@@ -301,6 +301,7 @@ signed main() {
         }
 
         es[i].first.first = d;
+        kruskal(es, kakutei, use, G);
 
         if (use[i]) {
             UnionFind uf2(n);
@@ -335,10 +336,6 @@ signed main() {
                 cout << 0 << endl;
                 kakutei[i] = -1;
             }
-
-            kruskal(es, kakutei, nuse, nG);
-            swap(nuse, use);
-            swap(nG, G);
         } else {
             vi path = find_path(G, u, v);
             vi und;
@@ -374,10 +371,6 @@ signed main() {
                 cout << 0 << endl;
                 kakutei[i] = -1;
             }
-
-            kruskal(es, kakutei, nuse, nG);
-            swap(nuse, use);
-            swap(nG, G);
         }
 
         // if (i == 30) break;
