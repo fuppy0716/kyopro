@@ -240,17 +240,20 @@ signed main() {
 
     vector<P> es(m);
     vector<int> kakutei(m);
+    vi dists(m);
     rep(i, m) {
         auto [u, v] = edges[i];
         es[i].first = pii(dist(xy[u], xy[v]) * 2, i);
         es[i].second = edges[i];
+        dists[i] = es[i].first.first / 2;
     }
     vector<int> use(m);
-    auto es2 = es;
 
     rep(i, m) {
         int d;
         cin >> d;
+        es[i].first.first = d;
+
         auto [u, v] = edges[i];
         if (uf.same(u, v)) {
             cout << 0 << endl;
@@ -258,17 +261,15 @@ signed main() {
             continue;
         }
 
-        es[i].first.first = d;
-        es2[i].first.first = d;
         int use_cnt = 0, not_cnt = 0;
         int max_try_num = 29;
         int diff = 4;
         rep(try_num, max_try_num) {
             for (int j = i + 1; j < m; j++) {
-                int d = es[j].first.first / 2;
-                es2[j].first.first = rnd(d, 3 * d + 1);
+                int d = dists[j];
+                es[j].first.first = rnd(d, 3 * d + 1);
             }
-            int new_score = kruskal(es2, kakutei, use, i);
+            int new_score = kruskal(es, kakutei, use, i);
 
             if (use[i]) {
                 use_cnt++;
