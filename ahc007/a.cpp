@@ -330,13 +330,18 @@ signed main() {
             }
             assert(und.size() > 0);
 
-            double p1 = 0.999;
+            // p1: i が最大の確率
+            double p1 = 1.0;
+            int mi_d = inf;
             for (int idx : und) {
                 int ori = es[idx].first.first / 2;
-                p1 *= min(max((double)(3 * ori - d) / (2 * ori), 0.0), 1.0);
+                p1 *= min(max((double)(d - ori) / (2 * ori), 0.0), 1.0);
             }
 
-            if (p1 < 1 / (und.size() + 1)) {
+            // p2: i より mi_ori が上回る確率
+            // double p2 = (d - mi_d) / (2 * mi_d)
+
+            if (p1 < 1.0 / (und.size() + 1)) {
                 uf.unite(u, v);
                 score += d;
                 cout << 1 << endl;
