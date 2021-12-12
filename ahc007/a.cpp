@@ -195,8 +195,8 @@ int dist(pii xy1, pii xy2) {
 }
 
 using P = pair<pii, pii>;
-int kruskal(vector<P> es, const vector<int> &kakutei, vector<int> &res, int tar) {
-    auto [tu, tv] = es[tar].second;
+int kruskal(vector<P> es, const vector<P> kakutei, vector<int> &res, int tar) {
+    auto [tu, tv] = es[m - 1 - tar].second;
 
     fill(all(res), 0);
     sort(all(es));
@@ -204,23 +204,20 @@ int kruskal(vector<P> es, const vector<int> &kakutei, vector<int> &res, int tar)
     uf.reset(n);
 
     int score = 0;
-    rep(i, es.size()) {
-        int idx = es[i].first.second;
+    rep(i, kakutei.size()) {
+        int idx = kakutei[i].first.second;
 
-        if (kakutei[idx] == 1) {
-            auto [u, v] = es[i].second;
-            uf.unite(u, v);
-            res[idx] = true;
-            score += es[i].first.first;
-        }
+        auto [u, v] = kakutei[i].second;
+        assert(!uf.same(u, v));
+        uf.unite(u, v);
+        res[idx] = true;
+        score += kakutei[i].first.first;
     }
 
     rep(i, es.size()) {
         auto [u, v] = es[i].second;
         if (uf.same(u, v)) continue;
         int idx = es[i].first.second;
-        if (kakutei[idx] == -1) continue;
-        assert(kakutei[idx] == 0);
 
         uf.unite(u, v);
         res[idx] = true;
@@ -239,7 +236,6 @@ signed main() {
     UnionFind uf(n);
 
     vector<P> es(m);
-    vector<int> kakutei(m);
     vi dists(m);
     rep(i, m) {
         auto [u, v] = edges[i];
@@ -249,27 +245,30 @@ signed main() {
     }
     vector<int> use(m);
 
+    reverse(all(es));
+    vector<P> kaku;
+
     rep(i, m) {
         int d;
         cin >> d;
-        es[i].first.first = d;
+        es.back().first.first = d;
 
         auto [u, v] = edges[i];
         if (uf.same(u, v)) {
             cout << 0 << endl;
-            kakutei[i] = -1;
+            es.pop_back();
             continue;
         }
 
         int use_cnt = 0, not_cnt = 0;
-        int max_try_num = 29;
-        int diff = 4;
+        int max_try_num = 39;
+        int diff = 5;
         rep(try_num, max_try_num) {
-            for (int j = i + 1; j < m; j++) {
-                int d = dists[j];
+            for (int j = 0; j < es.size() - 1; j++) {
+                int d = dists[m - 1 - j];
                 es[j].first.first = rnd(d, 3 * d + 1);
             }
-            int new_score = kruskal(es, kakutei, use, i);
+            int new_score = kruskal(es, kaku, use, i);
 
             if (use[i]) {
                 use_cnt++;
@@ -284,13 +283,16 @@ signed main() {
             uf.unite(u, v);
             score += d;
             cout << 1 << endl;
-            kakutei[i] = 1;
+            kaku.push_back(es.back());
+            es.pop_back();
         } else {
             cout << 0 << endl;
-            kakutei[i] = -1;
+            es.pop_back();
         }
 
         // if (i == 30) break;
     }
+    assert(es.size() == 0);
+    assert(kaku.size() == n - 1);
     DEBUG(score);
 }
