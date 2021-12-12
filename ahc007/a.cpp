@@ -27,7 +27,7 @@ using namespace std;
         cerr << endl;                               \
     }
 typedef long long ll;
-#define int ll
+// #define int ll
 
 #define vi vector<int>
 #define vl vector<ll>
@@ -191,15 +191,42 @@ class UnionFind {
     }
 };
 
+vector<int> find_path(vii &G, int u, int v) {
+    int n = G.size();
+
+    vi path;
+    function<bool(int, int, int, vii &, vi &)> dfs = [&dfs](int now, int par, int tar, vii &G, vi &path) {
+        if (now == tar) {
+            path.push_back(now);
+            return true;
+        }
+        for (int ch : G[now]) {
+            if (ch == par) continue;
+            if (dfs(ch, now, tar, G, path)) {
+                path.push_back(now);
+                return true;
+            }
+        }
+        return false;
+    };
+
+    dfs(u, -1, v, G, path);
+    reverse(all(path));
+    return path;
+}
+
 constexpr int n = 400, m = 1995;
 vector<pii> xy(n);
 vector<pii> edges(m);
+vii e_table(n, vi(n, -1));
 void input() {
     rep(i, n) {
         cin >> xy[i].first >> xy[i].second;
     }
     rep(i, m) {
         cin >> edges[i].first >> edges[i].second;
+        auto [u, v] = edges[i];
+        e_table[u][v] = e_table[v][u] = i;
     }
 }
 
@@ -209,8 +236,10 @@ int dist(pii xy1, pii xy2) {
 }
 
 using P = pair<pii, pii>;
-int kruskal(vector<P> es, const vector<int> &kakutei, vector<int> &res) {
+int kruskal(vector<P> es, const vector<int> &kakutei, vector<int> &res, vii &G) {
     fill(all(res), 0);
+    fill(all(G), vi());
+
     sort(all(es));
     UnionFind uf(n);
 
@@ -221,6 +250,8 @@ int kruskal(vector<P> es, const vector<int> &kakutei, vector<int> &res) {
         if (kakutei[idx] == 1) {
             auto [u, v] = es[i].second;
             uf.unite(u, v);
+            G[u].push_back(v);
+            G[v].push_back(u);
             res[idx] = true;
             score += es[i].first.first;
         }
@@ -234,6 +265,8 @@ int kruskal(vector<P> es, const vector<int> &kakutei, vector<int> &res) {
         assert(kakutei[idx] == 0);
 
         uf.unite(u, v);
+        G[u].push_back(v);
+        G[v].push_back(u);
         res[idx] = true;
         score += es[i].first.first;
     }
@@ -253,8 +286,9 @@ signed main() {
         es[i].first = pii(dist(xy[u], xy[v]) * 2, i);
         es[i].second = edges[i];
     }
-    vector<int> use(m);
-    int ori_score = kruskal(es, kakutei, use);
+    vector<int> use(m), nuse(m);
+    vii G(n), nG(n);
+    kruskal(es, kakutei, use, G);
 
     rep(i, m) {
         int d;
@@ -267,18 +301,55 @@ signed main() {
         }
 
         es[i].first.first = d;
-        int new_score = kruskal(es, kakutei, use);
 
         if (use[i]) {
-            uf.unite(u, v);
-            score += d;
-            cout << 1 << endl;
-            kakutei[i] = 1;
+            kruskal(es, kakutei, nuse, nG);
+            if (nuse[i]) {
+                uf.unite(u, v);
+                score += d;
+                cout << 1 << endl;
+                kakutei[i] = 1;
+            } else {
+                cout << 0 << endl;
+                kakutei[i] = -1;
+            }
+            swap(nuse, use);
+            swap(nG, G);
         } else {
-            cout << 0 << endl;
-            kakutei[i] = -1;
+            vi path = find_path(G, u, v);
+            vi und;
+            // DEBUG(pii(u, v));
+            // DEBUG_VEC(path);
+            rep(ii, path.size() - 1) {
+                int u = path[ii];
+                int v = path[ii + 1];
+                int idx = e_table[u][v];
+                assert(idx != i);
+                if (kakutei[idx] != 0) continue;
+                und.push_back(idx);
+            }
+            assert(und.size() > 0);
+
+            double p1 = 0.999;
+            for (int idx : und) {
+                int ori = es[idx].first.first / 2;
+                p1 *= min(max((double)(3 * ori - d) / (2 * ori), 0.0), 1.0);
+            }
+
+            if (p1 < 1 / (und.size() + 1)) {
+                uf.unite(u, v);
+                score += d;
+                cout << 1 << endl;
+                kakutei[i] = 1;
+            } else {
+                cout << 0 << endl;
+                kakutei[i] = -1;
+            }
+
+            kruskal(es, kakutei, nuse, nG);
+            swap(nuse, use);
+            swap(nG, G);
         }
-        ori_score = new_score;
 
         // if (i == 30) break;
     }
