@@ -261,8 +261,9 @@ signed main() {
         }
 
         int use_cnt = 0, not_cnt = 0;
-        int max_try_num = 89;
-        int diff = 10;
+        int max_try_num = 99;
+        int diff = 11;
+        int straight = 6;
         rep(try_num, max_try_num) {
             for (int j = 0; j < es.size() - 1; j++) {
                 int d = dists[m - 1 - j];
@@ -276,7 +277,7 @@ signed main() {
                 not_cnt++;
             }
 
-            if ((use_cnt == 0 || not_cnt == 0) && (use_cnt + not_cnt == diff - 4)) break;
+            if ((use_cnt == 0 || not_cnt == 0) && (use_cnt + not_cnt == straight)) break;
             if (abs(use_cnt - not_cnt) == diff) break;
         }
 
