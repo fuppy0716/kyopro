@@ -209,7 +209,7 @@ int dist(pii xy1, pii xy2) {
 }
 
 using P = pair<pii, pii>;
-int kruskal(vector<P> es, const vector<int> &kakutei, vector<int> &res) {
+int kruskal(vector<P> es, const vector<int> &kakutei, vector<int> &res, int tar = -1) {
     fill(all(res), 0);
     sort(all(es));
     UnionFind uf(n);
@@ -236,6 +236,8 @@ int kruskal(vector<P> es, const vector<int> &kakutei, vector<int> &res) {
         uf.unite(u, v);
         res[idx] = true;
         score += es[i].first.first;
+
+        if (tar != -1 && tar == idx) return 0;
     }
     if (uf.g > 1) return inf;
     return score;
@@ -270,14 +272,14 @@ signed main() {
         es[i].first.first = d;
         es2[i].first.first = d;
         int use_cnt = 0, not_cnt = 0;
-        int max_try_num = 9;
-        int diff = 3;
+        int max_try_num = 29;
+        int diff = 4;
         rep(try_num, max_try_num) {
             for (int j = i + 1; j < m; j++) {
                 int d = es[j].first.first / 2;
                 es2[j].first.first = rnd(d, 3 * d + 1);
             }
-            int new_score = kruskal(es2, kakutei, use);
+            int new_score = kruskal(es2, kakutei, use, i);
 
             if (use[i]) {
                 use_cnt++;
