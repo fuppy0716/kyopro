@@ -209,22 +209,36 @@ int dist(pii xy1, pii xy2) {
 }
 
 using P = pair<pii, pii>;
-vector<bool> kruskal(vector<P> es) {
+int kruskal(vector<P> es, const vector<int> &kakutei, vector<int> &res) {
+    fill(all(res), 0);
     sort(all(es));
     UnionFind uf(n);
-    vector<bool> res(m);
 
     int score = 0;
-    rep(i, m) {
+    rep(i, es.size()) {
+        int idx = es[i].first.second;
+
+        if (kakutei[idx] == 1) {
+            auto [u, v] = es[i].second;
+            uf.unite(u, v);
+            res[idx] = true;
+            score += es[i].first.first;
+        }
+    }
+
+    rep(i, es.size()) {
         auto [u, v] = es[i].second;
         if (uf.same(u, v)) continue;
+        int idx = es[i].first.second;
+        if (kakutei[idx] == -1) continue;
+        assert(kakutei[idx] == 0);
 
         uf.unite(u, v);
-        res[es[i].first.second] = true;
+        res[idx] = true;
         score += es[i].first.first;
     }
-    DEBUG(score);
-    return res;
+    if (uf.g > 1) return inf;
+    return score;
 }
 
 signed main() {
@@ -233,24 +247,73 @@ signed main() {
     UnionFind uf(n);
 
     vector<P> es(m);
+    vector<int> kakutei(m);
     rep(i, m) {
         auto [u, v] = edges[i];
-        es[i].first = pii(dist(xy[u], xy[v]), i);
+        es[i].first = pii(dist(xy[u], xy[v]) * 2, i);
         es[i].second = edges[i];
     }
-    vector<bool> use = kruskal(es);
+    vector<int> use(m);
+    int ori_score = kruskal(es, kakutei, use);
+    DEBUG(ori_score);
+    assert(es[0].first.first = 68);
+    es[0].first.first++;
+    int new_score = kruskal(es, kakutei, use);
+    DEBUG(new_score);
 
+    vector<int> new_use(m), no_use(m);
     rep(i, m) {
         int d;
         cin >> d;
         auto [u, v] = edges[i];
-        if (use[i]) {
+        if (uf.same(u, v)) {
+            cout << 0 << endl;
+            kakutei[i] = -1;
+            continue;
+        }
+
+        kakutei[i] = -1;
+        int diff = d - es[i].first.first;
+        DEBUG(pii(es[i].first.first, d));
+        es[i].first.first = d;
+        int no_score = kruskal(es, kakutei, no_use);
+        DEBUG(no_score);
+
+        kakutei[i] = 1;
+        new_score = kruskal(es, kakutei, new_use);
+
+        if (no_score == inf) {
             uf.unite(u, v);
             score += d;
             cout << 1 << endl;
+            kakutei[i] = 1;
+            ori_score = new_score;
+            continue;
+        }
+
+        DEBUG(pii(ori_score, new_score));
+        DEBUG(diff);
+
+        bool is_use = false;
+        if (use[i]) {
+            is_use = (new_score <= ori_score + diff);
+        } else {
+            is_use = new_score <= ori_score;
+        }
+
+        if (is_use) {
+            uf.unite(u, v);
+            score += d;
+            cout << 1 << endl;
+            kakutei[i] = 1;
+            ori_score = new_score;
         } else {
             cout << 0 << endl;
+            kakutei[i] = -1;
+            ori_score = no_score;
         }
+
+        // if (i == 30) break;
     }
     DEBUG(score);
 }
