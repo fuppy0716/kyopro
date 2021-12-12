@@ -261,8 +261,8 @@ signed main() {
         }
 
         int use_cnt = 0, not_cnt = 0;
-        int max_try_num = 39;
-        int diff = 5;
+        int max_try_num = 69;
+        int diff = 8;
         rep(try_num, max_try_num) {
             for (int j = 0; j < es.size() - 1; j++) {
                 int d = dists[m - 1 - j];
