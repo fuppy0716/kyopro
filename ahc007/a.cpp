@@ -269,9 +269,10 @@ signed main() {
 
         es[i].first.first = d;
         es2[i].first.first = d;
-        int use_cnt = 0;
-        int try_num = 5;
-        rep(_, try_num) {
+        int use_cnt = 0, not_cnt = 0;
+        int max_try_num = 9;
+        int diff = 3;
+        rep(try_num, max_try_num) {
             for (int j = i + 1; j < m; j++) {
                 int d = es[j].first.first / 2;
                 es2[j].first.first = rnd(d, 3 * d + 1);
@@ -280,10 +281,14 @@ signed main() {
 
             if (use[i]) {
                 use_cnt++;
+            } else {
+                not_cnt++;
             }
+
+            if (abs(use_cnt - not_cnt) == diff) break;
         }
 
-        if (use_cnt >= (try_num + 1) / 2) {
+        if (use_cnt >= not_cnt) {
             uf.unite(u, v);
             score += d;
             cout << 1 << endl;
