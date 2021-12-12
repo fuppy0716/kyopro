@@ -209,7 +209,9 @@ int dist(pii xy1, pii xy2) {
 }
 
 using P = pair<pii, pii>;
-int kruskal(vector<P> es, const vector<int> &kakutei, vector<int> &res, int tar = -1) {
+int kruskal(vector<P> es, const vector<int> &kakutei, vector<int> &res, int tar) {
+    auto [tu, tv] = es[tar];
+
     fill(all(res), 0);
     sort(all(es));
     UnionFind uf(n);
@@ -256,7 +258,6 @@ signed main() {
         es[i].second = edges[i];
     }
     vector<int> use(m);
-    int ori_score = kruskal(es, kakutei, use);
     auto es2 = es;
 
     rep(i, m) {
