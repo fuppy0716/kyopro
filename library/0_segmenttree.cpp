@@ -339,8 +339,10 @@ signed main() {
 // https://csacademy.com/submission/3120701/
 // https://yukicoder.me/submissions/612437
 
+// 2D seg tree
 // https://atcoder.jp/contests/abc228/submissions/27477009
 // https://twitter.com/fuppy_keyopro/status/1463509359443410948
+// https://atcoder.jp/contests/abc233/submissions/28654402
 ll fff(ll a, ll b) { return max(a, b); }
 ll ggg(ll a, ll b) { return max(a, b); }
 

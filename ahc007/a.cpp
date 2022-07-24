@@ -102,199 +102,55 @@ const ll MOD = 998244353;
 // #define mp make_pair
 //#define endl '\n'
 
-uint32_t xor_shift() {
-    static uint32_t y = 2463534242;
-    y = y ^ (y << 13);
-    y = y ^ (y >> 17);
-    return y = y ^ (y << 5);
-}
-
-uint32_t rnd(int l, int r) {
-    auto res = xor_shift();
-
-    res %= (r - l);
-    return l + res;
-}
-
-uint32_t rnd(int r) {
-    return rnd(0, r);
-}
-
-class UnionFind {
-  private:
-    vi par_; //�e
-    vi ran_; //�؂̐[��
-  public:
-    int n;
-    int g; // group��
-
-    UnionFind(int _n) {
-        n = _n;
-        par_.resize(n);
-        ran_.resize(n);
-        reset(_n);
-    }
-
-    void reset(int _n) {
-        n = _n;
-        g = n;
-        for (int i = 0; i < n; i++) {
-            par_[i] = i;
-            ran_[i] = 0;
-        }
-    }
-
-    //�؂̍������߂�
-    int find(int x) {
-        if (par_[x] == x) {
-            return x;
-        } else {
-            return par_[x] = find(par_[x]);
-        }
-    }
-
-    //x��y�̑�����W���𕹍�
-    void unite(int x, int y) {
-        x = find(x);
-        y = find(y);
-        if (x == y) {
-            return;
-        }
-        if (ran_[x] < ran_[y]) {
-            par_[x] = y;
-        } else {
-            par_[y] = x;
-            if (ran_[x] == ran_[y]) {
-                ran_[x]++;
-            }
-        }
-        g--;
-    }
-
-    //x��y�������W���ɑ����邩�ۂ�
-    bool same(int x, int y) {
-        return find(x) == find(y);
-    }
-};
-
-constexpr int n = 400, m = 1995;
-vector<pii> xy(n);
-vector<pii> edges(m);
-void input() {
-    rep(i, n) {
-        cin >> xy[i].first >> xy[i].second;
-    }
-    rep(i, m) {
-        cin >> edges[i].first >> edges[i].second;
-    }
-}
-
-int dist(pii xy1, pii xy2) {
-    pii xy = xy1 - xy2;
-    return round(sqrt(xy.first * xy.first + xy.second * xy.second));
-}
-
-using P = pair<pii, pii>;
-int kruskal(vector<P> es, const vector<P> kakutei, vector<int> &res, int tar) {
-    auto [tu, tv] = es[m - 1 - tar].second;
-
-    res[tar] = 0;
-    sort(all(es));
-    static UnionFind uf(n);
-    uf.reset(n);
-
-    int score = 0;
-    rep(i, kakutei.size()) {
-        int idx = kakutei[i].first.second;
-
-        auto [u, v] = kakutei[i].second;
-        assert(!uf.same(u, v));
-        uf.unite(u, v);
-        res[idx] = true;
-        score += kakutei[i].first.first;
-    }
-
-    rep(i, es.size()) {
-        auto [u, v] = es[i].second;
-        if (uf.same(u, v)) continue;
-        int idx = es[i].first.second;
-
-        uf.unite(u, v);
-        res[idx] = true;
-        score += es[i].first.first;
-
-        if (tar != -1 && tar == idx) return 0;
-        if (uf.same(tu, tv)) return 0;
-    }
-    if (uf.g > 1) return inf;
-    return score;
-}
-
 signed main() {
-    input();
-    int score = 0;
-    UnionFind uf(n);
+    int n;
+    cin >> n;
+    string s, t;
+    cin >> s >> t;
+    int cnt = 0;
+    rep(i, n) cnt += s[i] - '0';
+    rep(i, n) cnt -= t[i] - '0';
 
-    vector<P> es(m);
-    vi dists(m);
-    rep(i, m) {
-        auto [u, v] = edges[i];
-        es[i].first = pii(dist(xy[u], xy[v]) * 2, i);
-        es[i].second = edges[i];
-        dists[i] = es[i].first.first / 2;
+    if (cnt != 0) {
+        cout << -1 << endl;
+        return 0;
     }
-    vector<int> use(m);
 
-    reverse(all(es));
-    vector<P> kaku;
-
-    rep(i, m) {
-        int d;
-        cin >> d;
-        es.back().first.first = d;
-
-        auto [u, v] = edges[i];
-        if (uf.same(u, v)) {
-            cout << 0 << endl;
-            es.pop_back();
+    cnt = 0;
+    int ans = 0;
+    int si = 0, ti = 0;
+    while (si < n or ti < n) {
+        if (s[si] == t[ti]) {
+            si++;
+            ti++;
             continue;
         }
 
-        int use_cnt = 0, not_cnt = 0;
-        int max_try_num = 99;
-        int diff = 11;
-        int straight = 6;
-        rep(try_num, max_try_num) {
-            for (int j = 0; j < es.size() - 1; j++) {
-                int d = dists[m - 1 - j];
-                es[j].first.first = rnd(d, 3 * d + 1);
+        if (cnt > 0) {
+            if (t[ti] == '0') {
+                ti++;
+                cnt--;
+                continue;
             }
-            int new_score = kruskal(es, kaku, use, i);
-
-            if (use[i]) {
-                use_cnt++;
-            } else {
-                not_cnt++;
+        } else if (cnt < 0) {
+            if (s[si] == '0') {
+                si++;
+                cnt++;
+                continue;
             }
-
-            if ((use_cnt == 0 || not_cnt == 0) && (use_cnt + not_cnt == straight)) break;
-            if (abs(use_cnt - not_cnt) == diff) break;
         }
 
-        if (use_cnt >= not_cnt) {
-            uf.unite(u, v);
-            score += d;
-            cout << 1 << endl;
-            kaku.push_back(es.back());
-            es.pop_back();
+        if (s[si] == '0') {
+            cnt++;
+            ans++;
+            si++;
+        } else if (t[ti] == '0') {
+            cnt--;
+            ans++;
+            ti++;
         } else {
-            cout << 0 << endl;
-            es.pop_back();
+            assert(false);
         }
-
-        // if (i == 30) break;
     }
-    assert(es.size() == 0);
-    assert(kaku.size() == n - 1);
-    DEBUG(score);
+    cout << ans << endl;
 }
