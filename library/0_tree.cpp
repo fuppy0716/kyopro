@@ -72,6 +72,8 @@ class CentroidDecomposition {
 //���_�ɒl���ڂ��Ă��鎞�C�����؃N�G��
 //https://atcoder.jp/contests/iroha2019-day2/submissions/9039015
 //http://beet-aizu.hatenablog.com/entry/2017/12/12/235950
+// move
+// https://judge.yosupo.jp/submission/97270
 class HLD {
   private:
     void dfs_sz(int v) {
@@ -125,6 +127,33 @@ class HLD {
             if (vid[u] > vid[v]) swap(u, v);
             if (head[u] == head[v]) return u;
             v = par[head[v]];
+        }
+    }
+
+    // move d from u to v
+    // if d == 0: return u
+    // if d == dist(u, v): return v
+    int move(int u, int v, int d) {
+        int full_d = distance(u, v);
+
+        assert(d <= full_d);
+
+        // following to lca, move from v
+        d = full_d - d;
+        while (1) {
+            if (vid[u] > vid[v]) {
+                swap(u, v);
+                d = full_d - d;
+            }
+
+            int to_head_d = vid[v] - vid[head[v]];
+
+            if (to_head_d >= d) {
+                return inv[vid[v] - d];
+            }
+            v = par[head[v]];
+            d -= to_head_d + 1;
+            full_d -= to_head_d + 1;
         }
     }
 
