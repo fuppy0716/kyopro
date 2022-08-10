@@ -192,9 +192,11 @@ void input() {
 
 vector<pair<pii, pii>> connect;
 
-void greedy_dfs(int y, int x, vii &used) {
+int greedy_dfs(int y, int x, vii &used) {
     used[y][x] = true;
     int type = c[y][x];
+
+    int res = 1;
 
     rep(k, 4) {
         REP(dist, 1, inf) {
@@ -220,13 +222,14 @@ void greedy_dfs(int y, int x, vii &used) {
                     }
                 }
 
-                greedy_dfs(ny, nx, used);
+                res += greedy_dfs(ny, nx, used);
                 break;
             } else {
                 break;
             }
         }
     }
+    return res;
 }
 
 signed main() {
@@ -234,14 +237,17 @@ signed main() {
 
     cout << 0 << endl;
 
+    int score = 0;
     vii used(n, vi(n));
     rep(i, n) {
         rep(j, n) {
             if (c[i][j] != 0 && used[i][j] == 0) {
-                greedy_dfs(i, j, used);
+                int sz = greedy_dfs(i, j, used);
+                score += sz * (sz - 1) / 2;
             }
         }
     }
+    DEBUG(score);
     DEBUG(connect.size());
 
     cout << connect.size() << endl;
