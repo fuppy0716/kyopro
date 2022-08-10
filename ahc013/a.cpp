@@ -103,76 +103,25 @@ const ll MOD = 998244353;
 // #define mp make_pair
 //#define endl '\n'
 
-class UnionFind {
-  private:
-    vi par_;      //�e
-    vi ran_;      //�؂̐[��
-    vi num_;      //�v�f��
-    vi edge_num_; //�v�f��
-  public:
-    int n;
-    int g; // group��
-
-    UnionFind(int _n) {
-        n = _n;
-        g = n;
-        par_.resize(n);
-        ran_.resize(n);
-        num_.resize(n);
-        edge_num_.resize(n);
-        for (int i = 0; i < n; i++) {
-            par_[i] = i;
-            ran_[i] = 0;
-            num_[i] = 1;
-            edge_num_[i] = 0;
-        }
+struct dice {
+    mt19937 mt;
+    dice() : mt(chrono::steady_clock::now().time_since_epoch().count()) {}
+    // [0, x)の一様乱数
+    ll operator()(ll x) { return this->operator()(0, x); }
+    // [x, y)の一様乱数
+    ll operator()(ll x, ll y) {
+        uniform_int_distribution<ll> dist(x, y - 1);
+        return dist(mt);
     }
-
-    //�؂̍������߂�
-    int find(int x) {
-        if (par_[x] == x) {
-            return x;
-        } else {
-            return par_[x] = find(par_[x]);
-        }
+    vl operator()(int n, ll x, ll y) {
+        vl res(n);
+        for (int i = 0; i < n; i++)
+            res[i] = this->operator()(x, y);
+        return res;
     }
+} rnd;
 
-    //x��y�̑�����W���𕹍�
-    void unite(int x, int y) {
-        x = find(x);
-        y = find(y);
-        int numsum = num_[x] + num_[y];
-        int edge_numsum = edge_num_[x] + edge_num_[y];
-        if (x == y) {
-            edge_num_[x]++;
-            return;
-        }
-        if (ran_[x] < ran_[y]) {
-            par_[x] = y;
-        } else {
-            par_[y] = x;
-            if (ran_[x] == ran_[y]) {
-                ran_[x]++;
-            }
-        }
-        num_[x] = num_[y] = numsum;
-        edge_num_[x] = edge_num_[y] = edge_numsum + 1;
-        g--;
-    }
-
-    //x��y�������W���ɑ����邩�ۂ�
-    bool same(int x, int y) {
-        return find(x) == find(y);
-    }
-
-    int num(int x) {
-        return num_[find(x)];
-    }
-
-    int edge_num(int x) {
-        return edge_num_[find(x)];
-    }
-};
+clock_t start_c;
 
 int n, k;
 vii c;
@@ -190,15 +139,19 @@ void input() {
     }
 }
 
-vector<pair<pii, pii>> connect;
+vector<pair<pii, pii>> moves;
 
-int greedy_dfs(int y, int x, vii &used) {
+int greedy_dfs(int y, int x, vii &used, vector<pair<pii, pii>> &connect) {
     used[y][x] = true;
     int type = c[y][x];
 
     int res = 1;
 
     rep(k, 4) {
+        if (moves.size() + connect.size() == 100 * k) {
+            break;
+        }
+
         REP(dist, 1, inf) {
             int ny = y + dy[k] * dist, nx = x + dx[k] * dist;
 
@@ -222,7 +175,7 @@ int greedy_dfs(int y, int x, vii &used) {
                     }
                 }
 
-                res += greedy_dfs(ny, nx, used);
+                res += greedy_dfs(ny, nx, used, connect);
                 break;
             } else {
                 break;
@@ -233,25 +186,72 @@ int greedy_dfs(int y, int x, vii &used) {
 }
 
 signed main() {
+    start_c = clock();
+
     input();
 
-    cout << 0 << endl;
+    vector<pair<pii, pii>> best_connect;
+    int best_score = 0;
 
-    int score = 0;
-    vii used(n, vi(n));
-    rep(i, n) {
-        rep(j, n) {
-            if (c[i][j] != 0 && used[i][j] == 0) {
-                int sz = greedy_dfs(i, j, used);
-                score += sz * (sz - 1) / 2;
+    rep(try_num, inf) {
+        double sec = (double)(clock() - start_c) / CLOCKS_PER_SEC;
+        if (sec > 2.9) {
+            DEBUG(try_num);
+            break;
+        }
+
+        while (true) {
+            int y = rnd(n), x = rnd(n);
+            int k = rnd(4);
+
+            if (c[y][x] == 0) {
+                continue;
+            }
+            int ny = y + dy[k], nx = x + dx[k];
+            if (not in(ny, 0, n) or not in(nx, 0, n)) {
+                continue;
+            }
+            if (c[ny][nx] != 0) {
+                continue;
+            }
+
+            moves.emplace_back(pii(y, x), pii(ny, nx));
+            swap(c[ny][nx], c[y][x]);
+            break;
+        }
+
+        vector<pair<pii, pii>> connect;
+        int score = 0;
+        vii used(n, vi(n));
+        rep(i, n) {
+            rep(j, n) {
+                if (c[i][j] != 0 && used[i][j] == 0) {
+                    int sz = greedy_dfs(i, j, used, connect);
+                    score += sz * (sz - 1) / 2;
+                }
             }
         }
-    }
-    DEBUG(score);
-    DEBUG(connect.size());
+        DEBUG(score);
+        DEBUG(connect.size());
 
-    cout << connect.size() << endl;
-    for (auto [yx1, yx2] : connect) {
+        if (score > best_score) {
+            best_score = score;
+            best_connect = connect;
+        } else {
+            auto [yx, nyx] = moves.back();
+            moves.pop_back();
+            auto [y, x] = yx;
+            auto [ny, nx] = nyx;
+            swap(c[ny][nx], c[y][x]);
+        }
+    }
+
+    cout << moves.size() << endl;
+    for (auto [yx1, yx2] : moves) {
+        cout << yx1.first << " " << yx1.second << " " << yx2.first << " " << yx2.second << endl;
+    }
+    cout << best_connect.size() << endl;
+    for (auto [yx1, yx2] : best_connect) {
         cout << yx1.first << " " << yx1.second << " " << yx2.first << " " << yx2.second << endl;
     }
 }
