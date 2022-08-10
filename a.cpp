@@ -102,3 +102,150 @@ struct Setup_io {
 const ll MOD = 998244353;
 // #define mp make_pair
 //#define endl '\n'
+
+class UnionFind {
+  private:
+    vi par_;      //�e
+    vi ran_;      //�؂̐[��
+    vi num_;      //�v�f��
+    vi edge_num_; //�v�f��
+  public:
+    int n;
+    int g; // group��
+
+    UnionFind(int _n) {
+        n = _n;
+        g = n;
+        par_.resize(n);
+        ran_.resize(n);
+        num_.resize(n);
+        edge_num_.resize(n);
+        for (int i = 0; i < n; i++) {
+            par_[i] = i;
+            ran_[i] = 0;
+            num_[i] = 1;
+            edge_num_[i] = 0;
+        }
+    }
+
+    //�؂̍������߂�
+    int find(int x) {
+        if (par_[x] == x) {
+            return x;
+        } else {
+            return par_[x] = find(par_[x]);
+        }
+    }
+
+    //x��y�̑�����W���𕹍�
+    void unite(int x, int y) {
+        x = find(x);
+        y = find(y);
+        int numsum = num_[x] + num_[y];
+        int edge_numsum = edge_num_[x] + edge_num_[y];
+        if (x == y) {
+            edge_num_[x]++;
+            return;
+        }
+        if (ran_[x] < ran_[y]) {
+            par_[x] = y;
+        } else {
+            par_[y] = x;
+            if (ran_[x] == ran_[y]) {
+                ran_[x]++;
+            }
+        }
+        num_[x] = num_[y] = numsum;
+        edge_num_[x] = edge_num_[y] = edge_numsum + 1;
+        g--;
+    }
+
+    //x��y�������W���ɑ����邩�ۂ�
+    bool same(int x, int y) {
+        return find(x) == find(y);
+    }
+
+    int num(int x) {
+        return num_[find(x)];
+    }
+
+    int edge_num(int x) {
+        return edge_num_[find(x)];
+    }
+};
+
+int n, k;
+vii c;
+
+void input() {
+    cin >> n >> k;
+    c.resize(n);
+    rep(i, n) {
+        c[i].resize(n);
+        rep(j, n) {
+            char cc;
+            cin >> cc;
+            c[i][j] = cc - '0';
+        }
+    }
+}
+
+vector<pair<pii, pii>> connect;
+
+void greedy_dfs(int y, int x, vii &used) {
+    DEBUG(pii(y, x));
+    used[y][x] = true;
+    int type = c[y][x];
+
+    rep(k, 4) {
+        REP(dist, 1, inf) {
+            int ny = y + dy[k] * dist, nx = x + dx[k] * dist;
+
+            if (not in(ny, 0, n) or not in(nx, 0, n)) {
+                continue;
+            }
+
+            if (used[ny][nx]) {
+                continue;
+            }
+
+            if (c[ny][nx] == 0) {
+                continue;
+            }
+
+            if (c[ny][nx] == type) {
+                connect.emplace_back(pii(y, x), pii(ny, nx));
+                for (int i = min(y, ny); i <= max(y, ny); i++) {
+                    for (int j = min(x, nx); j <= max(x, nx); j++) {
+                        used[i][j] = true;
+                    }
+                }
+
+                greedy_dfs(ny, nx, used);
+            } else {
+                break;
+            }
+        }
+    }
+}
+
+signed main() {
+    input();
+
+    cout << 0 << endl;
+
+    vii used(n, vi(n));
+    rep(i, n) {
+        rep(j, n) {
+            if (c[i][j] != 0 && used[i][j] == 0) {
+                greedy_dfs(i, j, used);
+            }
+        }
+    }
+    DEBUG(connect.size());
+
+    cout << connect.size() << endl;
+    for (auto [yx1, yx2] : connect) {
+        cout << yx1.first << " " << yx1.second << " " << yx2.first << " " << yx2.second << endl;
+    }
+}
