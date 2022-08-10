@@ -123,11 +123,11 @@ struct dice {
 
 clock_t start_c;
 
-int n, k;
+int n, K;
 vii c;
 
 void input() {
-    cin >> n >> k;
+    cin >> n >> K;
     c.resize(n);
     rep(i, n) {
         c[i].resize(n);
@@ -141,14 +141,14 @@ void input() {
 
 vector<pair<pii, pii>> moves;
 
-int greedy_dfs(int y, int x, vii &used, vector<pair<pii, pii>> &connect) {
-    used[y][x] = true;
+int greedy_dfs(int y, int x, vii &used, vector<pair<pii, pii>> &connect, int group) {
+    used[y][x] = group;
     int type = c[y][x];
 
     int res = 1;
 
     rep(k, 4) {
-        if (moves.size() + connect.size() == 100 * k) {
+        if (moves.size() + connect.size() == 100 * K) {
             break;
         }
 
@@ -171,11 +171,11 @@ int greedy_dfs(int y, int x, vii &used, vector<pair<pii, pii>> &connect) {
                 connect.emplace_back(pii(y, x), pii(ny, nx));
                 for (int i = min(y, ny); i <= max(y, ny); i++) {
                     for (int j = min(x, nx); j <= max(x, nx); j++) {
-                        used[i][j] = true;
+                        used[i][j] = group;
                     }
                 }
 
-                res += greedy_dfs(ny, nx, used, connect);
+                res += greedy_dfs(ny, nx, used, connect, group);
                 break;
             } else {
                 break;
@@ -192,6 +192,7 @@ signed main() {
 
     vector<pair<pii, pii>> best_connect;
     int best_score = 0;
+    vii pre_used(n, vi(n));
 
     rep(try_num, inf) {
         double sec = (double)(clock() - start_c) / CLOCKS_PER_SEC;
@@ -201,6 +202,10 @@ signed main() {
         }
 
         while (true) {
+            if (try_num == 0) {
+                break;
+            }
+
             int y = rnd(n), x = rnd(n);
             int k = rnd(4);
 
@@ -223,10 +228,11 @@ signed main() {
         vector<pair<pii, pii>> connect;
         int score = 0;
         vii used(n, vi(n));
+        int group = 0;
         rep(i, n) {
             rep(j, n) {
                 if (c[i][j] != 0 && used[i][j] == 0) {
-                    int sz = greedy_dfs(i, j, used, connect);
+                    int sz = greedy_dfs(i, j, used, connect, ++group);
                     score += sz * (sz - 1) / 2;
                 }
             }
@@ -237,6 +243,7 @@ signed main() {
         if (score > best_score) {
             best_score = score;
             best_connect = connect;
+            pre_used = used;
         } else {
             auto [yx, nyx] = moves.back();
             moves.pop_back();
