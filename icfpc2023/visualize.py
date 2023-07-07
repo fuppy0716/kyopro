@@ -5,6 +5,7 @@ import json
 from dataclasses import dataclass
 from typing import Any, Mapping, Sequence
 
+import matplotlib.cm as cm
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import requests
@@ -19,6 +20,10 @@ class Attendee:
     @classmethod
     def parse(cls, d: Mapping[str, Any]) -> Attendee:
         return Attendee(x=d["x"], y=d["y"], tastes=d["tastes"])
+
+    def most_favorite(self) -> int:
+        max_value = max(self.tastes)
+        return self.tastes.index(max_value)
 
 
 @dataclass
@@ -45,26 +50,33 @@ class Data:
             attendees=[Attendee.parse(a) for a in d["attendees"]],
         )
 
+    @property
+    def musician_num(self) -> int:
+        return len(self.musicians)
 
-def visualize(data: Data) -> None:
+    @property
+    def instrument_num(self) -> int:
+        return len(self.attendees[0].tastes)
+
+    @property
+    def attendee_num(self) -> int:
+        return len(self.attendees)
+
+
+def visualize(data: Data, output_path: str) -> None:
     fig = plt.figure()
     ax = fig.add_subplot()
 
-    M = max([data.room_width, data.room_height, data.stage_width, data.stage_height])
-
-    print(data.room_width, data.room_height)
-    print(data.stage_width, data.stage_height)
-
     ax.add_patch(
         patches.Rectangle(
-            (0, 0), data.room_width / M, data.room_height / M, linewidth=1, fill=False
+            (0, 0), data.room_width, data.room_height, linewidth=1, fill=False
         )
     )
     ax.add_patch(
         patches.Rectangle(
-            (data.stage_bottom_left[0] / M, data.stage_bottom_left[1] / M),
-            data.stage_width / M,
-            data.stage_height / M,
+            (data.stage_bottom_left[0], data.stage_bottom_left[1]),
+            data.stage_width,
+            data.stage_height,
             linewidth=1,
             edgecolor="b",
             facecolor="b",
@@ -72,11 +84,19 @@ def visualize(data: Data) -> None:
     )
 
     ax.scatter(
-        [a.x / M for a in data.attendees],
-        [a.y / M for a in data.attendees],
+        [a.x for a in data.attendees],
+        [a.y for a in data.attendees],
+        c=[a.most_favorite() for a in data.attendees],
+        cmap=cm.rainbow,
+        alpha=0.5,
+        s=4,
     )
 
-    plt.show()
+    ax.set_title(
+        f"musician: {data.musician_num}, instrument: {data.instrument_num}, attendee: {data.attendee_num}"
+    )
+
+    plt.savefig(output_path)
     plt.close()
 
 
@@ -85,5 +105,4 @@ for i in range(1, 46):
         data_dict = json.load(f)
 
     data = Data.parse(data_dict)
-    visualize(data)
-    break
+    visualize(data, "images/{:04}.png".format(i))
