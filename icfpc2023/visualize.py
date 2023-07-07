@@ -27,7 +27,8 @@ class Attendee:
 
 
 @dataclass
-class Data:
+class Problem:
+    problem_id: int
     room_width: float
     room_height: float
     stage_width: float
@@ -39,8 +40,9 @@ class Data:
     attendees: Sequence[Attendee]
 
     @classmethod
-    def parse(cls, d: Mapping[str, Any]) -> Data:
-        return Data(
+    def parse(cls, d: Mapping[str, Any], problem_id: int) -> Problem:
+        return Problem(
+            problem_id=problem_id,
             room_width=d["room_width"],
             room_height=d["room_height"],
             stage_width=d["stage_width"],
@@ -63,20 +65,20 @@ class Data:
         return len(self.attendees)
 
 
-def visualize(data: Data, output_path: str) -> None:
+def visualize(problem: Problem, output_path: str) -> None:
     fig = plt.figure()
     ax = fig.add_subplot()
 
     ax.add_patch(
         patches.Rectangle(
-            (0, 0), data.room_width, data.room_height, linewidth=1, fill=False
+            (0, 0), problem.room_width, problem.room_height, linewidth=1, fill=False
         )
     )
     ax.add_patch(
         patches.Rectangle(
-            (data.stage_bottom_left[0], data.stage_bottom_left[1]),
-            data.stage_width,
-            data.stage_height,
+            (problem.stage_bottom_left[0], problem.stage_bottom_left[1]),
+            problem.stage_width,
+            problem.stage_height,
             linewidth=1,
             edgecolor="b",
             facecolor="b",
@@ -84,16 +86,16 @@ def visualize(data: Data, output_path: str) -> None:
     )
 
     ax.scatter(
-        [a.x for a in data.attendees],
-        [a.y for a in data.attendees],
-        c=[a.most_favorite() for a in data.attendees],
+        [a.x for a in problem.attendees],
+        [a.y for a in problem.attendees],
+        c=[a.most_favorite() for a in problem.attendees],
         cmap=cm.rainbow,
         alpha=0.5,
         s=4,
     )
 
     ax.set_title(
-        f"musician: {data.musician_num}, instrument: {data.instrument_num}, attendee: {data.attendee_num}"
+        f"problem: {problem.problem_id}, musician: {problem.musician_num}, instrument: {problem.instrument_num}, attendee: {problem.attendee_num}"
     )
 
     plt.savefig(output_path)
@@ -102,7 +104,7 @@ def visualize(data: Data, output_path: str) -> None:
 
 for i in range(1, 46):
     with open("input_json/{:04}.json".format(i)) as f:
-        data_dict = json.load(f)
+        problem_dict = json.load(f)
 
-    data = Data.parse(data_dict)
-    visualize(data, "images/{:04}.png".format(i))
+    problem = Problem.parse(problem_dict, problem_id=i)
+    visualize(problem, "images/{:04}.png".format(i))
