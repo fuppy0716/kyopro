@@ -103,149 +103,95 @@ const ll MOD = 998244353;
 // #define mp make_pair
 //#define endl '\n'
 
-class UnionFind {
-  private:
-    vi par_;      //�e
-    vi ran_;      //�؂̐[��
-    vi num_;      //�v�f��
-    vi edge_num_; //�v�f��
-  public:
-    int n;
-    int g; // group��
+vi can;
+using lll = __int128_t;
 
-    UnionFind(int _n) {
-        n = _n;
-        g = n;
-        par_.resize(n);
-        ran_.resize(n);
-        num_.resize(n);
-        edge_num_.resize(n);
-        for (int i = 0; i < n; i++) {
-            par_[i] = i;
-            ran_[i] = 0;
-            num_[i] = 1;
-            edge_num_[i] = 0;
-        }
+bool check(vi a) {
+
+    lll bo = 1;
+    rep(i, a.size()) {
+        bo *= a[i];
     }
 
-    //�؂̍������߂�
-    int find(int x) {
-        if (par_[x] == x) {
-            return x;
-        } else {
-            return par_[x] = find(par_[x]);
-        }
+    lll s = 0;
+    rep(i, a.size()) {
+        s += bo / a[i];
     }
-
-    //x��y�̑�����W���𕹍�
-    void unite(int x, int y) {
-        x = find(x);
-        y = find(y);
-        int numsum = num_[x] + num_[y];
-        int edge_numsum = edge_num_[x] + edge_num_[y];
-        if (x == y) {
-            edge_num_[x]++;
-            return;
-        }
-        if (ran_[x] < ran_[y]) {
-            par_[x] = y;
-        } else {
-            par_[y] = x;
-            if (ran_[x] == ran_[y]) {
-                ran_[x]++;
-            }
-        }
-        num_[x] = num_[y] = numsum;
-        edge_num_[x] = edge_num_[y] = edge_numsum + 1;
-        g--;
-    }
-
-    //x��y�������W���ɑ����邩�ۂ�
-    bool same(int x, int y) {
-        return find(x) == find(y);
-    }
-
-    int num(int x) {
-        return num_[find(x)];
-    }
-
-    int edge_num(int x) {
-        return edge_num_[find(x)];
-    }
-};
-
-int n, k;
-vii c;
-
-void input() {
-    cin >> n >> k;
-    c.resize(n);
-    rep(i, n) {
-        c[i].resize(n);
-        rep(j, n) {
-            char cc;
-            cin >> cc;
-            c[i][j] = cc - '0';
-        }
-    }
+    return s == bo;
 }
 
-vector<pair<pii, pii>> connect;
+constexpr int N = 68;
+vi par(N);
 
-void greedy_dfs(int y, int x, vii &used) {
-    DEBUG(pii(y, x));
-    used[y][x] = true;
-    int type = c[y][x];
-
-    rep(k, 4) {
-        REP(dist, 1, inf) {
-            int ny = y + dy[k] * dist, nx = x + dx[k] * dist;
-
-            if (not in(ny, 0, n) or not in(nx, 0, n)) {
-                continue;
-            }
-
-            if (used[ny][nx]) {
-                continue;
-            }
-
-            if (c[ny][nx] == 0) {
-                continue;
-            }
-
-            if (c[ny][nx] == type) {
-                connect.emplace_back(pii(y, x), pii(ny, nx));
-                for (int i = min(y, ny); i <= max(y, ny); i++) {
-                    for (int j = min(x, nx); j <= max(x, nx); j++) {
-                        used[i][j] = true;
-                    }
-                }
-
-                greedy_dfs(ny, nx, used);
-            } else {
-                break;
-            }
-        }
+bool dfs(vi &a, int n, double s, vi &used) {
+    if (s > 1.1) {
+        return false;
     }
+
+    if (n == 0) {
+        // double s = 0;
+        // rep(i, a.size()) {
+        //     s += 1.0 / a[i];
+        // }
+        // DEBUG(s);
+        if (check(a)) {
+            rep(i, a.size()) {
+                cout << a[i] << ", ";
+            }
+            cout << endl;
+            // DEBUG_VEC(a);
+            return true;
+        }
+        return false;
+    }
+
+    int pre = 1;
+    if (a.size() > 0) {
+        pre = a.back();
+    }
+    for (int x = pre + 2; x < 68; x += 2) {
+        // for (int x = pre + 1; x < 60; x++) {
+        // if (used[par[x]]) {
+        //     continue;
+        // }
+        a.push_back(x);
+        double ns = s + 1.0 / x;
+        // used[par[x]] = true;
+        bool ret = dfs(a, n - 1, ns, used);
+        if (ret) {
+            return true;
+        }
+        // used[par[x]] = false;
+        a.pop_back();
+    }
+    return false;
+}
+
+void solve(int n) {
+    vi a;
+    vi used(N);
+    bool ret = dfs(a, n, 0.0, used);
+    DEBUG(ret);
 }
 
 signed main() {
-    input();
-
-    cout << 0 << endl;
-
-    vii used(n, vi(n));
-    rep(i, n) {
-        rep(j, n) {
-            if (c[i][j] != 0 && used[i][j] == 0) {
-                greedy_dfs(i, j, used);
-            }
-        }
+    for (int n = 3; n <= 43; n += 2) {
+        solve(n);
     }
-    DEBUG(connect.size());
 
-    cout << connect.size() << endl;
-    for (auto [yx1, yx2] : connect) {
-        cout << yx1.first << " " << yx1.second << " " << yx2.first << " " << yx2.second << endl;
+    for (int x = 1; x < N; x++) {
+        int y = x;
+        while (y % 2 == 0) {
+            y /= 2;
+        }
+        par[x] = y;
+    }
+
+    int t = 1;
+    cin >> t;
+    while (t--) {
+        int n;
+        cin >> n;
+        solve(n);
     }
 }

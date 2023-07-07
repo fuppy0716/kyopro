@@ -27,8 +27,6 @@ const ll INF = 1e18 * 4;
 int dx[4] = {1, 0, -1, 0}, dy[4] = {0, 1, 0, -1};
 int dx2[8] = {1, 1, 0, -1, -1, -1, 0, 1}, dy2[8] = {0, 1, 1, 1, 0, -1, -1, -1};
 
-// https://hitonanode.github.io/cplib-cpp/combinatorial_opt/mincostflow_nonegativeloop.hpp
-
 // CUT begin
 // Minimum cost flow WITH NO NEGATIVE CYCLE (just negative cost edge is allowed)
 // Verified:
@@ -36,6 +34,7 @@ int dx2[8] = {1, 1, 0, -1, -1, -1, 0, 1}, dy2[8] = {0, 1, 1, 1, 0, -1, -1, -1};
 // - CodeChef LTIME98 Ancient Magic https://www.codechef.com/problems/ANCT
 template <class Cap = long long, class Cost = long long, Cost INF_COST = std::numeric_limits<Cost>::max() / 2>
 struct MinCostFlow {
+    // https://hitonanode.github.io/cplib-cpp/combinatorial_opt/mincostflow_nonegativeloop.hpp
     struct _edge {
         int to, rev;
         Cap cap;

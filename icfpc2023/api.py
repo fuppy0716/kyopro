@@ -13,5 +13,5 @@ def get(problem_id):
 
 for i in range(1, 46):
     ret = get(i)
-    with open("in/{:04}.json".format(i), "w") as f:
+    with open("input_json/{:04}.json".format(i), "w") as f:
         json.dump(ret, f, indent=4)
