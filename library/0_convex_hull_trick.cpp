@@ -69,6 +69,9 @@ class ConvexHullTrick {
     }
 };
 
+// https://kazuma8128.hatenablog.com/entry/2018/02/28/102130
+// 下のライブラリよりこちらの方が、オーバーフローに寛容
+
 //最小値クエリ
 //INFの値によってはすぐオーバーフローするので注意(|ab| < LLONG_MAX/4)
 //非順序add非順序query
