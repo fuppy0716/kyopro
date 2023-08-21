@@ -221,7 +221,7 @@ struct NTT {
     }
 };
 
-// https://atcoder.jp/contests/abc315/submissions/44828348
+// https://atcoder.jp/contests/abc315/submissions/44828688
 class RelaxedConvolution {
     // https://qiita.com/Kiri8128/items/1738d5403764a0e26b4c
   public:
@@ -236,14 +236,9 @@ class RelaxedConvolution {
         b.push_back(add_b);
 
         int q = a.size() - 1;
-        if (q == 0) {
-            c.push_back(add_a * add_b);
-            return c.back();
-        }
-
         int len = 1;
         vector<tuple<int, int, int>> yxl;
-        while (len <= q) {
+        while (true) {
             if (q % len == max(0, len - 2) && q >= 2 * len - 2) {
                 int i = len - 1, j = q - len + 1;
                 yxl.emplace_back(i, j, len);
