@@ -38,6 +38,18 @@ class Placement:
 
 
 @dataclass
+class Pillar:
+    x: float
+    y: float
+
+    radius: float
+
+    @classmethod
+    def parse(cls, d: Mapping[str, Any]) -> Pillar:
+        return Pillar(x=d["center"][0], y=d["center"][1], radius=d["radius"])
+
+
+@dataclass
 class Problem:
     room_width: float
     room_height: float
@@ -61,6 +73,7 @@ class Problem:
             stage_bottom_left=(d["stage_bottom_left"][0], d["stage_bottom_left"][1]),
             musicians=d["musicians"],
             attendees=[Attendee.parse(a) for a in d["attendees"]],
+            pillars=[Pillar.parse(p) for p in d["pillars"]],
             musician_placements=[Placement.parse(a) for a in d2["placements"]],
         )
 
