@@ -7,10 +7,11 @@
 #include <bits/stdc++.h>
 
 // #include <atcoder/all>
-// #include <atcoder/maxflow>
 
 using namespace std;
 // using namespace atcoder;
+
+// #define _GLIBCXX_DEBUG
 
 #define DEBUG(x) cerr << #x << ": " << x << endl;
 #define DEBUG_VEC(v)                                        \
@@ -27,7 +28,7 @@ using namespace std;
         cerr << endl;                               \
     }
 typedef long long ll;
-#define int ll
+// #define int ll
 
 #define vi vector<int>
 #define vl vector<ll>
@@ -89,8 +90,8 @@ const long double pi = 3.1415926535897932384626433832795028841971L;
 int popcount(ll t) { return __builtin_popcountll(t); }
 // int dx[4] = {1, 0, -1, 0}, dy[4] = {0, 1, 0, -1};
 // int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
-vi dx = {0, 1, 0, -1}, dy = {-1, 0, 1, 0};
-// vi dx2 = { 1,1,0,-1,-1,-1,0,1 }, dy2 = { 0,1,1,1,0,-1,-1,-1 };
+vi dx = {0, 0, -1, 1}, dy = {-1, 1, 0, 0};
+vi dx2 = {1, 1, 0, -1, -1, -1, 0, 1}, dy2 = {0, 1, 1, 1, 0, -1, -1, -1};
 struct Setup_io {
     Setup_io() {
         ios_base::sync_with_stdio(0), cin.tie(0), cout.tie(0);
@@ -102,95 +103,95 @@ const ll MOD = 998244353;
 // #define mp make_pair
 //#define endl '\n'
 
-const int MAXN = 555555;
+vi can;
+using lll = __int128_t;
 
-vl fact(MAXN);
-vl rfact(MAXN);
+bool check(vi a) {
 
-ll mod_pow(ll x, ll p, ll M = MOD) {
-    if (p < 0) {
-        x = mod_pow(x, M - 2, M);
-        p = -p;
+    lll bo = 1;
+    rep(i, a.size()) {
+        bo *= a[i];
     }
-    x %= M;
-    ll a = 1;
-    while (p) {
-        if (p % 2)
-            a = a * x % M;
-        x = x * x % M;
-        p /= 2;
+
+    lll s = 0;
+    rep(i, a.size()) {
+        s += bo / a[i];
     }
-    return a;
+    return s == bo;
 }
 
-ll mod_inverse(ll a, ll M = MOD) {
-    return mod_pow(a, M - 2, M);
+constexpr int N = 68;
+vi par(N);
+
+bool dfs(vi &a, int n, double s, vi &used) {
+    if (s > 1.1) {
+        return false;
+    }
+
+    if (n == 0) {
+        // double s = 0;
+        // rep(i, a.size()) {
+        //     s += 1.0 / a[i];
+        // }
+        // DEBUG(s);
+        if (check(a)) {
+            rep(i, a.size()) {
+                cout << a[i] << ", ";
+            }
+            cout << endl;
+            // DEBUG_VEC(a);
+            return true;
+        }
+        return false;
+    }
+
+    int pre = 1;
+    if (a.size() > 0) {
+        pre = a.back();
+    }
+    for (int x = pre + 2; x < 68; x += 2) {
+        // for (int x = pre + 1; x < 60; x++) {
+        // if (used[par[x]]) {
+        //     continue;
+        // }
+        a.push_back(x);
+        double ns = s + 1.0 / x;
+        // used[par[x]] = true;
+        bool ret = dfs(a, n - 1, ns, used);
+        if (ret) {
+            return true;
+        }
+        // used[par[x]] = false;
+        a.pop_back();
+    }
+    return false;
 }
 
-void set_fact(ll n, ll M = MOD) {
-    fact[0] = 1;
-    for (ll i = 1; i <= n; i++) {
-        fact[i] = i * fact[i - 1] % M;
-    }
-    rfact[n] = mod_inverse(fact[n], M);
-    for (ll i = n - 1; i >= 0; i--) {
-        rfact[i] = (i + 1) * rfact[i + 1] % M;
-    }
-}
-
-//http://drken1215.hatenablog.com/entry/2018/06/08/210000
-//n���傫��fact���v�Z�ł��Ȃ��Ƃ��̂ق��̌v�Z���@�ɂ��ď����Ă���
-ll nCr(ll n, ll r, ll M = MOD) {
-    if (r > n) return 0;
-    assert(fact[2] == 2);
-    ll ret = fact[n];
-    if (rfact[r] == 0) {
-        rfact[r] = mod_inverse(fact[r], M);
-    }
-    ret = (ret * rfact[r]) % M;
-    if (rfact[n - r] == 0) {
-        rfact[n - r] = mod_inverse(fact[n - r], M);
-    }
-    ret = (ret * rfact[n - r]) % M;
-    return ret;
-}
-
-ll nHr(ll n, ll r) {
-    return nCr(n + r - 1, r);
+void solve(int n) {
+    vi a;
+    vi used(N);
+    bool ret = dfs(a, n, 0.0, used);
+    DEBUG(ret);
 }
 
 signed main() {
-    int n;
-    cin >> n;
-    vi w(n);
-    rep(i, n) cin >> w[i];
+    for (int n = 3; n <= 43; n += 2) {
+        solve(n);
+    }
 
-    set_fact(n + 10);
-
-    int W = 10010;
-    vll dp(n + 1, vl(2 * W));
-    dp[0][W] = 1;
-
-    vll ndp(n + 1, vl(2 * W));
-    rep(i, n) {
-        rep(j, n + 1) rep(k, 2 * W) ndp[j][k] = 0;
-        int x = w[i];
-
-        rep(l, n) {
-            rep(j, 2 * W) {
-                if (dp[l][j] == 0) continue;
-
-                (ndp[l][j - x] += dp[l][j]) %= MOD;
-                (ndp[l + 1][j + x] += dp[l][j]) %= MOD;
-            }
+    for (int x = 1; x < N; x++) {
+        int y = x;
+        while (y % 2 == 0) {
+            y /= 2;
         }
-        swap(dp, ndp);
+        par[x] = y;
     }
 
-    ll ans = 0;
-    rep(i, n + 1) {
-        // DEBUG(pii(i, dp[i][W]));
-        ans += fact[i] * fact[n - i] % MOD * dp[i][W] % MOD;
+    int t = 1;
+    cin >> t;
+    while (t--) {
+        int n;
+        cin >> n;
+        solve(n);
     }
-    cout << ans % MOD << endl;
 }

@@ -81,7 +81,7 @@ ll nHr(ll n, ll r) {
 
 // M は素数である
 // M が小さい時に有効（r >= M のとき通常の方はゼロ除算が発生する）
-ll nCr_lucas(ll n, ll r, ll M = MOD) {
+ll nCr_lucas(ll n, ll r, ll M) {
     vi np, rp;
     while (n > 0 or r > 0) {
         np.push_back(n % M);
