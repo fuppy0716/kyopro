@@ -1,12 +1,12 @@
 
 class CentroidDecomposition {
   public:
-    int n;               //���_��
-    vii G;               //�O���t�̗אڃ��X�g�\��
-    vector<bool> isused; //���̒��_�����łɕ����Ɏg���Ă��邩
-    vi subtreesize;      //�����؂̃T�C�Y,�X�V�����
+    int n;               // ���_��
+    vii G;               // �O���t�̗אڃ��X�g�\��
+    vector<bool> isused; // ���̒��_�����łɕ����Ɏg���Ă��邩
+    vi subtreesize;      // �����؂̃T�C�Y,�X�V�����
     vi parent;
-    vi centroid; //�d�S�����ɒǉ�����Ă���
+    vi centroid; // �d�S�����ɒǉ�����Ă���
     vector<char> ans;
 
     CentroidDecomposition(int n) : n(n) {
@@ -43,7 +43,7 @@ class CentroidDecomposition {
         return subtreesize[now];
     }
 
-    //���ɂ���ĕς��
+    // ���ɂ���ĕς��
     void solve(int root, char c, int size) {
         search_centroid(root, -1, size);
         int cent = centroid.back();
@@ -64,16 +64,16 @@ class CentroidDecomposition {
     }
 };
 
-//���_�ɒl���ڂ��Ă��鎞
-//https://yukicoder.me/submissions/410940
-//�ӂɒl���ڂ��Ă��鎞
-//https://yukicoder.me/submissions/410947
-//https://atcoder.jp/contests/abc133/submissions/9120584
-//���_�ɒl���ڂ��Ă��鎞�C�����؃N�G��
-//https://atcoder.jp/contests/iroha2019-day2/submissions/9039015
-//http://beet-aizu.hatenablog.com/entry/2017/12/12/235950
-// move
-// https://judge.yosupo.jp/submission/97270
+// ���_�ɒl���ڂ��Ă��鎞
+// https://yukicoder.me/submissions/410940
+// �ӂɒl���ڂ��Ă��鎞
+// https://yukicoder.me/submissions/410947
+// https://atcoder.jp/contests/abc133/submissions/9120584
+// ���_�ɒl���ڂ��Ă��鎞�C�����؃N�G��
+// https://atcoder.jp/contests/iroha2019-day2/submissions/9039015
+// http://beet-aizu.hatenablog.com/entry/2017/12/12/235950
+//  move
+//  https://judge.yosupo.jp/submission/97270
 class HLD {
   private:
     void dfs_sz(int v) {
@@ -211,8 +211,8 @@ class HLD {
     }
 };
 
-//���t���؂̃n�b�V��
-//�؂̓��^����Ɏg��
+// ���t���؂̃n�b�V��
+// �؂̓��^����Ɏg��
 #include <random>
 vl rand1(100010);
 vl rand2(100010);
@@ -260,6 +260,31 @@ pair<int, pii> diameter(vii G) {
 
     ma = pii(-1, -1);
     rep(i, n) chmax(ma, pii(dist[i], i));
+    int v = ma.second;
+    return make_pair(ma.first, pii(u, v));
+}
+
+// 直径、（端点1, 端点2）
+pair<ll, pii> diameter(vector<vector<pll>> G) {
+    // vector<vector<pair<Cost, To>>> G
+    int n = G.size();
+    vl dist(n);
+    function<void(int, int, ll, vector<vector<pll>> &, vl &)> dfs = [&dfs](int now, int par, ll d, vector<vector<pll>> &G, vl &dist) {
+        dist[now] = d;
+        for (auto [cost, ch] : G[now]) {
+            if (ch == par) continue;
+            dfs(ch, now, d + cost, G, dist);
+        }
+    };
+    dfs(0, -1, 0, G, dist);
+    pll ma(-1, -1);
+    rep(i, n) chmax(ma, pll(dist[i], i));
+    int u = ma.second;
+
+    dfs(u, -1, 0, G, dist);
+
+    ma = pll(-1, -1);
+    rep(i, n) chmax(ma, pll(dist[i], i));
     int v = ma.second;
     return make_pair(ma.first, pii(u, v));
 }
