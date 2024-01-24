@@ -21,10 +21,10 @@ int dx[4] = {1, 0, -1, 0}, dy[4] = {0, 1, 0, -1};
 
 class UnionFind {
   private:
-    vi par_;      //�e
-    vi ran_;      //�؂̐[��
-    vi num_;      //�v�f��
-    vi edge_num_; //�v�f��
+    vi par_;      // �e
+    vi ran_;      // �؂̐[��
+    vi num_;      // �v�f��
+    vi edge_num_; // �v�f��
   public:
     int n;
     int g; // group��
@@ -44,7 +44,7 @@ class UnionFind {
         }
     }
 
-    //�؂̍������߂�
+    // �؂̍������߂�
     int find(int x) {
         if (par_[x] == x) {
             return x;
@@ -53,7 +53,7 @@ class UnionFind {
         }
     }
 
-    //x��y�̑�����W���𕹍�
+    // x��y�̑�����W���𕹍�
     void unite(int x, int y) {
         x = find(x);
         y = find(y);
@@ -76,7 +76,7 @@ class UnionFind {
         g--;
     }
 
-    //x��y�������W���ɑ����邩�ۂ�
+    // x��y�������W���ɑ����邩�ۂ�
     bool same(int x, int y) {
         return find(x) == find(y);
     }
@@ -90,14 +90,15 @@ class UnionFind {
     }
 };
 
-//�����i��UF
+// 部分永続 UnionFind ?
+// https://ei1333.github.io/luzhiled/snippets/structure/union-find.html ?
 class PermanenceUF {
   public:
     int n;
-    vi par;                  //�e
-    vi ran;                  //�؂̐[��
-    vector<vector<pll>> num; //�v�f��
-    vl time;                 //�؂��X�V���ꂽ���̎���
+    vi par;
+    vi ran;
+    vector<vector<pll>> num;
+    vl time;
 
     PermanenceUF(int _n) {
         n = _n;
@@ -113,7 +114,6 @@ class PermanenceUF {
         }
     }
 
-    //����t�̎��̖؂̍������߂�
     int find(ll t, int x) {
         if (time[x] > t)
             return x;
@@ -121,8 +121,6 @@ class PermanenceUF {
             return find(t, par[x]);
     }
 
-    //����t��x��y�̑�����W���𕹍�
-    //t�͒P���������Ă���
     void unite(ll t, int x, int y) {
         x = find(t, x);
         y = find(t, y);
@@ -141,12 +139,10 @@ class PermanenceUF {
         }
     }
 
-    //����t��x��y�������W���ɑ����邩�ۂ�
     bool same(ll t, int x, int y) {
         return find(t, x) == find(t, y);
     }
 
-    //����t�̎��̗v�fx���܂ޏW���̃T�C�Y
     int size(ll t, int x) {
         int root = find(t, x);
         int left = 0, right = num[root].size();
@@ -162,11 +158,11 @@ class PermanenceUF {
     }
 };
 
-//��������̂��̂ɗL��(�N��A�g���Ȃ�)
+// ��������̂��̂ɗL��(�N��A�g���Ȃ�)
 class WeightedUF {
   public:
     vi par, ran, num;
-    vl diff_weight; //�e�m�[�h(���m�[�h�ł͂Ȃ�)�Ƃ̒l�̍���
+    vl diff_weight; // �e�m�[�h(���m�[�h�ł͂Ȃ�)�Ƃ̒l�̍���
 
     WeightedUF(int n) {
         par.resize(n);
@@ -181,7 +177,7 @@ class WeightedUF {
         }
     }
 
-    //�؂̍������߂�
+    // �؂̍������߂�
     int find(int x) {
         if (par[x] == x) {
             return x;
@@ -193,11 +189,11 @@ class WeightedUF {
     }
 
     ll weight(int x) {
-        find(x); //�o�H���k
+        find(x); // �o�H���k
         return diff_weight[x];
     }
 
-    //x����݂�y�̏d��
+    // x����݂�y�̏d��
     ll diff(int x, int y) {
         if (!same(x, y)) {
             return -INF;
@@ -206,7 +202,7 @@ class WeightedUF {
         }
     }
 
-    //x����݂�y�̏d�݂�w�ɂȂ�悤�ɕ���
+    // x����݂�y�̏d�݂�w�ɂȂ�悤�ɕ���
     bool unite(int x, int y, ll w) {
         w += weight(x);
         w -= weight(y);
@@ -233,7 +229,7 @@ class WeightedUF {
         return true;
     }
 
-    //x��y�������W���ɑ����邩�ۂ�
+    // x��y�������W���ɑ����邩�ۂ�
     bool same(int x, int y) {
         return find(x) == find(y);
     }

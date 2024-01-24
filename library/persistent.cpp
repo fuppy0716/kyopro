@@ -19,6 +19,26 @@ struct PersistentArray {
         roots.push_back(new Node());
     }
 
+    PersistentArray(vector<T> v) {
+        roots.push_back(new Node());
+        for (int i = 0; i < (int)v.size(); i++) {
+            set_without_copy(i, v[i], roots[0]);
+        }
+    }
+
+    Node *set_without_copy(int i, T x, Node *node) {
+        // 初期化処理以外で使うとバグる可能性が高いことに注意
+        if (!node) node = new Node();
+
+        if (i == 0) {
+            node->data = x;
+        } else {
+            int ni = i % B;
+            node->ch[ni] = set_without_copy(i / B, x, node->ch[ni]);
+        }
+        return node;
+    }
+
     void set(int time, int i, T x) {
         // time 個目の変更操作を行った後の配列に対して、i 番目の要素を x にする。
         roots.push_back(set(i, x, roots[time]));
@@ -96,5 +116,64 @@ struct PersistentQueue {
         front_idx.push_back(front_idx[time] + 1);
         back_idx.push_back(back_idx[time]);
         return ret;
+    }
+};
+
+class PersistentUnionFind {
+  private:
+    // i 個目の変更操作を行った後の配列自体を格納する。
+    PersistentArray<int> par_;
+    PersistentArray<int> ran_;
+
+  public:
+    int n;
+
+    PersistentUnionFind(int _n) {
+        n = _n;
+        vi par_ini(n), ran_ini(n);
+        for (int i = 0; i < n; i++) {
+            par_ini[i] = i;
+        }
+        par_ = PersistentArray<int>(par_ini);
+        ran_ = PersistentArray<int>(ran_ini);
+    }
+
+    int find(int time, int x) {
+        // time 個目の変更操作を行った後の配列に対して、x の根を求める。
+        if (par_.get(time, x) == x) {
+            return x;
+        } else {
+            // 縮約は行なっていない
+            return find(time, par_.get(time, x));
+        }
+    }
+
+    void unite(int time, int x, int y) {
+        // time 個目の変更操作を行なった後の配列に対して、x と y を併合する（変更操作）
+        x = find(time, x);
+        y = find(time, y);
+        if (x == y) {
+            par_.copy(time);
+            ran_.copy(time);
+            return;
+        }
+
+        int ran_x = ran_.get(time, x), ran_y = ran_.get(time, y);
+        if (ran_x < ran_y) {
+            par_.set(time, x, y);
+            ran_.copy(time);
+        } else {
+            par_.set(time, y, x);
+            if (ran_x == ran_y) {
+                ran_.set(time, x, ran_x + 1);
+            } else {
+                ran_.copy(time);
+            }
+        }
+    }
+
+    bool same(int time, int x, int y) {
+        // time 個目の変更操作を行った後の配列に対して、x と y が同じグループに属するかどうかを判定する。
+        return find(time, x) == find(time, y);
     }
 };
