@@ -2,55 +2,58 @@
 #include <unordered_set>
 using namespace std;
 
-#define DEBUG(x) cout<<#x<<": "<<x<<endl;
-#define DEBUG_VEC(v) cout<<#v<<":";for(int i=0;i<v.size();i++) cout<<" "<<v[i]; cout<<endl
+#define DEBUG(x) cout << #x << ": " << x << endl;
+#define DEBUG_VEC(v)                   \
+    cout << #v << ":";                 \
+    for (int i = 0; i < v.size(); i++) \
+        cout << " " << v[i];           \
+    cout << endl
 
 typedef long long ll;
 #define vi vector<int>
 #define vl vector<ll>
-#define vii vector< vector<int> >
-#define vll vector< vector<ll> >
+#define vii vector<vector<int>>
+#define vll vector<vector<ll>>
 #define vs vector<string>
-#define pii pair<int,int>
-#define pis pair<int,string>
-#define psi pair<string,int>
+#define pii pair<int, int>
+#define pis pair<int, string>
+#define psi pair<string, int>
 const int inf = 1000000001;
 const ll INF = 1e16;
 #define MOD 1000000007
 #define mod 1000000009
 #define pi 3.14159265358979323846
-#define Sp(p) cout<<setprecision(15)<<fixed<<p<<endl;
-int dx[4] = { 1,0,-1,0 }, dy[4] = { 0,1,0,-1 };
-int dx2[8] = { 1,1,0,-1,-1,-1,0,1 }, dy2[8] = { 0,1,1,1,0,-1,-1,-1 };
+#define Sp(p) cout << setprecision(15) << fixed << p << endl;
+int dx[4] = {1, 0, -1, 0}, dy[4] = {0, 1, 0, -1};
+int dx2[8] = {1, 1, 0, -1, -1, -1, 0, 1}, dy2[8] = {0, 1, 1, 1, 0, -1, -1, -1};
 
 ll gcd(ll a, ll b) {
-  if (b > a) {
-    swap(a, b);
-  }
-  if (b == 0) return a;
-  ll r = a%b;
-  while (r != 0) {
-    a = b;
-    b = r;
-    r = a%b;
-  }
-  return b;
+    if (b > a) {
+        swap(a, b);
+    }
+    if (b == 0) return a;
+    ll r = a % b;
+    while (r != 0) {
+        a = b;
+        b = r;
+        r = a % b;
+    }
+    return b;
 }
 
 ll lcm(ll a, ll b) {
-  return (a / gcd(a, b))*b;
+    return (a / gcd(a, b)) * b;
 }
 
-
-//ax + by = gcd(a, b) gcd > 0 は保証
-ll extgcd(ll a, ll b, ll& x, ll& y, bool first_call=true) {
+// ax + by = gcd(a, b) gcd > 0 は保証
+ll extgcd(ll a, ll b, ll &x, ll &y, bool first_call = true) {
     ll d = a;
     if (b != 0) {
-        d = extgcd(b, a%b, y, x, false);
-        y -= (a / b)*x;
-    }
-    else {
-        x = 1; y = 0;
+        d = extgcd(b, a % b, y, x, false);
+        y -= (a / b) * x;
+    } else {
+        x = 1;
+        y = 0;
     }
     if (first_call and d < 0) {
         d *= -1;
@@ -61,24 +64,29 @@ ll extgcd(ll a, ll b, ll& x, ll& y, bool first_call=true) {
 }
 
 // ax - by = c, a > 0, b > 0 において，x >= 0, y >= 0 を満たし，yがminとなる組み合わせ
-bool min_extgcd(ll a, ll b, ll c, ll& x, ll& y) {
+bool min_extgcd(ll a, ll b, ll c, ll &x, ll &y) {
     assert(a > 0 and b > 0);
 
     ll g = extgcd(a, -b, x, y);
     if (c % g != 0) return false;
 
     ll mul = c / g;
-    x *= mul; y *= mul;
+    x *= mul;
+    y *= mul;
     assert(a * x - b * y == c);
     if (x < 0 or y < 0) {
         ll mul = 0;
         if (x < 0) {
-            if (x % (b / g) == 0) chmax(mul, (-x) / (b / g));
-            else chmax(mul, (-x) / (b / g) + 1);
+            if (x % (b / g) == 0)
+                chmax(mul, (-x) / (b / g));
+            else
+                chmax(mul, (-x) / (b / g) + 1);
         }
         if (y < 0) {
-            if (y % (a / g) == 0) chmax(mul, (-y) / (a / g));
-            else chmax(mul, (-y) / (a / g) + 1);
+            if (y % (a / g) == 0)
+                chmax(mul, (-y) / (a / g));
+            else
+                chmax(mul, (-y) / (a / g) + 1);
         }
         x += mul * (b / g);
         y += mul * (a / g);
@@ -93,82 +101,78 @@ bool min_extgcd(ll a, ll b, ll c, ll& x, ll& y) {
     return true;
 }
 
-
-
-//������]�藝
-//mod�̐ς��������Ƃ��I�[�o�[�t���[����B
-//am[i].first:a_i, am[i].second:m_i
-//return (x, y) y = lcm(m1, m2, ..., m_n),  x%m_i = a_i
+// ������]�藝
+// mod�̐ς��������Ƃ��I�[�o�[�t���[����B
+// am[i].first:a_i, am[i].second:m_i
+// return (x, y) y = lcm(m1, m2, ..., m_n),  x%m_i = a_i
 typedef __int128 lll;
 pll crt(vector<pll> am) {
-  rep(i, am.size() - 1) {
-    ll g, x, y, z;
-    am[i].first = (am[i].first % am[i].second + am[i].second) % am[i].second;
-    am[i + 1].first = (am[i + 1].first % am[i + 1].second + am[i + 1].second) % am[i + 1].second;
-    g = extgcd(am[i].second, am[i + 1].second, x, y);
-    if (am[i].first%g != am[i].second%g) return pll(-1, 0); //���Ȃ�
-    lll lcm = (lll)am[i].second*(am[i + 1].second / g);
-    if (lcm < am[i].second) return pll(-2, 0); //�I�[�o�[�t���[
-    ll mo = am[i + 1].second = lcm;
-    lll v = am[i].first + ((lll)(am[i].second / g) * x % mo * (am[i + 1].first - am[i].first + mo) % mo);
-    am[i + 1].first = (v%mo + mo) % mo;
-  }
-  return am.back();
+    rep(i, am.size() - 1) {
+        ll g, x, y, z;
+        am[i].first = (am[i].first % am[i].second + am[i].second) % am[i].second;
+        am[i + 1].first = (am[i + 1].first % am[i + 1].second + am[i + 1].second) % am[i + 1].second;
+        g = extgcd(am[i].second, am[i + 1].second, x, y);
+        if (am[i].first % g != am[i].second % g) return pll(-1, 0); // ���Ȃ�
+        lll lcm = (lll)am[i].second * (am[i + 1].second / g);
+        if (lcm < am[i].second) return pll(-2, 0); // �I�[�o�[�t���[
+        ll mo = am[i + 1].second = lcm;
+        lll v = am[i].first + ((lll)(am[i].second / g) * x % mo * (am[i + 1].first - am[i].first + mo) % mo);
+        am[i + 1].first = (v % mo + mo) % mo;
+    }
+    return am.back();
 }
 
 void prime(vector<bool> &isprime /*, vll &soinsu */) {
-  ll i, j;
-  assert(isprime[0]);
-  isprime[0] = isprime[1] = false;
-  for (i = 2; i < isprime.size(); i++) {
-    if (isprime[i]) {
-      // soinsu[i].push_back(i);
-      for (j = 2; i*j < isprime.size(); j++) {
-        isprime[i*j] = false;
-        /*
-          soinsu[i * j].push_back(i);
-          int temp = i * j;
-          while (temp % i == 0) {
-          temp /= i;
-          }
-        */
-      }
+    ll i, j;
+    assert(isprime[0]);
+    isprime[0] = isprime[1] = false;
+    for (i = 2; i < isprime.size(); i++) {
+        if (isprime[i]) {
+            // soinsu[i].push_back(i);
+            for (j = 2; i * j < isprime.size(); j++) {
+                isprime[i * j] = false;
+                /*
+                  soinsu[i * j].push_back(i);
+                  int temp = i * j;
+                  while (temp % i == 0) {
+                  temp /= i;
+                  }
+                */
+            }
+        }
     }
-  }
 }
 
-//n�ȉ���n�ƌ݂��ɑf�Ȏ��R���̌�
-//O(sqrt(n))
+// n�ȉ���n�ƌ݂��ɑf�Ȏ��R���̌�
+// O(sqrt(n))
 int eulerSingle(int n) {
-  int res = n;
-  for (int i = 2; i*i <= n; i++) {
-    if (n%i == 0) {
-      res = res / i * (i - 1);
-      for (; n%i == 0; n /= i);
+    int res = n;
+    for (int i = 2; i * i <= n; i++) {
+        if (n % i == 0) {
+            res = res / i * (i - 1);
+            for (; n % i == 0; n /= i)
+                ;
+        }
     }
-  }
-  if (n != 1) res = res / n * (n - 1);
-  return res;
+    if (n != 1) res = res / n * (n - 1);
+    return res;
 }
 
-
-//�I�C���[�֐��̒l�̃e�[�u��
-//O(n)
+// �I�C���[�֐��̒l�̃e�[�u��
+// O(n)
 vl euler(n + 1);
 void eulerTable(int n) {
-  for (i = 0; i <= n; i++) {
-    euler[i] = i;
-  }
-  for (i = 2; i <= n; i++) {
-    if (euler[i] == i) {
-      for (j = i; j <= n; j += i) {
-        euler[j] = euler[j] / i * (i - 1);
-      }
+    for (i = 0; i <= n; i++) {
+        euler[i] = i;
     }
-  }
+    for (i = 2; i <= n; i++) {
+        if (euler[i] == i) {
+            for (j = i; j <= n; j += i) {
+                euler[j] = euler[j] / i * (i - 1);
+            }
+        }
+    }
 }
-
-
 
 // Miller Rubin
 using u32 = unsigned int;
@@ -209,8 +213,7 @@ bool is_prime(const u128 &n) {
         constexpr u64 witness[] = {2, 7, 61, 0};
         auto modmul = [&](u64 a, u64 b) { return a * b % n; };
         return is_prime_impl<u64>(n, witness, modmul);
-    } 
-    else {
+    } else {
         // n < 2^63
         constexpr u128 witness[] = {2, 325, 9375, 28178, 450775, 9780504, 1795265022, 0};
         // if u128 is available

@@ -51,15 +51,17 @@ ll mod_inverse(ll a, ll M = MOD) {
 }
 
 void set_fact(ll n, ll M = MOD) {
-    fact[0] = fact[1] = rfact[0] = rfact[1] = 1;
-    for (ll i = 2; i <= n; i++) {
+    fact[0] = 1;
+    for (ll i = 1; i <= n; i++) {
         fact[i] = i * fact[i - 1] % M;
-        // rfact[i] = mod_inverse(fact[i], M);
+    }
+    rfact[n] = mod_inverse(fact[n], M);
+    for (ll i = n - 1; i >= 0; i--) {
+        rfact[i] = (i + 1) * rfact[i + 1] % M;
     }
 }
 
-//http://drken1215.hatenablog.com/entry/2018/06/08/210000
-//n���傫��fact���v�Z�ł��Ȃ��Ƃ��̂ق��̌v�Z���@�ɂ��ď����Ă���
+// http://drken1215.hatenablog.com/entry/2018/06/08/210000
 ll nCr(ll n, ll r, ll M = MOD) {
     if (r > n) return 0;
     assert(fact[2] == 2);
@@ -91,11 +93,145 @@ ll nCr_lucas(ll n, ll r, ll M) {
     }
     ll ans = 1;
     rep(i, np.size()) {
-        ans *= nCr(np[i], rp[i]);
+        ans *= nCr(np[i], rp[i], M);
         ans %= M;
     }
     return ans;
 }
+
+// 前計算 O(m) くらい
+// クエリ O(log n) くらい
+struct BinomialPrimePow {
+    int p, q;
+    int m;
+    vl ppow;
+    vl fact_except_p, fact_except_p_inv;
+    BinomialPrimePow() {}
+    BinomialPrimePow(int p, int q) : p(p), q(q) {
+        m = 1;
+        ppow.push_back(1);
+        rep(_, q) {
+            m *= p;
+            ppow.push_back(m);
+        }
+
+        fact_except_p.resize(m);
+        fact_except_p[0] = 1;
+        for (int i = 1; i < m; i++) {
+            fact_except_p[i] = fact_except_p[i - 1];
+            if (i % p != 0) {
+                fact_except_p[i] *= i;
+                fact_except_p[i] %= m;
+            }
+        }
+
+        fact_except_p_inv.resize(m);
+        // ax + My = 1 のとき mod M で x は a の逆元
+        ll temp;
+        extgcd(fact_except_p[m - 1], m, fact_except_p_inv[m - 1], temp);
+        fact_except_p_inv[m - 1] = (fact_except_p_inv[m - 1] % m + m) % m;
+        assert(fact_except_p[m - 1] * fact_except_p_inv[m - 1] % m == 1);
+
+        for (int i = m - 2; i >= 0; i--) {
+            fact_except_p_inv[i] = fact_except_p_inv[i + 1];
+            if ((i + 1) % p != 0) {
+                fact_except_p_inv[i] *= i + 1;
+                fact_except_p_inv[i] %= m;
+            }
+        }
+    }
+
+    ll nCk(ll n, ll k) {
+        // nCk mod p^q を求める
+        if (n < k or k < 0) return 0;
+        ll r = n - k;
+
+        if (p == 2 and q == 1) return !((~n) & r);
+
+        ll e0 = ej(n / p) - ej(k / p) - ej(r / p);
+        if (e0 >= q) return 0;
+
+        ll ret = ppow[e0];
+        if ((p > 2 or q < 3) and (ej(n / m) - ej(r / m) - ej(k / m)) & 1) {
+            ret = m - ret;
+        }
+
+        while (n > 0) {
+            int N = n % m, K = k % m, R = r % m;
+            ret = __int128_t(ret) * fact_except_p[N] * fact_except_p_inv[K] * fact_except_p_inv[R] % m;
+
+            n /= p;
+            k /= p;
+            r /= p;
+        }
+
+        return (ret + m) % m;
+    }
+
+  private:
+    // ax + by = gcd(a, b) gcd > 0 は保証
+    ll extgcd(ll a, ll b, ll &x, ll &y, bool first_call = true) {
+        ll d = a;
+        if (b != 0) {
+            d = extgcd(b, a % b, y, x, false);
+            y -= (a / b) * x;
+        } else {
+            x = 1;
+            y = 0;
+        }
+        if (first_call and d < 0) {
+            d *= -1;
+            x *= -1;
+            y *= -1;
+        }
+        return d;
+    }
+
+    long long ej(long long n) const {
+        long long ret = 0;
+        while (n)
+            ret += n, n /= p;
+        return ret;
+    }
+};
+
+// 前計算 O(m) くらい
+// クエリあたり O(log n log m) くらい
+// verify: https://judge.yosupo.jp/submission/187937
+struct BinomialCoefficient {
+    // https://ferin-tech.hatenablog.com/entry/2018/01/17/010829
+    vector<BinomialPrimePow> bpps;
+
+    BinomialCoefficient(int m) {
+        for (int p = 2; p * p <= m; p++) {
+            int q = 0;
+            while (m % p == 0) {
+                m /= p;
+                q++;
+            }
+            if (q > 0) {
+                bpps.emplace_back(p, q);
+            }
+        }
+        if (m > 1) {
+            bpps.emplace_back(m, 1);
+        }
+    }
+
+    ll nCk(ll n, ll k) {
+        // nCk mod m を求める
+        if (n < k) return 0;
+        vl rets;
+        vl ms;
+        for (int i = 0; i < bpps.size(); i++) {
+            rets.push_back(bpps[i].nCk(n, k));
+            ms.push_back(bpps[i].m);
+        }
+
+        auto [ans, _] = atcoder::crt(rets, ms);
+        return ans;
+    }
+};
 
 // ����X�^�[�����O��
 // �݂��ɋ�ʂł���n�̂��̂���ʂ̂Ȃ�k�̃O���[�v�ɕ�����Ƃ�,���̕�������secondStirling[n][k]
