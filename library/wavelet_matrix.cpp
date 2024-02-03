@@ -127,7 +127,7 @@ struct WaveletMatrix {
             zero_sums[i].assign(n + 1, 0);
             one_sums[i].assign(n + 1, 0);
 
-            ll mask = 1 << (bit_size - i - 1);
+            ll mask = 1LL << (bit_size - i - 1);
             rep(j, n) {
                 if (a[j] & mask) {
                     mat[i].set_bit(j);
