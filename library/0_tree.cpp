@@ -122,6 +122,11 @@ class HLD {
         }
     }
 
+    bool is_subtree(int c, int p) {
+        // c が p の部分木に含まれるか
+        return vid[c] >= vid[p] && vid[c] < vid[p] + sub[p];
+    }
+
     int lca(int u, int v) {
         while (1) {
             if (vid[u] > vid[v]) swap(u, v);
