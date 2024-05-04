@@ -1,4 +1,3 @@
-
 struct WordSizeTree {
     // https://judge.yosupo.jp/submission/205544
     using ull = unsigned long long;
@@ -7,10 +6,11 @@ struct WordSizeTree {
 
     ull low_mask = (1 << B) - 1;
 
+    int n;
     vector<vector<ull>> exists;
     int height;
 
-    WordSizeTree(int n) {
+    WordSizeTree(int n) : n(n) {
         // [0, n) を扱う
 
         height = 1;
@@ -52,7 +52,7 @@ struct WordSizeTree {
         return (exists[height - 1][x >> B] >> (x & low_mask)) & 1;
     }
 
-    int get_min(int x) {
+    int get_no_less_than(int x) {
         // x 以上の最小の要素を返す
         int d = height - 1, i = x;
         // 深さ d で i 以上の最小を探す
@@ -84,7 +84,7 @@ struct WordSizeTree {
         return i;
     }
 
-    int get_max(int x) {
+    int get_no_more_than(int x) {
         // x 以下の最大値の要素を返す
         int d = height - 1, i = x;
         // 深さ d で i 以下の最大を探す
@@ -115,6 +115,14 @@ struct WordSizeTree {
             i += low_mask;
         }
         return i;
+    }
+
+    int get_min() {
+        return get_no_less_than(0);
+    }
+
+    int get_max() {
+        return get_no_more_than(n - 1);
     }
 
   private:
