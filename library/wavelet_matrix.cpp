@@ -99,6 +99,7 @@ struct SuccinctBitVector {
 // verify
 // rank: https://judge.yosupo.jp/submission/186705
 // rank: https://judge.yosupo.jp/submission/186711
+// rank: https://atcoder.jp/contests/abc324/submissions/53245457
 // quantile: https://judge.yosupo.jp/submission/186735
 template <int bit_size>
 struct WaveletMatrix {
@@ -175,7 +176,7 @@ struct WaveletMatrix {
     }
 
     tuple<ll, ll, ll> rank(int l, int r, ll x) {
-        // [l, r) の中の x 未満の個数、x の個数、x 以上の重みの和を返す。
+        // [l, r) の中の x 未満、x、x より大きい要素の重みの和を返す。
         // 重みを指定していない時は要素の個数と同等である。
         ll small = 0, just = 0, large = 0;
 
@@ -203,6 +204,20 @@ struct WaveletMatrix {
             r = nr;
         }
         return make_tuple(small, just, large);
+    }
+
+    ll rank(int l, int r, int a, int b) {
+        // [l, r) 内の a 以上 b 未満の個数を返す
+        if (l >= r) {
+            return 0;
+        }
+        if (a >= b) {
+            return 0;
+        }
+        // [l, r) の中の a 以上 b 未満の個数を返す
+        auto [small_a, just_a, large_a] = rank(l, r, a);
+        auto [small_b, just_b, large_b] = rank(l, r, b);
+        return small_b - small_a;
     }
 
     ll quantile(int l, int r, int k) {

@@ -119,6 +119,7 @@ struct PersistentQueue {
     }
 };
 
+// https://judge.yosupo.jp/submission/185917
 class PersistentUnionFind {
   private:
     // i 個目の変更操作を行った後の配列自体を格納する。
