@@ -66,7 +66,7 @@ bool chmin(T &a, const T &b) {
 const ll inf = 1000000001;
 const ll INF = (ll)1e18 + 1;
 const ll MOD = 1000000007;
-//const ll MOD = 998244353;
+// const ll MOD = 998244353;
 const double pi = 3.14159265358979323846;
 #define Sp(p) cout << setprecision(15) << fixed << p << endl;
 int dx[4] = {1, 0, -1, 0}, dy[4] = {0, 1, 0, -1};
@@ -74,10 +74,10 @@ int dx2[8] = {1, 1, 0, -1, -1, -1, 0, 1}, dy2[8] = {0, 1, 1, 1, 0, -1, -1, -1};
 #define fio()   \
     cin.tie(0); \
     ios::sync_with_stdio(false);
-//#define mp make_pair
+// #define mp make_pair
 
 #define N 1010
-vii G(N); //グラフの隣接リスト表現
+vii G(N); // グラフの隣接リスト表現
 
 void lowlink_dfs(int now, int par, int k, vector<bool> &used, vi &ord, vi &lowlink, vii &ch) {
     used[now] = true;
@@ -148,6 +148,44 @@ vector<int> kansetsu(int n) {
         }
     }
     return kan;
+}
+
+vi topological_sort(const vii &G) {
+    // トポロジカルソートの一例を返す
+    // res[i]: 順序が i 番目の頂点の番号
+    // ただし、不可能な場合は空の配列を返す
+    int n = G.size();
+    vi in_num(n);
+    rep(i, n) {
+        for (int v : G[i]) {
+            in_num[v]++;
+        }
+    }
+    queue<int> q;
+    rep(i, n) {
+        if (in_num[i] == 0) {
+            q.push(i);
+        }
+    }
+
+    vi res;
+    while (!q.empty()) {
+        int now = q.front();
+        q.pop();
+        res.push_back(now);
+        for (int v : G[now]) {
+            in_num[v]--;
+            if (in_num[v] == 0) {
+                q.push(v);
+            }
+        }
+    }
+
+    if (res.size() == n) {
+        return res;
+    } else {
+        return vi();
+    }
 }
 
 // 辺の削除が O(1) でできる無向グラフ
