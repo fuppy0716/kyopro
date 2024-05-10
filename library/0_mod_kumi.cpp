@@ -99,6 +99,21 @@ ll nCr_lucas(ll n, ll r, ll M) {
     return ans;
 }
 
+// noimi のライブラリ拝借した
+// https://codeforces.com/contest/1942/submission/254160773
+// +1 n 個 -1 m 個で累積和 >= 0
+mint Catalan(int n, int m) { return nCr(n + m, m) - nCr(n + m, m - 1); }
+
+// +1 n 個 -1 m 個で累積和 > -k
+mint Catalan2(int n, int m, int k) {
+    if (m < k) return nCr(n + m, m);
+    if (m < n + k) return nCr(n + m, m) - nCr(n + m, m - k);
+    return 0;
+}
+
+// +1 n 個 -1 m 個で累積和 < +k
+mint Catalan3(int n, int m, int k) { return Catalan2(m, n, k); }
+
 // 前計算 O(m) くらい
 // クエリ O(log n) くらい
 struct BinomialPrimePow {
