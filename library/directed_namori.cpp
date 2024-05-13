@@ -221,6 +221,7 @@ class HLD {
 };
 
 // https://codeforces.com/contest/1967/submission/258981590
+// https://atcoder.jp/contests/abc310/submissions/53444471
 struct DirectedNamori {
     // 頂点 u から頂点 parent[u] に親辺が張られているような Namori グラフを扱う
     // 各連結成分は一つのサイクルと、サイクル上の頂点を根とする木からなる
@@ -233,12 +234,17 @@ struct DirectedNamori {
     vector<int> cycle_ord;   // 各頂点がサイクル上で何番目の頂点か。サイクル内の相対的な距離関係のために使用
     vector<int> cycle_size;  // 各サイクルの大きさ
 
+    vector<int> cycle_vertices;         // サイクル上の頂点のみを格納
+    vector<int> cycle_vertices_inv;     // 各頂点 u が cycle_vertices 上で何番目か、サイクル上にない場合は -1
+    vector<pair<int, int>> cycle_range; // サイクル上の頂点 u に対して、そのサイクルは cycle_vertices 上の [l, r) に載っている。u がサイクル上にない場合は (-1, -1)
+    // サイクル上の頂点に対するセグ木などを持つ想定
+
     vector<vector<int>> forest; // サイクル上の各頂点を根とする木。子への辺のみを持つ
     vector<int> root;           // 各頂点の根
     vector<int> depth;          // 各頂点の深さ。サイクル上の頂点は 0、それ以外は親の深さ + 1
     HLD hld;
 
-    DirectedNamori(vi p) : n(p.size()), parent(p), uf(n), is_in_cycle(n), cycle_ord(n, -1), cycle_size(n), forest(n), root(n), depth(n), hld(n) {
+    DirectedNamori(vi p) : n(p.size()), parent(p), uf(n), is_in_cycle(n), cycle_ord(n, -1), cycle_size(n), cycle_vertices_inv(n, -1), cycle_range(n, {-1, -1}), forest(n), root(n), depth(n), hld(n) {
         rep(u, n) {
             uf.unite(u, p[u]);
         }
@@ -316,6 +322,57 @@ struct DirectedNamori {
         }
     }
 
+    void update_k_vertices(int u, long long k) {
+        // u から 0, 1, ..., k - 1 回親辺に移動して訪れる各頂点（重複あり）について、なんらかの処理を行う
+        // 根を除く木上の頂点については HLD を、サイクル上の頂点については cycle_vertices を使う
+        if (k <= 0) {
+            return;
+        }
+
+        if (!is_in_cycle[u]) {
+            if (k <= depth[u]) {
+                int v = hld.move(u, root[u], k - 1);
+                // [u, v] に対して木上の処理を行う
+                return;
+            } else {
+                int v = hld.move(u, root[u], depth[u] - 1);
+                // [u, v] に対して木上の処理を行う
+                k -= depth[u];
+                u = root[u];
+            }
+        }
+
+        assert(is_in_cycle[u]);
+        auto [l, r] = cycle_range[u];
+        int sz = cycle_size[u];
+        if (k / sz > 0) {
+            // cycle_vertices 上の [l, r) に対して k / sz 回のサイクルの処理を行う
+            k %= sz;
+        }
+        if (k == 0) {
+            return;
+        }
+
+        int now = cycle_vertices_inv[u];
+        if (r - now >= k) {
+            // cycle_vertices 上の [now, now + k) に対してサイクルの処理を行う
+        } else {
+            // cycle_vertices 上の [now, r) に対してサイクルの処理を行う
+            // cycle_vertices 上の [l, l + k - (r - now)) に対してサイクルの処理を行う
+        }
+    }
+
+    void query(int u) {
+        if (is_in_cycle[u]) {
+            // サイクル上の頂点に対するクエリ
+            int now = cycle_vertices_inv[u];
+            return;
+        } else {
+            // 木上の頂点に対するクエリ
+            return;
+        }
+    }
+
   private:
     void dfs_fill_cycle(int u, vector<int> &seen, vector<int> &path) {
         if (seen[u]) {
@@ -326,10 +383,15 @@ struct DirectedNamori {
                     break;
                 }
             }
+            int l = cycle_vertices.size();
             for (int i = start_idx; i < path.size(); i++) {
-                is_in_cycle[path[i]] = true;
-                cycle_ord[path[i]] = i;
-                cycle_size[path[i]] = path.size() - start_idx;
+                int u = path[i];
+                cycle_vertices.push_back(u);
+                cycle_vertices_inv[u] = cycle_vertices.size() - 1;
+                is_in_cycle[u] = true;
+                cycle_ord[u] = i - start_idx;
+                cycle_size[u] = path.size() - start_idx;
+                cycle_range[u] = {l, l + path.size() - start_idx};
             }
             return;
         }
