@@ -216,6 +216,132 @@ class HLD {
     }
 };
 
+struct AuxiliaryTree {
+    // see: https://smijake3.hatenablog.com/entry/2019/09/15/200200
+    // verify: https://atcoder.jp/contests/abc359/submissions/54857535
+    // verify: https://atcoder.jp/contests/abc340/submissions/54857662
+
+    int n;
+
+    // 行先の頂点、距離
+    vector<vector<pair<int, long long>>> G_ori;
+    vector<vector<pair<int, long long>>> G;
+    int root;
+    HLD hld;
+
+    // order[u]: u が何番目に処理されるか
+    vector<int> order;
+    vector<long long> depth;
+
+    // 後片付け用
+    vector<int> prev_uses;
+
+    AuxiliaryTree(vii G_) : n(G_.size()), hld(n) {
+        G_ori.resize(n);
+
+        for (int i = 0; i < n; i++) {
+            for (auto p : G_[i]) {
+                G_ori[i].push_back({p, 1});
+            }
+        }
+        init();
+    }
+
+    void init() {
+        // G_ori のみ初期化済み
+        for (int u = 0; u < n; u++) {
+            for (auto [v, _] : G_ori[u]) {
+                if (u < v) {
+                    hld.add_edge(u, v);
+                }
+            }
+        }
+        hld.build();
+
+        G.resize(n);
+        order.resize(n);
+        depth.resize(n);
+
+        int ord = 0;
+        pre_dfs(0, -1, ord, 0);
+    }
+
+    int build(vector<int> vs) {
+        // 前回のクエリの後片付け
+        for (int u : prev_uses) {
+            G[u].clear();
+        }
+        prev_uses.clear();
+
+        if (vs.size() == 0) {
+            assert(false);
+        }
+
+        // 頂点 vs とその LCA からなる補助木を構築
+        sort(all(vs), [&](int u, int v) { return order[u] < order[v]; });
+
+        stack<int> st;
+        st.push(vs[0]);
+        for (int i = 1; i < vs.size(); i++) {
+            int v = vs[i];
+            int w = hld.lca(st.top(), v);
+
+            while (!st.empty()) {
+                int u = st.top();
+                if (depth[u] <= depth[w]) {
+                    break;
+                }
+                st.pop();
+
+                int par;
+                if (st.size() == 0) {
+                    par = w;
+                } else {
+                    int to = st.top();
+                    if (depth[to] > depth[w]) {
+                        par = to;
+                    } else {
+                        // 次に w が push される
+                        par = w;
+                    }
+                }
+
+                prev_uses.push_back(u);
+                G[par].push_back({u, depth[u] - depth[par]});
+                G[u].push_back({par, depth[u] - depth[par]});
+            }
+            if (st.empty() || st.top() != w) {
+                st.push(w);
+            }
+            st.push(v);
+        }
+
+        while (st.size() >= 1) {
+            int u = st.top();
+            st.pop();
+            prev_uses.push_back(u);
+            if (st.size() >= 1) {
+                int v = st.top();
+                G[v].push_back({u, depth[u] - depth[v]});
+                G[u].push_back({v, depth[u] - depth[v]});
+            } else {
+                root = u;
+            }
+        }
+        return root;
+    }
+
+  private:
+    void pre_dfs(int v, int p, int &ord, int dep) {
+        order[v] = ord++;
+        depth[v] = dep;
+        for (auto [ch, d] : G_ori[v]) {
+            if (ch == p) continue;
+            pre_dfs(ch, v, ord, d + dep);
+        }
+    }
+};
+
 // ���t���؂̃n�b�V��
 // �؂̓��^����Ɏg��
 #include <random>
